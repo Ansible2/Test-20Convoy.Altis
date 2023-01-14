@@ -1,0 +1,14 @@
+class CfgFunctions 
+{
+    class KISKA
+    {
+        class functions
+        {
+            file = "functions";
+            class configureConvoy_test
+            {};
+            class convoyTest_1
+            {};
+        };
+    };
+};
