@@ -1,4 +1,5 @@
-[] call KISKA_fnc_convoyTest_1;
+// [] call KISKA_fnc_convoyTest_1;
+[] call KISKA_fnc_convoyTest_2;
 
 // [
 //     vic1,

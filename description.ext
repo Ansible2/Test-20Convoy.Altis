@@ -9,6 +9,8 @@ class CfgFunctions
             {};
             class convoyTest_1
             {};
+            class convoyTest_2
+            {};
         };
     };
 };
