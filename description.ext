@@ -9,6 +9,8 @@ class CfgFunctions
             {};
             class startConvoyFollow_basic
             {};
+            class startConvoyFollow_advanced
+            {};
             class convoyTest_1
             {};
             class convoyTest_2
