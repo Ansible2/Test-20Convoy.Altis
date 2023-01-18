@@ -39,34 +39,29 @@ while { KISKA_doTheThing } do {
 
 		hint str ["passed distance",_loop];
 		
-		// path of the driven vehicle is cut off far too early
-		private _latestWithinTwoMeters 
-
-
 		private _currentVehiclePosition = getPosATLVisual _currentVehicle;
 		private _deleteStartIndex = -1;
-		private _numberToDelete = -1;
+		private _numberToDelete = 0;
 		{
-			
+			private _withinOneMeter = (_currentVehiclePosition vectorDistance _x) <= 1;
 
+			if !(_withinOneMeter) then {break};
+			_numberToDelete = _numberToDelete + 1;
 
-			if ((_currentVehiclePosition vectorDistance _x) > 1) then {
-				_numberToDelete = _forEachIndex + 1;
-				break;
-			};
-
+			if (_deleteStartIndex isNotEqualTo -1) then {continue};
 			_deleteStartIndex = _forEachIndex;
+
 		} forEach _currentVehicleDrivePath;
 
 
 		if (_deleteStartIndex >= 0) then {
-			_currentVehicleDrivePath deleteRange [_deleteStartIndex,_indexInserted];
+			_currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
 		};
 
 
-		_currentVehicleDrivePath pushBack _vehicleAheadPosition;
+		private _indexInserted = _currentVehicleDrivePath pushBack _vehicleAheadPosition;
 
-		if (_indexInserted isEqualTo 1) then {
+		if (_indexInserted >= 1) then {
 			hint str [_x, _currentVehicleDrivePath,_loop];
 			_currentVehicle setDriveOnPath _currentVehicleDrivePath;
 			continue;
