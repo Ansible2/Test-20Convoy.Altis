@@ -47,7 +47,7 @@ KISKA_doTheThing = true;
             private _deleteStartIndex = -1;
             private _numberToDelete = 0;
             {
-                private _withinOneMeter = (_currentVehiclePosition distance _x) <= 8;
+                private _withinOneMeter = (_currentVehiclePosition distance _x) <= 10;
 
                 if !(_withinOneMeter) then {break};
                 _numberToDelete = _numberToDelete + 1;
@@ -79,7 +79,9 @@ KISKA_doTheThing = true;
             // to check if the vehicle is out of the way, in which case it can add it to the list
 
             private _queuedPoint = _currentVehicle getVariable ["KISKA_queuedConvoyPoint",[]];
-            private _bufferDistanceToNextVehicle = (sizeOf (typeOf _vehicleAhead)) + 2;
+            // private _bufferDistanceToNextVehicle = (sizeOf (typeOf _vehicleAhead)) + 2;
+            private _sizeOfVehicle = sizeOf (typeOf _vehicleAhead);
+            private _bufferDistanceToNextVehicle = (_sizeOfVehicle / 2) + 2;
             if (_queuedPoint isNotEqualTo []) then {
                 private _distanceToQueuedPoint = _vehicleAheadPosition distance _queuedPoint;
 
@@ -90,14 +92,17 @@ KISKA_doTheThing = true;
                     continue 
                 };
 
-                private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
+                private _vehicleAheadHasMoveAlot = _distanceToQueuedPoint > _sizeOfVehicle;
                 _currentVehicle setVariable ["KISKA_queuedConvoyPoint",nil];
+                if (_vehicleAheadHasMoveAlot) then { continue };
+
 
                 private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
                 _currentVehicleDrivePath_debug pushBack _debugObject;
                 // [str [_currentVehicleDrivePath,"added to drive path"] ] call KISKA_fnc_log;
                 hint str [_currentVehicleDrivePath,"added to drive path"];
 
+                private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
                 if (_indexInserted >= 1) then {
                     _currentVehicle setDriveOnPath _currentVehicleDrivePath;
                     // [str [_currentVehicleDrivePath,"executed drive path"] ] call KISKA_fnc_log;
@@ -114,7 +119,7 @@ KISKA_doTheThing = true;
             private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
             private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
             private _distanceToLastDrivePoint = _vehicleAheadPosition distance _lastestPointToDriveTo;
-            private _vehicleAheadHasMovedFarEnoughFromLastPoint = _distanceToLastDrivePoint > _bufferDistanceToNextVehicle;
+            private _vehicleAheadHasMovedFarEnoughFromLastPoint = _distanceToLastDrivePoint > ((sizeOf (typeOf _currentVehicle)) / 2);
             if !(_vehicleAheadHasMovedFarEnoughFromLastPoint) then { continue };
             
             _currentVehicle setVariable ["KISKA_queuedConvoyPoint",_vehicleAheadPosition];
