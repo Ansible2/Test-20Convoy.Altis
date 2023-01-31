@@ -113,7 +113,6 @@ KISKA_doTheThing = true;
             };
 
             
-            private _distanceToLastDrivePoint = _vehicleAheadPosition distance _lastestPointToDriveTo;
             // noone else behind in the convoy should move if the vehicle ahead has not moved a significant amount
             private _currentVehiclePathCount = count _currentVehicleDrivePath;
             private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
