@@ -10,33 +10,38 @@ private _stateMachine = [
     true
 ] call CBA_stateMachine_fnc_create;
 
-private _convyHashMap = createHashMap;
-_convyHashMap set ["_stateMachine",_stateMachine];
-_convyHashMap set ["_convoyLead",_vics select 0];
+private _convoyHashMap = createHashMap;
+_convoyHashMap set ["_stateMachine",_stateMachine];
+_convoyHashMap set ["_convoyLead",_vics select 0];
 _convoyHashMap set ["_convoyVehicles",_vics];
 
 {
-    _x setVariable ["KISKA_convoy_hashMap",_convyHashMap];
+    _x setVariable ["KISKA_convoy_hashMap",_convoyHashMap];
     if (_forEachIndex isEqualTo 0) then { continue };
 
     _x setVariable ["KISKA_convoy_vehicleAhead",_vics select (_forEachIndex - 1)];
 } forEach _vics;
 
-
-
+// Current issue:
+// the buffer distance between vehicles is too much
+// attaching the speed of the _vehicleAhead to a queued point would be
+// a good step to being able to better control the actual problem
+// of a vehicle running into the one in front because it's going to fast
+// The speed should probably not count when there are <= 2 points in the
+// current path as this (likely) means it's just starting 
 
 private _onEachFrame = {
-    private _vehicle = _this;
-    private _convoyHashMap = _vehicle getVariable "KISKA_convoy_hashMap";
+    private _currentVehicle = _this;
+    private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
     private _convoyLead = _convoyHashMap get "_convoyLead";
     // private _stateMachine = _convoyHashMap get "_stateMachine";
 
-    if (_vehicle isEqualTo _convoyLead) exitWith {};
+    if (_currentVehicle isEqualTo _convoyLead) exitWith {};
 
     /* ----------------------------------------------------------------------------
         Setup
     ---------------------------------------------------------------------------- */
-    private _vehicleAhead = _vehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
+    private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
     private _vehicleAheadPosition = getPosATLVisual _vehicleAhead;
     private _currentVehicleDrivePath = _currentVehicle getVariable "KISKA_convoyDrivePath";
     // Debug
@@ -91,7 +96,6 @@ private _onEachFrame = {
     private _vehicleAhead_bufferDistance = (_vehicleAhead_size / 2) + 2;
     private _continue = false;
     if (_queuedPoint isNotEqualTo []) then {
-
         private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition distance _queuedPoint;
         private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= _vehicleAhead_bufferDistance;
         if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
@@ -119,7 +123,7 @@ private _onEachFrame = {
     ---------------------------------------------------------------------------- */
     private _currentVehicle_lastQueuedTime = _currentVehicle getVariable ["KISKA_convoy_queuedTime",-1];
     private _pointHasBeenQueued = _currentVehicle_lastQueuedTime isNotEqualTo -1;
-    private _updateFrequency = 1;
+    private _updateFrequency = 0;
     private _time = time;
     if (
         _pointHasBeenQueued AND 
@@ -134,12 +138,12 @@ private _onEachFrame = {
     private _currentVehiclePathCount = count _currentVehicleDrivePath;
     private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
     private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
-    if (_latestPointToDriveTo isEqualTo []) exitWith {
+    if (_lastestPointToDriveTo isEqualTo []) exitWith {
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
     };
 
     private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition distance _lastestPointToDriveTo;
-    private _minBufferBetweenPoints = 2;
+    private _minBufferBetweenPoints = 0.01;
     if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
     
     _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
@@ -151,3 +155,5 @@ private _mainState = [
     _stateMachine,
     _onEachFrame
 ] call CBA_stateMachine_fnc_addState;
+
+_stateMachine 
