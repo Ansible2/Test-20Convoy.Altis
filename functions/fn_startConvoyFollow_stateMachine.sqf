@@ -30,6 +30,20 @@ _convoyHashMap set ["_convoyVehicles",_vics];
 // The speed should probably not count when there are <= 2 points in the
 // current path as this (likely) means it's just starting 
 
+// if speed is under a certain threshold (but not negative)
+// THEN you should be able to add the speed to the
+
+// Current issue:
+// the follow vehicle is able to move potentially faster than
+// the lead vehicle, instead of smartly maintaining a distance behind
+// the follow then catches the lead vehicle and then must brake, wait for it to have two points, and then can move again
+
+// This may be fixable by ensuring that a vehicle always has two points in its que
+// Could also have a "speed" for the convoy that can be maintained by the lead vehicle
+/// and adjusted as needed for follow vehicles (e.g. if you are witihin this distance
+/// of the lead vehicle, you will have a limitSpeed applied but not if you are farther away)
+
+
 private _onEachFrame = {
     private _currentVehicle = _this;
     private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
@@ -65,7 +79,7 @@ private _onEachFrame = {
     private _numberToDelete = 0;
     private _distanceToPoint = 10;
     {
-        private _withinOneMeter = (_currentVehiclePosition distance _x) <= _distanceToPoint;
+        private _withinOneMeter = (_currentVehiclePosition vectorDistance _x) <= _distanceToPoint;
 
         if !(_withinOneMeter) then { break };
         _numberToDelete = _numberToDelete + 1;
@@ -93,21 +107,25 @@ private _onEachFrame = {
     ---------------------------------------------------------------------------- */
     private _queuedPoint = _currentVehicle getVariable ["KISKA_convoy_queuedPoint",[]];
     private _vehicleAhead_size = sizeOf (typeOf _vehicleAhead);
-    private _vehicleAhead_bufferDistance = (_vehicleAhead_size / 2) + 2;
+    private _vehicleAhead_bufferDistance = _vehicleAhead_size / 2;
     private _continue = false;
     if (_queuedPoint isNotEqualTo []) then {
-        private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition distance _queuedPoint;
+        private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _queuedPoint;
         private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= _vehicleAhead_bufferDistance;
         if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
 
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",nil];
         
         // Debug
-        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
+        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint select [0,3], [], 0, "CAN_COLLIDE"];
         _currentVehicleDrivePath_debug pushBack _debugObject;
         // Debug //
 
         private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
+        // // trying to encourage a vehicle to move
+        // if (_currentVehicleDrivePath isEqualTo []) then {
+        //     _indexInserted = _currentVehicleDrivePath pushBack _vehicleAheadPosition;
+        // };
         if (_indexInserted >= 1) then {
             _currentVehicle setDriveOnPath _currentVehicleDrivePath;
         };
@@ -138,11 +156,16 @@ private _onEachFrame = {
     private _currentVehiclePathCount = count _currentVehicleDrivePath;
     private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
     private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
+    private _vehicleAhead_speed = speed _vehicleAhead;
+    if ((_vehicleAhead_speed > 4) AND (_vehicleAhead_speed < 10)) then {
+        _vehicleAheadPosition pushBack _vehicleAhead_speed;
+    };  
+
     if (_lastestPointToDriveTo isEqualTo []) exitWith {
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
     };
 
-    private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition distance _lastestPointToDriveTo;
+    private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition vectorDistance _lastestPointToDriveTo;
     private _minBufferBetweenPoints = 0.01;
     if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
     
