@@ -1,3 +1,7 @@
+#define FOLLOW_DISTANCE 20
+#define CLEARANCE_TO_QUEUED_POINT 0.5
+#define SPEED_LIMIT_MODIFIER 2.5
+
 params ["_vics"];
 
 if (_vics isEqualTo []) exitWith {
@@ -14,6 +18,8 @@ private _convoyHashMap = createHashMap;
 _convoyHashMap set ["_stateMachine",_stateMachine];
 _convoyHashMap set ["_convoyLead",_vics select 0];
 _convoyHashMap set ["_convoyVehicles",_vics];
+localNamespace setVariable ["KISKA_convoy_vehicleRelativeRear",createHashMap];
+localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
 
 {
     _x setVariable ["KISKA_convoy_hashMap",_convoyHashMap];
@@ -22,27 +28,8 @@ _convoyHashMap set ["_convoyVehicles",_vics];
     _x setVariable ["KISKA_convoy_vehicleAhead",_vics select (_forEachIndex - 1)];
 } forEach _vics;
 
-// Current issue:
-// the buffer distance between vehicles is too much
-// attaching the speed of the _vehicleAhead to a queued point would be
-// a good step to being able to better control the actual problem
-// of a vehicle running into the one in front because it's going to fast
-// The speed should probably not count when there are <= 2 points in the
-// current path as this (likely) means it's just starting 
-
-// if speed is under a certain threshold (but not negative)
-// THEN you should be able to add the speed to the
-
-// Current issue:
-// the follow vehicle is able to move potentially faster than
-// the lead vehicle, instead of smartly maintaining a distance behind
-// the follow then catches the lead vehicle and then must brake, wait for it to have two points, and then can move again
-
-// This may be fixable by ensuring that a vehicle always has two points in its que
-// Could also have a "speed" for the convoy that can be maintained by the lead vehicle
-/// and adjusted as needed for follow vehicles (e.g. if you are witihin this distance
-/// of the lead vehicle, you will have a limitSpeed applied but not if you are farther away)
-
+// Use bouding box of vehicle and position world to find the front of the rear vic and back of the lead vic
+// Do this by gettting the Min-Y boundingBoxReal
 
 private _onEachFrame = {
     private _currentVehicle = _this;
@@ -102,16 +89,69 @@ private _onEachFrame = {
     };
 
 
+    
+    /* ----------------------------------------------------------------------------
+        Handle speed
+    ---------------------------------------------------------------------------- */
+
+    /* ---------------------------------
+        Get bumper position of vehicle behind
+    --------------------------------- */
+    private _relativeFrontHashMap = localNamespace getVariable "KISKA_convoy_vehicleRelativeFront";
+    private _currentVehicle_type = typeOf _currentVehicle;
+    private _currentVehicle_relativeFront = _relativeFrontHashMap getOrDefault [_currentVehicle_type,[]];
+    if (_currentVehicle_relativeFront isEqualTo []) then {
+        private _boundingBox = 0 boundingBoxReal _currentVehicle;
+        private _boundingMaxes = _boundingBox select 1;
+        _currentVehicle_relativeFront = [0,_boundingMaxes select 1,0];
+        _relativeFrontHashMap set [_currentVehicle_type,_currentVehicle_relativeFront];
+    };
+    private _currentVehicle_frontBumperPosition = _currentVehicle modelToWorldVisualWorld _currentVehicle_relativeFront;
+
+    /* ---------------------------------
+        Get rear bumper position of vehicle ahead
+    --------------------------------- */
+    private _relativeRearHashMap = localNamespace getVariable "KISKA_convoy_vehicleRelativeRear";
+    private _vehicleAhead_type = typeOf _vehicleAhead;
+    private _vehicleAhead_relativeRear = _relativeRearHashMap getOrDefault [_vehicleAhead_type,[]];
+    if (_vehicleAhead_relativeRear isEqualTo []) then {
+        private _boundingBox = 0 boundingBoxReal _vehicleAhead;
+        private _boundingMins = _boundingBox select 0;
+        _vehicleAhead_relativeRear = [0,_boundingMins select 1,0];
+        _relativeRearHashMap set [_vehicleAhead_type,_vehicleAhead_relativeRear];
+    };
+    private _vehicleAhead_rearBumperPosition = _vehicleAhead modelToWorldVisualWorld _vehicleAhead_relativeRear;
+
+    /* ---------------------------------
+        limit speed based on distance
+    --------------------------------- */
+    // hint str [_currentVehicle_frontBumperPosition,_vehicleAhead_rearBumperPosition];
+    if (localNamespace getVariable ["notCopied",true]) then {
+        copyToClipboard str [_currentVehicle_frontBumperPosition,_vehicleAhead_rearBumperPosition];
+        localNamespace setVariable ["notCopied",false];
+    };
+    // TODO: not seeing _distanceBetweenVehicles print or anything in the if statements
+    private _distanceBetweenVehicles = _currentVehicle_bumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
+    hint str _distanceBetweenVehicles;
+    if (_distanceBetweenVehicles <= FOLLOW_DISTANCE) then {
+        private _speedLimit = ((speed _vehicleAhead) - SPEED_LIMIT_MODIFIER) max 5;
+        // hint str ["limit speed",_speedLimit];
+        _currentVehicle limitSpeed _speedLimit;
+    } else {
+        // hint "un limit";
+        _currentVehicle limitSpeed -1;
+    };
+
+
     /* ----------------------------------------------------------------------------
         create new from queued point
     ---------------------------------------------------------------------------- */
     private _queuedPoint = _currentVehicle getVariable ["KISKA_convoy_queuedPoint",[]];
-    private _vehicleAhead_size = sizeOf (typeOf _vehicleAhead);
-    private _vehicleAhead_bufferDistance = _vehicleAhead_size / 2;
     private _continue = false;
     if (_queuedPoint isNotEqualTo []) then {
-        private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _queuedPoint;
-        private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= _vehicleAhead_bufferDistance;
+        private _vehicleAhead_distanceToQueuedPoint = _vehicleAhead_rearBumperPosition vectorDistance _queuedPoint;
+        // TODO: clearance must include diustance from the center of the vehicle to rear
+        private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= (CLEARANCE_TO_QUEUED_POINT + (abs (_vehicleAhead_relativeRear select 1)));
         if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
 
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",nil];
@@ -122,10 +162,6 @@ private _onEachFrame = {
         // Debug //
 
         private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
-        // // trying to encourage a vehicle to move
-        // if (_currentVehicleDrivePath isEqualTo []) then {
-        //     _indexInserted = _currentVehicleDrivePath pushBack _vehicleAheadPosition;
-        // };
         if (_indexInserted >= 1) then {
             _currentVehicle setDriveOnPath _currentVehicleDrivePath;
         };
@@ -180,3 +216,31 @@ private _mainState = [
 ] call CBA_stateMachine_fnc_addState;
 
 _stateMachine 
+
+
+
+
+
+// myPos = [0,0,0];
+// addMissionEventHandler ["Draw3D", {
+// 	drawIcon3D ["\a3\ui_f\data\IGUI\Cfg\Radar\radar_ca.paa", [1,1,1,1], myPos, 1, 1, 45, "Target", 1, 0.05, "TahomaB"];
+// }];
+
+
+// private _boundingBox = 0 boundingBoxReal vic1;
+// private _boundingMins = _boundingBox select 0;
+// private _boundingMaxes = _boundingBox select 1;
+
+// private _relativeToFront = [0,_boundingMaxes select 1,0];
+// private _vicPosition = vic1 modelToWorldVisual _relativeToFront;
+// myPos = _vicPosition;
+// _vicPosition
+
+// private _boundingBox = 0 boundingBoxReal vic1;
+// private _boundingMins = _boundingBox select 0;
+// private _boundingMaxes = _boundingBox select 1;
+
+// private _relativeRear = [0,_boundingMins select 1,0];
+// private _vicPosition = vic1 modelToWorldVisual _relativeToFront;
+// myPos = _vicPosition;
+// _vicPosition
