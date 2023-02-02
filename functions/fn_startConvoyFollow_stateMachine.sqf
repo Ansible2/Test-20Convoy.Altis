@@ -108,6 +108,7 @@ private _onEachFrame = {
     };
     private _currentVehicle_frontBumperPosition = _currentVehicle modelToWorldVisualWorld _currentVehicle_relativeFront;
 
+
     /* ---------------------------------
         Get rear bumper position of vehicle ahead
     --------------------------------- */
@@ -122,23 +123,17 @@ private _onEachFrame = {
     };
     private _vehicleAhead_rearBumperPosition = _vehicleAhead modelToWorldVisualWorld _vehicleAhead_relativeRear;
 
+
     /* ---------------------------------
         limit speed based on distance
     --------------------------------- */
-    // hint str [_currentVehicle_frontBumperPosition,_vehicleAhead_rearBumperPosition];
-    if (localNamespace getVariable ["notCopied",true]) then {
-        copyToClipboard str [_currentVehicle_frontBumperPosition,_vehicleAhead_rearBumperPosition];
-        localNamespace setVariable ["notCopied",false];
-    };
-    // TODO: not seeing _distanceBetweenVehicles print or anything in the if statements
-    private _distanceBetweenVehicles = _currentVehicle_bumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
-    hint str _distanceBetweenVehicles;
+    private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
     if (_distanceBetweenVehicles <= FOLLOW_DISTANCE) then {
         private _speedLimit = ((speed _vehicleAhead) - SPEED_LIMIT_MODIFIER) max 5;
-        // hint str ["limit speed",_speedLimit];
+        hint str ["limit speed",_speedLimit];
         _currentVehicle limitSpeed _speedLimit;
     } else {
-        // hint "un limit";
+        hint "un limit";
         _currentVehicle limitSpeed -1;
     };
 
@@ -149,7 +144,7 @@ private _onEachFrame = {
     private _queuedPoint = _currentVehicle getVariable ["KISKA_convoy_queuedPoint",[]];
     private _continue = false;
     if (_queuedPoint isNotEqualTo []) then {
-        private _vehicleAhead_distanceToQueuedPoint = _vehicleAhead_rearBumperPosition vectorDistance _queuedPoint;
+        private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _queuedPoint;
         // TODO: clearance must include diustance from the center of the vehicle to rear
         private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= (CLEARANCE_TO_QUEUED_POINT + (abs (_vehicleAhead_relativeRear select 1)));
         if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
@@ -192,10 +187,11 @@ private _onEachFrame = {
     private _currentVehiclePathCount = count _currentVehicleDrivePath;
     private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
     private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
-    private _vehicleAhead_speed = speed _vehicleAhead;
-    if ((_vehicleAhead_speed > 4) AND (_vehicleAhead_speed < 10)) then {
-        _vehicleAheadPosition pushBack _vehicleAhead_speed;
-    };  
+    // TODO: may not be needed
+    // private _vehicleAhead_speed = speed _vehicleAhead;
+    // if ((_vehicleAhead_speed > 4) AND (_vehicleAhead_speed < 10)) then {
+    //     _vehicleAheadPosition pushBack _vehicleAhead_speed;
+    // };  
 
     if (_lastestPointToDriveTo isEqualTo []) exitWith {
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
