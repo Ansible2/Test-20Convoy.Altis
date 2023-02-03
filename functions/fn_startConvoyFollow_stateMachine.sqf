@@ -1,6 +1,6 @@
 #define FOLLOW_DISTANCE 20
 #define CLEARANCE_TO_QUEUED_POINT 0.5
-#define SPEED_LIMIT_MODIFIER 2.5
+#define SPEED_LIMIT_MODIFIER 10
 
 params ["_vics"];
 
@@ -128,8 +128,12 @@ private _onEachFrame = {
         limit speed based on distance
     --------------------------------- */
     private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
-    if (_distanceBetweenVehicles <= FOLLOW_DISTANCE) then {
-        private _speedLimit = ((speed _vehicleAhead) - SPEED_LIMIT_MODIFIER) max 5;
+    if (_distanceBetweenVehicles < FOLLOW_DISTANCE) then {
+        // TODO better modifier formula
+        // as the distance closes, modifier should increase 
+        private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2) max 7;
+
+        private _speedLimit = ((speed _vehicleAhead) - _modifier) max 5;
         hint str ["limit speed",_speedLimit];
         _currentVehicle limitSpeed _speedLimit;
     } else {
