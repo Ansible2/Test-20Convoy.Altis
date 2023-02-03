@@ -129,12 +129,7 @@ private _onEachFrame = {
     --------------------------------- */
     private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
     if (_distanceBetweenVehicles < FOLLOW_DISTANCE) then {
-        // TODO better modifier formula
-        // as the distance closes, modifier should increase 
-        // for every meter inside of the the follow radius
-        // reduce the speed of the follow vehicle by 2.5
         private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2.5) max 5;
-
         private _speedLimit = ((speed _vehicleAhead) - _modifier) max 5;
         hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
         _currentVehicle limitSpeed _speedLimit;
