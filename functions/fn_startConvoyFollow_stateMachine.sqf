@@ -131,14 +131,21 @@ private _onEachFrame = {
     if (_distanceBetweenVehicles < FOLLOW_DISTANCE) then {
         // TODO better modifier formula
         // as the distance closes, modifier should increase 
-        private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2) max 7;
+        // for every meter inside of the the follow radius
+        // reduce the speed of the follow vehicle by 2.5
+        private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2.5) max 5;
 
         private _speedLimit = ((speed _vehicleAhead) - _modifier) max 5;
-        hint str ["limit speed",_speedLimit];
+        hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
         _currentVehicle limitSpeed _speedLimit;
     } else {
         hint "un limit";
-        _currentVehicle limitSpeed -1;
+        private _speed = -1;
+        if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * 1.25)) then {
+            hint "un limit small";
+            _speed = speed _vehicleAhead;
+        };
+        _currentVehicle limitSpeed _speed;
     };
 
 

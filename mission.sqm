@@ -17,13 +17,13 @@ class EditorData
 	class Camera
 	{
 		pos[]={3422.2739,12.908844,13204.717};
-		dir[]={0.89926285,-0.37974992,0.21706307};
-		up[]={0.36914819,0.92508918,0.089104578};
-		aside[]={0.23464015,0,-0.97208232};
+		dir[]={0.89926285,-0.37974986,0.21706307};
+		up[]={0.36914814,0.92508918,0.089104563};
+		aside[]={0.23464015,0,-0.97208226};
 	};
 };
 binarizationWanted=0;
-sourceName="Test%20Convoy";
+sourceName="test%20convoy";
 addons[]=
 {
 	"A3_Characters_F",
@@ -211,8 +211,8 @@ class Mission
 					dataType="Object";
 					class PositionInfo
 					{
-						position[]={3438.095,2.8034859,13213.265};
-						angles[]={0.011995304,2.1478353,0.0066682254};
+						position[]={3447.4988,2.771343,13218.773};
+						angles[]={0.015994642,2.1478353,0};
 					};
 					side="West";
 					flags=6;
@@ -223,14 +223,36 @@ class Mission
 					};
 					id=2;
 					type="B_Soldier_F";
-					atlOffset=2.3841858e-007;
+					atlOffset=-0.00050592422;
 				};
 			};
 			class Attributes
 			{
 			};
+			class CrewLinks
+			{
+				class LinkIDProvider
+				{
+					nextID=1;
+				};
+				class Links
+				{
+					items=1;
+					class Item0
+					{
+						linkID=0;
+						item0=2;
+						item1=14;
+						class CustomData
+						{
+							role=2;
+							turretPath[]={0};
+						};
+					};
+				};
+			};
 			id=0;
-			atlOffset=2.3841858e-007;
+			atlOffset=-0.00050592422;
 		};
 		class Item1
 		{
