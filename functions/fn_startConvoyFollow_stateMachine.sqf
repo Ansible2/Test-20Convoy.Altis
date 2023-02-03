@@ -28,8 +28,13 @@ localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
     _x setVariable ["KISKA_convoy_vehicleAhead",_vics select (_forEachIndex - 1)];
 } forEach _vics;
 
-// Use bouding box of vehicle and position world to find the front of the rear vic and back of the lead vic
-// Do this by gettting the Min-Y boundingBoxReal
+// TODO
+// Current problem:
+// The path a vehicle takes needs more precision
+// this can be accomplished with more points in the drive path
+// This should be done by allowing more than one point to be queued at any time
+// however, ensure that there is still a distance between points enforced
+// as not to queue points that are essentially overlapping
 
 private _onEachFrame = {
     private _currentVehicle = _this;
