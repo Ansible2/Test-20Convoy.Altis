@@ -12,14 +12,14 @@ class EditorData
 	};
 	class ItemIDProvider
 	{
-		nextID=30;
+		nextID=34;
 	};
 	class Camera
 	{
-		pos[]={3422.2739,12.908844,13204.717};
-		dir[]={0.89926285,-0.37974986,0.21706307};
-		up[]={0.36914814,0.92508918,0.089104563};
-		aside[]={0.23464015,0,-0.97208226};
+		pos[]={8843.0137,337.55075,15897.32};
+		dir[]={0.93632841,-0.35121408,-0.0051224125};
+		up[]={0.35123447,0.9362818,-0.0019206383};
+		aside[]={-0.0054657036,4.9603665e-007,-1.0000241};
 	};
 };
 binarizationWanted=0;
@@ -400,7 +400,7 @@ class Mission
 			side="West";
 			class Entities
 			{
-				items=1;
+				items=5;
 				class Item0
 				{
 					dataType="Object";
@@ -418,6 +418,58 @@ class Mission
 					id=10;
 					type="B_support_AMort_F";
 					atlOffset=-4.9591064e-005;
+				};
+				class Item1
+				{
+					dataType="Waypoint";
+					loiterAltitude=-3.4028235e+038;
+					position[]={3526.6431,4.9308577,13165.6};
+					speed="LIMITED";
+					class Effects
+					{
+					};
+					showWP="NEVER";
+					id=30;
+					type="Move";
+				};
+				class Item2
+				{
+					dataType="Waypoint";
+					loiterAltitude=-3.4028235e+038;
+					position[]={3660.1628,10.828369,13268.585};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+					id=31;
+					type="Move";
+					atlOffset=-2.0027161e-005;
+				};
+				class Item3
+				{
+					dataType="Waypoint";
+					loiterAltitude=-3.4028235e+038;
+					position[]={7318.1001,89.886482,16122.213};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+					id=32;
+					type="Move";
+					atlOffset=7.6293945e-006;
+				};
+				class Item4
+				{
+					dataType="Waypoint";
+					loiterAltitude=-3.4028235e+038;
+					position[]={9284.6006,120.71197,15852.759};
+					class Effects
+					{
+					};
+					showWP="NEVER";
+					id=33;
+					type="Move";
+					atlOffset=-1.5258789e-005;
 				};
 			};
 			class Attributes
