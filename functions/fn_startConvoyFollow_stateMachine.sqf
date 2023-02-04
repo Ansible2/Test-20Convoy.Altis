@@ -151,7 +151,7 @@ private _onEachFrame = {
 
     };
     
-    if (_deleteStartIndex >= 0) then {
+    if ((_deleteStartIndex >= 0) AND (_numberToDelete > 0)) then {
         _currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
         private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
         createVehicle ["Sign_Arrow_Large_blue_F", _currentVehiclePosition, [], 0, "CAN_COLLIDE"];
@@ -165,7 +165,7 @@ private _onEachFrame = {
 
 
     if (_followVehicleShouldStop) exitWith {
-        _currentVehicle setDriveOnPath [_currentVehiclePosition];
+        _currentVehicle setDriveOnPath [_currentVehiclePosition,_currentVehiclePosition];
     };
 
     /* ----------------------------------------------------------------------------
