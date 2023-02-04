@@ -1,6 +1,19 @@
 #define FOLLOW_DISTANCE 20
 #define CLEARANCE_TO_QUEUED_POINT 0.5
 #define SPEED_LIMIT_MODIFIER 10
+#define MIN_BUFFER_BETWEEN_POINTS 0.01
+
+KISKA_fnc_selectLastIndex = {
+    params [
+        ["_array",[],[[]]],
+        ["_defaultValue",nil,[]]
+    ];
+
+    private _arrayCount = count _array;
+    _array param [(_arrayCount - 1),_defaultValue];
+}
+
+
 
 params ["_vics"];
 
@@ -56,6 +69,7 @@ private _onEachFrame = {
     if (isNil "_currentVehicleDrivePath") then {
         _currentVehicleDrivePath = [];
         _currentVehicle setVariable ["KISKA_convoyDrivePath",_currentVehicleDrivePath];
+        _currentVehicle setVariable ["KISKA_queuedDrivePath",[]];
         // Debug
         _currentVehicleDrivePath_debug = [];
         _currentVehicle setVariable ["KISKA_convoyDrivePath_debug",_currentVehicleDrivePath_debug];
@@ -152,22 +166,29 @@ private _onEachFrame = {
     /* ----------------------------------------------------------------------------
         create new from queued point
     ---------------------------------------------------------------------------- */
-    private _queuedPoint = _currentVehicle getVariable ["KISKA_convoy_queuedPoint",[]];
+    private _queuedPoints = _currentVehicle getVariable "KISKA_queuedDrivePath";
+    private _latestQueuedPoint = [_queuedPoints] call KISKA_fnc_selectLastIndex;
+    private _pointsAreQueued = !(isNil "_latestQueuedPoint");
     private _continue = false;
-    if (_queuedPoint isNotEqualTo []) then {
-        // private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _queuedPoint;
-        // private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= (CLEARANCE_TO_QUEUED_POINT + (abs (_vehicleAhead_relativeRear select 1)));
-        // if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
+    if (_pointsAreQueued) then {
+        private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _latestQueuedPoint;
 
-        _currentVehicle setVariable ["KISKA_convoy_queuedPoint",nil];
+        private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= (CLEARANCE_TO_QUEUED_POINT + (abs (_vehicleAhead_relativeRear select 1)));
+        if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {};
+
+        _currentVehicle setVariable ["KISKA_queuedDrivePath",[]];
         
-        // Debug
-        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint select [0,3], [], 0, "CAN_COLLIDE"];
-        _currentVehicleDrivePath_debug pushBack _debugObject;
-        // Debug //
+        private _lastInsertedIndex = 0;
+        _queuedPoints apply {
+            // Debug
+            private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _x select [0,3], [], 0, "CAN_COLLIDE"];
+            _currentVehicleDrivePath_debug pushBack _debugObject;
+            // Debug //
 
-        private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
-        if (_indexInserted >= 1) then {
+            _lastInsertedIndex = _currentVehicleDrivePath pushBack _x;
+        };
+
+        if (_lastInsertedIndex >= 1) then {
             _currentVehicle setDriveOnPath _currentVehicleDrivePath;
         };
 
@@ -189,25 +210,30 @@ private _onEachFrame = {
         !((_time - _currentVehicle_lastQueuedTime) >= _updateFrequency)
     ) exitWith {};
 
+    _currentVehicle setVariable ["KISKA_convoy_queuedTime",_time];
+
 
     /* ----------------------------------------------------------------------------
         Only Queue points that aren't too close together
     ---------------------------------------------------------------------------- */
-    _currentVehicle setVariable ["KISKA_convoy_queuedTime",_time];
-
-    private _currentVehiclePathCount = count _currentVehicleDrivePath;
-    private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
-    private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
-
-    if (_lastestPointToDriveTo isEqualTo []) exitWith {
-        _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
+    private _vehicleHasAPath = _currentVehicleDrivePath isNotEqualTo [];
+    if (!_vehicleHasAPath AND !_pointsAreQueued) exitWith {
+        _queuedPoints pushBack _vehicleAheadPosition;
     };
-
-    private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition vectorDistance _lastestPointToDriveTo;
-    private _minBufferBetweenPoints = 0.5;
-    if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
     
-    _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
+    
+    if (_pointsAreQueued) exitWith {
+        private _vehicleAhead_distanceToLastQueuedPoint = _vehicleAheadPosition vectorDistance _latestQueuedPoint;
+        if (_vehicleAhead_distanceToLastQueuedPoint > MIN_BUFFER_BETWEEN_POINTS) then {
+            _queuedPoints pushBack _vehicleAheadPosition;
+        };
+    };  
+
+    private _lastestPointToDriveTo = [_currentVehicleDrivePath] call KISKA_fnc_selectLastIndex;
+    private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition vectorDistance _lastestPointToDriveTo;
+    if (_vehicleAhead_distanceToLastDrivePoint <= MIN_BUFFER_BETWEEN_POINTS) exitWith {};
+    
+    _queuedPoints pushBack _vehicleAheadPosition;
 };
 
 
