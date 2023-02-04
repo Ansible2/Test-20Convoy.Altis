@@ -31,11 +31,15 @@ localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
 
 // TODO
 // Current problem:
-// The path a vehicle takes needs more precision
-// this can be accomplished with more points in the drive path
-// This should be done by allowing more than one point to be queued at any time
-// however, ensure that there is still a distance between points enforced
-// as not to queue points that are essentially overlapping
+// Follow vehicles receieve a less and less precise 
+// path to follow with each follow vehicle in the convoy
+// this causes them to run into walls and such
+// There are two ways to potentially influence this: 
+// 1. improve the pathing of every vehicle such that they do not deviate from
+/// the path of the vehicle ahead enough to cause issues
+// 2. The path that all vehicle follow ultimately comes from the lead vehicle
+/// This can either be by every vehicle treating it as though they are following the lead vehicle in terms of the path being given
+/// Or doing a "pass down" approach where in when a vehicle completes a waypoint, they provide that waypoint to the next vehicle in the chain
 
 // TODO: Keeping vehicles from running into each other
 // 1. if the vehicle ahead is stationary, and the vehicle behind is within the follow distance
