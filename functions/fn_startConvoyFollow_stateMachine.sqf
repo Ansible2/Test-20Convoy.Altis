@@ -1,6 +1,7 @@
 #define FOLLOW_DISTANCE 20
 #define CLEARANCE_TO_QUEUED_POINT 0.5
 #define SPEED_LIMIT_MODIFIER 10
+#define DISTANCE_TO_DELETE_POINT 10
 
 params ["_vics"];
 
@@ -36,6 +37,11 @@ localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
 // however, ensure that there is still a distance between points enforced
 // as not to queue points that are essentially overlapping
 
+// TODO: Keeping vehicles from running into each other
+// 1. if the vehicle ahead is stationary, and the vehicle behind is within the follow distance
+/// delete the rest of the drive path.
+// 2. Only create points that are behind the lead vehicle
+
 private _onEachFrame = {
     private _currentVehicle = _this;
     private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
@@ -61,39 +67,6 @@ private _onEachFrame = {
         _currentVehicle setVariable ["KISKA_convoyDrivePath_debug",_currentVehicleDrivePath_debug];
         // Debug //
     };
-
-
-    /* ----------------------------------------------------------------------------
-        Delete old points
-    ---------------------------------------------------------------------------- */
-    private _currentVehiclePosition = getPosATLVisual _currentVehicle;
-    private _deleteStartIndex = -1;
-    private _numberToDelete = 0;
-    private _distanceToPoint = 10;
-    {
-        private _withinOneMeter = (_currentVehiclePosition vectorDistance _x) <= _distanceToPoint;
-
-        if !(_withinOneMeter) then { break };
-        _numberToDelete = _numberToDelete + 1;
-
-        if (_deleteStartIndex isNotEqualTo -1) then { continue };
-        _deleteStartIndex = _forEachIndex;
-
-    } forEach _currentVehicleDrivePath;
-
-    if (_deleteStartIndex >= 0) then {
-        _currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
-        private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
-        createVehicle ["Sign_Arrow_Large_blue_F", _currentVehiclePosition, [], 0, "CAN_COLLIDE"];
-        // Debug
-        for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
-            deleteVehicle (_currentVehicleDrivePath_debug select _i);
-        };
-        _currentVehicleDrivePath_debug deleteRange [_deleteStartIndex,_numberToDelete];
-        // Debug //
-    };
-
-
     
     /* ----------------------------------------------------------------------------
         Handle speed
@@ -133,9 +106,11 @@ private _onEachFrame = {
         limit speed based on distance
     --------------------------------- */
     private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
-    if (_distanceBetweenVehicles < FOLLOW_DISTANCE) then {
+    private _vehicleAhead_speed = speed _vehicleAhead;
+    private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < FOLLOW_DISTANCE;
+    if (_vehiclesAreWithinBoundary) then {
         private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2.5) max 5;
-        private _speedLimit = ((speed _vehicleAhead) - _modifier) max 5;
+        private _speedLimit = (_vehicleAhead_speed - _modifier) max 5;
         hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
         _currentVehicle limitSpeed _speedLimit;
     } else {
@@ -143,11 +118,55 @@ private _onEachFrame = {
         private _speed = -1;
         if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * 1.25)) then {
             hint "un limit small";
-            _speed = speed _vehicleAhead;
+            _speed = _vehicleAhead_speed;
         };
         _currentVehicle limitSpeed _speed;
     };
 
+
+    /* ----------------------------------------------------------------------------
+        Delete old points
+    ---------------------------------------------------------------------------- */
+    private _currentVehiclePosition = getPosATLVisual _currentVehicle;
+    private _deleteStartIndex = -1;
+    private _numberToDelete = 0;
+    private _followVehicleShouldStop = _vehicleAhead_speed <= 0 AND _vehiclesAreWithinBoundary;
+
+    if (_followVehicleShouldStop) then {
+        _deleteStartIndex = 0;
+        _numberToDelete = count _currentVehicleDrivePath;
+
+    } else {
+        {
+            private _pointReached = (_currentVehiclePosition vectorDistance _x) <= DISTANCE_TO_DELETE_POINT;
+
+            if !(_pointReached) then { break };
+            _numberToDelete = _numberToDelete + 1;
+
+            private _deleteStartIndexDefined = _deleteStartIndex isNotEqualTo -1;
+            if (_deleteStartIndexDefined) then { continue };
+            _deleteStartIndex = _forEachIndex;
+
+        } forEach _currentVehicleDrivePath;
+
+    };
+    
+    if (_deleteStartIndex >= 0) then {
+        _currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
+        private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
+        createVehicle ["Sign_Arrow_Large_blue_F", _currentVehiclePosition, [], 0, "CAN_COLLIDE"];
+        // Debug
+        for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
+            deleteVehicle (_currentVehicleDrivePath_debug select _i);
+        };
+        _currentVehicleDrivePath_debug deleteRange [_deleteStartIndex,_numberToDelete];
+        // Debug //
+    };
+
+
+    if (_followVehicleShouldStop) exitWith {
+        _currentVehicle setDriveOnPath [_currentVehiclePosition];
+    };
 
     /* ----------------------------------------------------------------------------
         create new from queued point
@@ -162,7 +181,7 @@ private _onEachFrame = {
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",nil];
         
         // Debug
-        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint select [0,3], [], 0, "CAN_COLLIDE"];
+        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
         _currentVehicleDrivePath_debug pushBack _debugObject;
         // Debug //
 
@@ -176,7 +195,7 @@ private _onEachFrame = {
 
     if (_continue) exitWith {};
 
-    
+
     /* ----------------------------------------------------------------------------
         Add Queued point if needed
     ---------------------------------------------------------------------------- */
@@ -204,7 +223,7 @@ private _onEachFrame = {
     };
 
     private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition vectorDistance _lastestPointToDriveTo;
-    private _minBufferBetweenPoints = 0.5;
+    private _minBufferBetweenPoints = 1;
     if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
     
     _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
