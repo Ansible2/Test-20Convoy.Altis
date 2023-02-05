@@ -5,6 +5,69 @@
 #define MIN_VEHICLE_SPEED_LIMIT_MODIFIER 5
 #define MIN_VEHICLE_SPEED_LIMIT 5
 #define VEHICLE_SPEED_LIMIT_MULTIPLIER 2.5
+#define SMALL_SPEED_LIMIT_DISTANCE_MODIFIER 1.25
+
+// Current Issues:
+
+// vehicles still seem to want to move (very slightly) when the vehicle ahead
+/// is effectively stationary (runs into wall)
+
+// tanks just straight up don't care about limit speed and will blow through another vehicle it seems
+
+
+KISKA_fnc_selectLastIndex = {
+    params [
+        ["_array",[],[[]]],
+        ["_defaultValue",nil,[]]
+    ];
+
+    private _arrayCount = count _array;
+    _array param [(_arrayCount - 1),_defaultValue];
+};
+
+KISKA_fnc_convoy_haltVehicle = {
+    params ["_vehicle"];
+
+    // cancel setDriveOnPath with a move command
+    // _vehicle move (getPosATLVisual _vehicle);
+    _vehicle setDriveOnPath [(getPosATLVisual _vehicle),(getPosATLVisual _vehicle)];
+};
+
+KISKA_fnc_getBumperPosition = {
+    params [
+        "_vehicle",
+        ["_isRearBumper",false,[true]]
+    ];
+
+    private ["_hashMapId","_boundingBoxIndex"];
+    if (_isRearBumper) then {
+        _hashMapId = "KISKA_convoy_vehicleRelativeRearHashMap";
+        _boundingBoxIndex = 0;
+    } else {
+        _hashMapId = "KISKA_convoy_vehicleRelativeFrontHashMap";
+        _boundingBoxIndex = 1;
+    };
+
+    private _relativePointHashMap = localNamespace getVariable _hashMapId;
+    if (isNil "_relativePointHashMap") then {
+        _relativePointHashMap = createHashMap;
+        _relativePointHashMap = localNamespace setVariable [_hashMapId,_relativePointHashMap];
+    };
+
+
+    private _vehicleType = typeOf _vehicle;
+    private _relativeBumperPosition = _relativePointHashMap getOrDefault [_vehicleType,[]];
+    if (_relativeBumperPosition isEqualTo []) then {
+        private _vehicleBoundingBoxes = 0 boundingBoxReal _vehicle;
+        private _boundingBox = _vehicleBoundingBoxes select _boundingBoxIndex;
+        
+        _relativeBumperPosition = [0,_boundingBox select 1,0];
+        _relativePointHashMap set [_vehicleType,_relativeBumperPosition];
+    };
+    
+    
+    _vehicle modelToWorldVisualWorld _relativeBumperPosition;
+};
 
 
 params ["_vics"];
@@ -23,7 +86,8 @@ private _convoyHashMap = createHashMap;
 _convoyHashMap set ["_stateMachine",_stateMachine];
 _convoyHashMap set ["_convoyLead",_vics select 0];
 _convoyHashMap set ["_convoyVehicles",_vics];
-_convoyHashMap set ["_debug",false];
+_convoyHashMap set ["_debug",true];
+_convoyHashMap set ["_minBufferBetweenPoints",1];
 
 localNamespace setVariable ["KISKA_convoy_vehicleRelativeRear",createHashMap];
 localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
@@ -51,12 +115,12 @@ private _onEachFrame = {
     /* ----------------------------------------------------------------------------
         Setup
     ---------------------------------------------------------------------------- */
-    private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
-    private _vehicleAheadPosition = getPosATLVisual _convoyLead;
+    private "_currentVehicleDrivePath_debug";
+    if (_debug) then {
+        _currentVehicleDrivePath_debug = _currentVehicle getVariable "KISKA_convoyDrivePath_debug";
+    };
+
     private _currentVehicleDrivePath = _currentVehicle getVariable "KISKA_convoyDrivePath";
-    // Debug
-    private _currentVehicleDrivePath_debug = _currentVehicle getVariable "KISKA_convoyDrivePath_debug";
-    // Debug //
     if (isNil "_currentVehicleDrivePath") then {
         _currentVehicleDrivePath = [];
         _currentVehicle setVariable ["KISKA_convoyDrivePath",_currentVehicleDrivePath];
@@ -70,35 +134,9 @@ private _onEachFrame = {
     /* ----------------------------------------------------------------------------
         Handle speed
     ---------------------------------------------------------------------------- */
-
-    /* ---------------------------------
-        Get bumper position of vehicle behind
-    --------------------------------- */
-    private _relativeFrontHashMap = localNamespace getVariable "KISKA_convoy_vehicleRelativeFront";
-    private _currentVehicle_type = typeOf _currentVehicle;
-    private _currentVehicle_relativeFront = _relativeFrontHashMap getOrDefault [_currentVehicle_type,[]];
-    if (_currentVehicle_relativeFront isEqualTo []) then {
-        private _boundingBox = 0 boundingBoxReal _currentVehicle;
-        private _boundingMaxes = _boundingBox select 1;
-        _currentVehicle_relativeFront = [0,_boundingMaxes select 1,0];
-        _relativeFrontHashMap set [_currentVehicle_type,_currentVehicle_relativeFront];
-    };
-    private _currentVehicle_frontBumperPosition = _currentVehicle modelToWorldVisualWorld _currentVehicle_relativeFront;
-
-
-    /* ---------------------------------
-        Get rear bumper position of vehicle ahead
-    --------------------------------- */
-    private _relativeRearHashMap = localNamespace getVariable "KISKA_convoy_vehicleRelativeRear";
-    private _vehicleAhead_type = typeOf _vehicleAhead;
-    private _vehicleAhead_relativeRear = _relativeRearHashMap getOrDefault [_vehicleAhead_type,[]];
-    if (_vehicleAhead_relativeRear isEqualTo []) then {
-        private _boundingBox = 0 boundingBoxReal _vehicleAhead;
-        private _boundingMins = _boundingBox select 0;
-        _vehicleAhead_relativeRear = [0,_boundingMins select 1,0];
-        _relativeRearHashMap set [_vehicleAhead_type,_vehicleAhead_relativeRear];
-    };
-    private _vehicleAhead_rearBumperPosition = _vehicleAhead modelToWorldVisualWorld _vehicleAhead_relativeRear;
+    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_getBumperPosition;
+    private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
+    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_getBumperPosition;
 
 
     /* ---------------------------------
@@ -120,8 +158,9 @@ private _onEachFrame = {
         if (_debug) then {
             hint "un limit";
         };
+
         private _speed = -1;
-        if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * 1.25)) then {
+        if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER)) then {
             if (_debug) then {
                 hint "un limit small";
             };
@@ -137,28 +176,20 @@ private _onEachFrame = {
     private _currentVehiclePosition = getPosATLVisual _currentVehicle;
     private _deleteStartIndex = -1;
     private _numberToDelete = 0;
-    private _followVehicleShouldStop = _vehicleAhead_speed <= 0 AND _vehiclesAreWithinBoundary;
+    {
+        private _pointReached = (_currentVehiclePosition vectorDistance _x) <= DISTANCE_TO_DELETE_POINT;
 
-    if (_followVehicleShouldStop) then {
-        _deleteStartIndex = 0;
-        _numberToDelete = count _currentVehicleDrivePath;
+        if !(_pointReached) then { break };
+        _numberToDelete = _numberToDelete + 1;
 
-    } else {
-        {
-            private _pointReached = (_currentVehiclePosition vectorDistance _x) <= DISTANCE_TO_DELETE_POINT;
+        private _deleteStartIndexDefined = _deleteStartIndex isNotEqualTo -1;
+        if (_deleteStartIndexDefined) then { continue };
+        _deleteStartIndex = _forEachIndex;
 
-            if !(_pointReached) then { break };
-            _numberToDelete = _numberToDelete + 1;
-
-            private _deleteStartIndexDefined = _deleteStartIndex isNotEqualTo -1;
-            if (_deleteStartIndexDefined) then { continue };
-            _deleteStartIndex = _forEachIndex;
-
-        } forEach _currentVehicleDrivePath;
-
-    };
+    } forEach _currentVehicleDrivePath;
     
-    if ((_deleteStartIndex >= 0) AND (_numberToDelete > 0)) then {
+    private _pointsCanBeDeleted = (_deleteStartIndex >= 0) AND (_numberToDelete > 0);
+    if (_pointsCanBeDeleted) then {
         _currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
 
         if (_debug) then {
@@ -171,10 +202,13 @@ private _onEachFrame = {
         };
     };
 
-
-    if (_followVehicleShouldStop) exitWith {
-        _currentVehicle setDriveOnPath [_currentVehiclePosition,_currentVehiclePosition];
+    private _currentVehicle_shouldStop = _vehicleAhead_speed <= 2.5 AND _vehiclesAreWithinBoundary;
+    if (_currentVehicle_shouldStop AND !(_currentVehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false])) exitWith {
+        _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",true];
+        [_currentVehicle] call KISKA_fnc_convoy_haltVehicle;
     };
+
+    _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",false];
 
     /* ----------------------------------------------------------------------------
         create new from queued point
@@ -219,19 +253,17 @@ private _onEachFrame = {
     ---------------------------------------------------------------------------- */
     _currentVehicle setVariable ["KISKA_convoy_queuedTime",_time];
 
-    private _currentVehiclePathCount = count _currentVehicleDrivePath;
-    private _lastIndexInCurrentPath = (_currentVehiclePathCount - 1) max 0;
-    private _lastestPointToDriveTo = _currentVehicleDrivePath param [_lastIndexInCurrentPath,[]];
-
-    if (_lastestPointToDriveTo isEqualTo []) exitWith {
-        _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
+    private _convoyLeadPosition = getPosATLVisual _convoyLead;
+    private _lastestPointToDriveTo = [_currentVehicleDrivePath] call KISKA_fnc_selectLastIndex;
+    if (isNil "_lastestPointToDriveTo") exitWith {
+        _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_convoyLeadPosition];
     };
 
-    private _vehicleAhead_distanceToLastDrivePoint = _vehicleAheadPosition vectorDistance _lastestPointToDriveTo;
+    private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
     private _minBufferBetweenPoints = 1;
     if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
     
-    _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_vehicleAheadPosition];
+    _currentVehicle setVariable ["KISKA_convoy_queuedPoint",_convoyLeadPosition];
 };
 
 
