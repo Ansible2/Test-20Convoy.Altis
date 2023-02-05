@@ -2,6 +2,10 @@
 #define CLEARANCE_TO_QUEUED_POINT 0.5
 #define SPEED_LIMIT_MODIFIER 10
 #define DISTANCE_TO_DELETE_POINT 10
+#define MIN_VEHICLE_SPEED_LIMIT_MODIFIER 5
+#define MIN_VEHICLE_SPEED_LIMIT 5
+#define VEHICLE_SPEED_LIMIT_MULTIPLIER 2.5
+
 
 params ["_vics"];
 
@@ -19,8 +23,12 @@ private _convoyHashMap = createHashMap;
 _convoyHashMap set ["_stateMachine",_stateMachine];
 _convoyHashMap set ["_convoyLead",_vics select 0];
 _convoyHashMap set ["_convoyVehicles",_vics];
+_convoyHashMap set ["_debug",false];
+
 localNamespace setVariable ["KISKA_convoy_vehicleRelativeRear",createHashMap];
 localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
+
+
 
 {
     _x setVariable ["KISKA_convoy_hashMap",_convoyHashMap];
@@ -29,26 +37,12 @@ localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
     _x setVariable ["KISKA_convoy_vehicleAhead",_vics select (_forEachIndex - 1)];
 } forEach _vics;
 
-// TODO
-// Current problem:
-// Follow vehicles receieve a less and less precise 
-// path to follow with each follow vehicle in the convoy
-// this causes them to run into walls and such
-// There are two ways to potentially influence this: 
-// 1. improve the pathing of every vehicle such that they do not deviate from
-/// the path of the vehicle ahead enough to cause issues
-// 2. The path that all vehicle follow ultimately comes from the lead vehicle
-/// This can either be by every vehicle treating it as though they are following the lead vehicle in terms of the path being given
-/// Or doing a "pass down" approach where in when a vehicle completes a waypoint, they provide that waypoint to the next vehicle in the chain
 
-// TODO: Keeping vehicles from running into each other
-// 1. if the vehicle ahead is stationary, and the vehicle behind is within the follow distance
-/// delete the rest of the drive path.
-// 2. Only create points that are behind the lead vehicle
 
 private _onEachFrame = {
     private _currentVehicle = _this;
     private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
+    private _debug = _convoyHashMap get "_debug";
     private _convoyLead = _convoyHashMap get "_convoyLead";
     // private _stateMachine = _convoyHashMap get "_stateMachine";
 
@@ -58,7 +52,7 @@ private _onEachFrame = {
         Setup
     ---------------------------------------------------------------------------- */
     private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
-    private _vehicleAheadPosition = getPosATLVisual _vehicleAhead;
+    private _vehicleAheadPosition = getPosATLVisual _convoyLead;
     private _currentVehicleDrivePath = _currentVehicle getVariable "KISKA_convoyDrivePath";
     // Debug
     private _currentVehicleDrivePath_debug = _currentVehicle getVariable "KISKA_convoyDrivePath_debug";
@@ -66,10 +60,11 @@ private _onEachFrame = {
     if (isNil "_currentVehicleDrivePath") then {
         _currentVehicleDrivePath = [];
         _currentVehicle setVariable ["KISKA_convoyDrivePath",_currentVehicleDrivePath];
-        // Debug
-        _currentVehicleDrivePath_debug = [];
-        _currentVehicle setVariable ["KISKA_convoyDrivePath_debug",_currentVehicleDrivePath_debug];
-        // Debug //
+
+        if (_debug) then {
+            _currentVehicleDrivePath_debug = [];
+            _currentVehicle setVariable ["KISKA_convoyDrivePath_debug",_currentVehicleDrivePath_debug];
+        };
     };
     
     /* ----------------------------------------------------------------------------
@@ -113,15 +108,23 @@ private _onEachFrame = {
     private _vehicleAhead_speed = speed _vehicleAhead;
     private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < FOLLOW_DISTANCE;
     if (_vehiclesAreWithinBoundary) then {
-        private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * 2.5) max 5;
-        private _speedLimit = (_vehicleAhead_speed - _modifier) max 5;
-        hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
+        private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
+        private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
         _currentVehicle limitSpeed _speedLimit;
+        
+        if (_debug) then {
+            hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
+        };
+
     } else {
-        hint "un limit";
+        if (_debug) then {
+            hint "un limit";
+        };
         private _speed = -1;
         if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * 1.25)) then {
-            hint "un limit small";
+            if (_debug) then {
+                hint "un limit small";
+            };
             _speed = _vehicleAhead_speed;
         };
         _currentVehicle limitSpeed _speed;
@@ -157,14 +160,15 @@ private _onEachFrame = {
     
     if ((_deleteStartIndex >= 0) AND (_numberToDelete > 0)) then {
         _currentVehicleDrivePath deleteRange [_deleteStartIndex,_numberToDelete];
-        private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
-        createVehicle ["Sign_Arrow_Large_blue_F", _currentVehiclePosition, [], 0, "CAN_COLLIDE"];
-        // Debug
-        for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
-            deleteVehicle (_currentVehicleDrivePath_debug select _i);
+
+        if (_debug) then {
+            private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
+            createVehicle ["Sign_Arrow_Large_blue_F", _currentVehiclePosition, [], 0, "CAN_COLLIDE"];
+            for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
+                deleteVehicle (_currentVehicleDrivePath_debug select _i);
+            };
+            _currentVehicleDrivePath_debug deleteRange [_deleteStartIndex,_numberToDelete];
         };
-        _currentVehicleDrivePath_debug deleteRange [_deleteStartIndex,_numberToDelete];
-        // Debug //
     };
 
 
@@ -178,16 +182,13 @@ private _onEachFrame = {
     private _queuedPoint = _currentVehicle getVariable ["KISKA_convoy_queuedPoint",[]];
     private _continue = false;
     if (_queuedPoint isNotEqualTo []) then {
-        // private _vehicleAhead_distanceToQueuedPoint = _vehicleAheadPosition vectorDistance _queuedPoint;
-        // private _vehicleAhead_hasMovedFromQueuedPoint = _vehicleAhead_distanceToQueuedPoint >= (CLEARANCE_TO_QUEUED_POINT + (abs (_vehicleAhead_relativeRear select 1)));
-        // if (!_vehicleAhead_hasMovedFromQueuedPoint) exitWith {_continue = true};
-
         _currentVehicle setVariable ["KISKA_convoy_queuedPoint",nil];
         
-        // Debug
-        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
-        _currentVehicleDrivePath_debug pushBack _debugObject;
-        // Debug //
+        if (_debug) then {
+            private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
+            _currentVehicleDrivePath_debug pushBack _debugObject;
+
+        };
 
         private _indexInserted = _currentVehicleDrivePath pushBack _queuedPoint;
         if (_indexInserted >= 1) then {
