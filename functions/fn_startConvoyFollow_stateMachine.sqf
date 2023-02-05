@@ -1,4 +1,4 @@
-#define FOLLOW_DISTANCE 20
+#define FOLLOW_DISTANCE 10
 #define CLEARANCE_TO_QUEUED_POINT 0.5
 #define SPEED_LIMIT_MODIFIER 10
 #define DISTANCE_TO_DELETE_POINT 10
@@ -8,14 +8,10 @@
 #define SMALL_SPEED_LIMIT_DISTANCE_MODIFIER 1.25
 #define FOLLOW_VEHICLE_MAX_SPEED_TO_HALT 5
 #define LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW 2
-#define 
 
 // Current Issues:
 
-// vehicles still seem to want to move (very slightly) when the vehicle ahead
-/// is effectively stationary (runs into wall)
-
-// tanks just straight up can't limit speed fast enough and will plow through another vehicle it seems
+// follow vehicle gets stuck in limit by differential mode when it gets close in some instance
 
 
 KISKA_fnc_selectLastIndex = {
@@ -33,9 +29,35 @@ KISKA_fnc_convoy_haltVehicle = {
 
     systemChat "halt";
     // cancel setDriveOnPath with a move command
-    doStop _vehicle;
-    // _vehicle move (getPosATLVisual _vehicle);
+    _vehicle limitSpeed 5;
+    [
+        {
+            params ["_vehicle"];
+            private _vehicleAheadStillStopped = _vehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false];
+            if (_vehicleAheadStillStopped) then {
+                _vehicle limitSpeed 1;
+                (driver _vehicle) disableAI "path";
+            };
+        },
+        [_vehicle],
+        1
+    ] call CBA_fnc_waitAndExecute;
+    // [
+    //     {
+    //         params ["_vehicle"];
+    //         private _vehicleAheadStillStopped = _vehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false];
+    //         if (_vehicleAheadStillStopped) then {
+    //             _vehicle limitSpeed 0;
+    //             _vehicle move (getPosATLVisual _vehicle);
+    //         };
+    //     },
+    //     [_vehicle],
+    //     2
+    // ] call CBA_fnc_waitAndExecute;
+    // (driver _vehicle) disableAI "path";
     // _vehicle setDriveOnPath [(getPosATLVisual _vehicle),(getPosATLVisual _vehicle)];
+    // doStop [(driver _vehicle)];
+    // _vehicle move (getPosATLVisual _vehicle);
 };
 
 KISKA_fnc_getBumperPosition = {
@@ -149,10 +171,8 @@ private _onEachFrame = {
 
     private _currentVehicle_shouldStop = (_vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW) AND _vehiclesAreWithinBoundary;
     private _currentVehicle_speed = speed _currentVehicle;
-    if (
-        _currentVehicle_shouldStop AND 
-        (_currentVehicle_speed <= FOLLOW_VEHICLE_MAX_SPEED_TO_HALT)
-    ) exitWith {
+    if (_currentVehicle_shouldStop) exitWith {
+        hint str ["In Halt",_currentVehicle_speed];
 
         if (
             !(_currentVehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false])
@@ -164,6 +184,10 @@ private _onEachFrame = {
     };
 
     _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",false];
+    private _currentVehicle_driver = driver _currentVehicle;
+    if !(_currentVehicle_driver checkAIFeature "path") then {
+        _currentVehicle_driver enableAI "path";
+    };
 
 
     /* ---------------------------------
