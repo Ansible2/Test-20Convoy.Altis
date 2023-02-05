@@ -12,14 +12,14 @@ class EditorData
 	};
 	class ItemIDProvider
 	{
-		nextID=37;
+		nextID=41;
 	};
 	class Camera
 	{
-		pos[]={3497.2048,25.230625,13289.918};
-		dir[]={-0.32877177,-0.82969648,-0.45112401};
-		up[]={-0.4886663,0.55821478,-0.67052323};
-		aside[]={-0.80815482,0,0.58896995};
+		pos[]={3474.7458,174.27036,13235.131};
+		dir[]={0.62389392,-0.72969121,0.27983409};
+		up[]={0.66578722,0.6837768,0.29862443};
+		aside[]={0.40924767,0,-0.91242325};
 	};
 };
 binarizationWanted=0;
@@ -29,16 +29,17 @@ addons[]=
 	"A3_Characters_F",
 	"A3_Soft_F_MRAP_01",
 	"A3_Misc_F_Helpers",
+	"A3_Characters_F_Exp",
 	"A3_Soft_F_Beta_Truck_01",
 	"A3_Soft_F_Exp_Truck_01",
-	"A3_Characters_F_Exp",
-	"A3_Modules_F_Curator_Curator"
+	"A3_Modules_F_Curator_Curator",
+	"A3_Armor_F_EPC_MBT_01"
 };
 class AddonsMetaData
 {
 	class List
 	{
-		items=7;
+		items=8;
 		class Item0
 		{
 			className="A3_Characters_F";
@@ -62,22 +63,22 @@ class AddonsMetaData
 		};
 		class Item3
 		{
-			className="A3_Soft_F_Beta";
-			name="Arma 3 Beta - Unarmored Land Vehicles";
+			className="A3_Characters_F_Exp";
+			name="Arma 3 Apex - Characters and Clothing";
 			author="Bohemia Interactive";
 			url="https://www.arma3.com";
 		};
 		class Item4
 		{
-			className="A3_Soft_F_Exp";
-			name="Arma 3 Apex - Unarmored Land Vehicles";
+			className="A3_Soft_F_Beta";
+			name="Arma 3 Beta - Unarmored Land Vehicles";
 			author="Bohemia Interactive";
 			url="https://www.arma3.com";
 		};
 		class Item5
 		{
-			className="A3_Characters_F_Exp";
-			name="Arma 3 Apex - Characters and Clothing";
+			className="A3_Soft_F_Exp";
+			name="Arma 3 Apex - Unarmored Land Vehicles";
 			author="Bohemia Interactive";
 			url="https://www.arma3.com";
 		};
@@ -85,6 +86,13 @@ class AddonsMetaData
 		{
 			className="A3_Modules_F_Curator";
 			name="Arma 3 Zeus Update - Scripted Modules";
+			author="Bohemia Interactive";
+			url="https://www.arma3.com";
+		};
+		class Item7
+		{
+			className="A3_Armor_F_EPC";
+			name="Arma 3 Win Episode - Armored Land Vehicles";
 			author="Bohemia Interactive";
 			url="https://www.arma3.com";
 		};
@@ -211,8 +219,8 @@ class Mission
 					dataType="Object";
 					class PositionInfo
 					{
-						position[]={3447.4988,2.771343,13218.773};
-						angles[]={0.017329043,4.0101385,0.0013372133};
+						position[]={3476.2864,2.362777,13247.725};
+						angles[]={0.014664836,4.0101385,0.0066592805};
 					};
 					side="West";
 					flags=6;
@@ -223,7 +231,7 @@ class Mission
 					};
 					id=2;
 					type="B_Soldier_F";
-					atlOffset=-0.00050592422;
+					atlOffset=-0.00020718575;
 				};
 			};
 			class Attributes
@@ -242,7 +250,7 @@ class Mission
 					{
 						linkID=0;
 						item0=2;
-						item1=14;
+						item1=34;
 						class CustomData
 						{
 							role=2;
@@ -252,7 +260,7 @@ class Mission
 				};
 			};
 			id=0;
-			atlOffset=0.0012452602;
+			atlOffset=-0.00020718575;
 		};
 		class Item1
 		{
@@ -260,22 +268,56 @@ class Mission
 			side="West";
 			class Entities
 			{
-				items=1;
+				items=3;
 				class Item0
 				{
 					dataType="Object";
 					class PositionInfo
 					{
-						position[]={3527.864,2.2304122,13293.919};
-						angles[]={0.017329043,4.0101385,0.0013372133};
+						position[]={3489.1421,2.2747774,13257.732};
+						angles[]={0.01733112,4.0101385,0.0013439035};
 					};
 					side="West";
-					flags=6;
+					flags=4;
 					class Attributes
 					{
 					};
-					id=15;
-					type="B_Soldier_F";
+					id=38;
+					type="B_crew_F";
+					atlOffset=0.00099992752;
+				};
+				class Item1
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={3489.1384,5.0008411,13257.779};
+						angles[]={0.01733112,4.0101385,0.0013439035};
+					};
+					side="West";
+					class Attributes
+					{
+					};
+					id=39;
+					type="B_crew_F";
+					atlOffset=2.7278776;
+				};
+				class Item2
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={3489.1384,5.0008411,13257.779};
+						angles[]={0.01733112,4.0101385,0.0013439035};
+					};
+					side="West";
+					flags=2;
+					class Attributes
+					{
+					};
+					id=40;
+					type="B_crew_F";
+					atlOffset=2.7278776;
 				};
 			};
 			class Attributes
@@ -285,25 +327,47 @@ class Mission
 			{
 				class LinkIDProvider
 				{
-					nextID=1;
+					nextID=3;
 				};
 				class Links
 				{
-					items=1;
+					items=3;
 					class Item0
 					{
 						linkID=0;
-						item0=15;
-						item1=14;
+						item0=38;
+						item1=37;
 						class CustomData
 						{
 							role=1;
 						};
 					};
+					class Item1
+					{
+						linkID=1;
+						item0=39;
+						item1=37;
+						class CustomData
+						{
+							role=2;
+							turretPath[]={0};
+						};
+					};
+					class Item2
+					{
+						linkID=2;
+						item0=40;
+						item1=37;
+						class CustomData
+						{
+							role=2;
+							turretPath[]={0,0};
+						};
+					};
 				};
 			};
 			id=3;
-			atlOffset=0.0012452602;
+			atlOffset=0.00099992752;
 		};
 		class Item2
 		{
@@ -511,24 +575,6 @@ class Mission
 		};
 		class Item6
 		{
-			dataType="Object";
-			class PositionInfo
-			{
-				position[]={3489.1389,4.4980383,13257.721};
-				angles[]={0.017329043,4.0101385,0.0013372133};
-			};
-			side="West";
-			flags=6;
-			class Attributes
-			{
-				name="vic2";
-			};
-			id=14;
-			type="B_Truck_01_transport_F";
-			atlOffset=0.0012452602;
-		};
-		class Item7
-		{
 			dataType="Group";
 			side="West";
 			class Entities
@@ -579,7 +625,7 @@ class Mission
 			id=16;
 			atlOffset=-0.00048136711;
 		};
-		class Item8
+		class Item7
 		{
 			dataType="Group";
 			side="West";
@@ -632,7 +678,7 @@ class Mission
 			id=23;
 			atlOffset=-0.0010225773;
 		};
-		class Item9
+		class Item8
 		{
 			dataType="Object";
 			class PositionInfo
@@ -650,7 +696,7 @@ class Mission
 			type="B_Truck_01_transport_F";
 			atlOffset=-0.0010225773;
 		};
-		class Item10
+		class Item9
 		{
 			dataType="Object";
 			class PositionInfo
@@ -668,7 +714,7 @@ class Mission
 			type="B_T_Truck_01_Repair_F";
 			atlOffset=-0.00048136711;
 		};
-		class Item11
+		class Item10
 		{
 			dataType="Logic";
 			class PositionInfo
@@ -735,7 +781,7 @@ class Mission
 				nAttributes=4;
 			};
 		};
-		class Item12
+		class Item11
 		{
 			dataType="Object";
 			class PositionInfo
@@ -752,6 +798,24 @@ class Mission
 			id=34;
 			type="B_Truck_01_transport_F";
 			atlOffset=-0.00020718575;
+		};
+		class Item12
+		{
+			dataType="Object";
+			class PositionInfo
+			{
+				position[]={3489.1384,4.9994025,13257.729};
+				angles[]={0.01733112,4.0101385,0.0013439035};
+			};
+			side="West";
+			flags=6;
+			class Attributes
+			{
+				name="vic2";
+			};
+			id=37;
+			type="B_MBT_01_TUSK_F";
+			atlOffset=0.00099992752;
 		};
 	};
 };

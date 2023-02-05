@@ -6,13 +6,16 @@
 #define MIN_VEHICLE_SPEED_LIMIT 5
 #define VEHICLE_SPEED_LIMIT_MULTIPLIER 2.5
 #define SMALL_SPEED_LIMIT_DISTANCE_MODIFIER 1.25
+#define FOLLOW_VEHICLE_MAX_SPEED_TO_HALT 5
+#define LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW 2
+#define 
 
 // Current Issues:
 
 // vehicles still seem to want to move (very slightly) when the vehicle ahead
 /// is effectively stationary (runs into wall)
 
-// tanks just straight up don't care about limit speed and will blow through another vehicle it seems
+// tanks just straight up can't limit speed fast enough and will plow through another vehicle it seems
 
 
 KISKA_fnc_selectLastIndex = {
@@ -28,9 +31,11 @@ KISKA_fnc_selectLastIndex = {
 KISKA_fnc_convoy_haltVehicle = {
     params ["_vehicle"];
 
+    systemChat "halt";
     // cancel setDriveOnPath with a move command
+    doStop _vehicle;
     // _vehicle move (getPosATLVisual _vehicle);
-    _vehicle setDriveOnPath [(getPosATLVisual _vehicle),(getPosATLVisual _vehicle)];
+    // _vehicle setDriveOnPath [(getPosATLVisual _vehicle),(getPosATLVisual _vehicle)];
 };
 
 KISKA_fnc_getBumperPosition = {
@@ -137,36 +142,67 @@ private _onEachFrame = {
     private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_getBumperPosition;
     private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
     private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_getBumperPosition;
+    private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
+
+    private _vehicleAhead_speed = speed _vehicleAhead;
+    private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < FOLLOW_DISTANCE;
+
+    private _currentVehicle_shouldStop = (_vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW) AND _vehiclesAreWithinBoundary;
+    private _currentVehicle_speed = speed _currentVehicle;
+    if (
+        _currentVehicle_shouldStop AND 
+        (_currentVehicle_speed <= FOLLOW_VEHICLE_MAX_SPEED_TO_HALT)
+    ) exitWith {
+
+        if (
+            !(_currentVehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false])
+        ) then {
+            _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",true];
+            [_currentVehicle] call KISKA_fnc_convoy_haltVehicle;
+        };
+        
+    };
+
+    _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",false];
 
 
     /* ---------------------------------
         limit speed based on distance
     --------------------------------- */
-    private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
-    private _vehicleAhead_speed = speed _vehicleAhead;
-    private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < FOLLOW_DISTANCE;
     if (_vehiclesAreWithinBoundary) then {
         private _modifier = ((FOLLOW_DISTANCE - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
         private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
         _currentVehicle limitSpeed _speedLimit;
         
         if (_debug) then {
-            hint str ["limit speed",_speedLimit,_distanceBetweenVehicles];
+            hint str ["limit speed",_currentVehicle_speed,_speedLimit,_distanceBetweenVehicles];
         };
 
     } else {
-        if (_debug) then {
-            hint "un limit";
+        if (_distanceBetweenVehicles > 100) exitWith { 
+            if (_debug) then {
+                hint "un limit";
+            };
+            _currentVehicle limitSpeed -1 
         };
 
-        private _speed = -1;
-        if (_distanceBetweenVehicles < (FOLLOW_DISTANCE * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER)) then {
+
+        private _distanceToLimitToVehicleAheadSpeed = FOLLOW_DISTANCE * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
+        if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
             if (_debug) then {
                 hint "un limit small";
             };
-            _speed = _vehicleAhead_speed;
+
+            _currentVehicle limitSpeed _vehicleAhead_speed;
         };
-        _currentVehicle limitSpeed _speed;
+
+
+        private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
+        if (_speedDifferential > 20) exitWith {
+            private _limit = _distanceBetweenVehicles - 20;
+            hint str ["Limit by differential",_currentVehicle_speed,_limit];
+            _currentVehicle limitSpeed _limit;
+        };
     };
 
 
@@ -202,13 +238,6 @@ private _onEachFrame = {
         };
     };
 
-    private _currentVehicle_shouldStop = _vehicleAhead_speed <= 2.5 AND _vehiclesAreWithinBoundary;
-    if (_currentVehicle_shouldStop AND !(_currentVehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false])) exitWith {
-        _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",true];
-        [_currentVehicle] call KISKA_fnc_convoy_haltVehicle;
-    };
-
-    _currentVehicle setVariable ["KISKA_convoy_vehicleAheadStopped",false];
 
     /* ----------------------------------------------------------------------------
         create new from queued point

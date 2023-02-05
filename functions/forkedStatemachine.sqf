@@ -11,7 +11,7 @@ KISKA_fnc_selectLastIndex = {
 
     private _arrayCount = count _array;
     _array param [(_arrayCount - 1),_defaultValue];
-}
+};
 
 
 
