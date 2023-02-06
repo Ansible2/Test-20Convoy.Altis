@@ -1,10 +1,10 @@
 [[
 	vic1,
 	// player
-	vic2
-	// vic3,
-	// vic4,
-	// vic5
+	vic2,
+	vic3,
+	vic4,
+	vic5
 // ]] call KISKA_fnc_startConvoyFollow_advanced;
 ]] call KISKA_fnc_startConvoyFollow_stateMachine;
 // ]] call KISKA_fnc_startConvoyFollow_advanced_two;

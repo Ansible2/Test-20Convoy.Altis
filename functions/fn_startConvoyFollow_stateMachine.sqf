@@ -9,11 +9,6 @@
 #define FOLLOW_VEHICLE_MAX_SPEED_TO_HALT 5
 #define LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW 2
 
-// Current Issues:
-
-// follow vehicle gets stuck in limit by differential mode when it gets close in some instance
-
-
 KISKA_fnc_selectLastIndex = {
     params [
         ["_array",[],[[]]],
@@ -28,36 +23,8 @@ KISKA_fnc_convoy_haltVehicle = {
     params ["_vehicle"];
 
     systemChat "halt";
-    // cancel setDriveOnPath with a move command
-    _vehicle limitSpeed 5;
-    [
-        {
-            params ["_vehicle"];
-            private _vehicleAheadStillStopped = _vehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false];
-            if (_vehicleAheadStillStopped) then {
-                _vehicle limitSpeed 1;
-                (driver _vehicle) disableAI "path";
-            };
-        },
-        [_vehicle],
-        1
-    ] call CBA_fnc_waitAndExecute;
-    // [
-    //     {
-    //         params ["_vehicle"];
-    //         private _vehicleAheadStillStopped = _vehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false];
-    //         if (_vehicleAheadStillStopped) then {
-    //             _vehicle limitSpeed 0;
-    //             _vehicle move (getPosATLVisual _vehicle);
-    //         };
-    //     },
-    //     [_vehicle],
-    //     2
-    // ] call CBA_fnc_waitAndExecute;
-    // (driver _vehicle) disableAI "path";
-    // _vehicle setDriveOnPath [(getPosATLVisual _vehicle),(getPosATLVisual _vehicle)];
-    // doStop [(driver _vehicle)];
-    // _vehicle move (getPosATLVisual _vehicle);
+    _vehicle limitSpeed 1;
+    (driver _vehicle) disableAI "path";
 };
 
 KISKA_fnc_getBumperPosition = {
@@ -113,7 +80,7 @@ private _convoyHashMap = createHashMap;
 _convoyHashMap set ["_stateMachine",_stateMachine];
 _convoyHashMap set ["_convoyLead",_vics select 0];
 _convoyHashMap set ["_convoyVehicles",_vics];
-_convoyHashMap set ["_debug",true];
+_convoyHashMap set ["_debug",false];
 _convoyHashMap set ["_minBufferBetweenPoints",1];
 
 localNamespace setVariable ["KISKA_convoy_vehicleRelativeRear",createHashMap];
@@ -169,10 +136,13 @@ private _onEachFrame = {
     private _vehicleAhead_speed = speed _vehicleAhead;
     private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < FOLLOW_DISTANCE;
 
-    private _currentVehicle_shouldStop = (_vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW) AND _vehiclesAreWithinBoundary;
+    private _vehicleAhead_isHalted = _vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW;
+    private _currentVehicle_shouldStop = _vehicleAhead_isHalted AND _vehiclesAreWithinBoundary;
     private _currentVehicle_speed = speed _currentVehicle;
     if (_currentVehicle_shouldStop) exitWith {
-        hint str ["In Halt",_currentVehicle_speed];
+        if (_debug) then {
+            hint str ["In Halt",_currentVehicle_speed,_distanceBetweenVehicles];
+        };
 
         if (
             !(_currentVehicle getVariable ["KISKA_convoy_vehicleAheadStopped",false])
@@ -203,30 +173,46 @@ private _onEachFrame = {
         };
 
     } else {
-        if (_distanceBetweenVehicles > 100) exitWith { 
-            if (_debug) then {
-                hint "un limit";
-            };
-            _currentVehicle limitSpeed -1 
-        };
-
-
         private _distanceToLimitToVehicleAheadSpeed = FOLLOW_DISTANCE * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
         if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
             if (_debug) then {
                 hint "un limit small";
             };
 
-            _currentVehicle limitSpeed _vehicleAhead_speed;
+            private _speedToLimitTo = _vehicleAhead_speed;
+            if (_vehicleAhead_isHalted) then {
+                _speedToLimitTo = 5;
+            };
+
+            _currentVehicle limitSpeed _speedToLimitTo;
         };
 
+        if (_distanceBetweenVehicles > 100) exitWith { 
+            if (_debug) then {
+                hint "un limit";
+            };
+            _currentVehicle limitSpeed -1 
+        };
+        
+        // If the vehicle is far away, then un limit the speed
+        // If the vehicle is somewhat close to the boundary, make them just as fast
+        // A follow vehicle will progressively decrease its speed as it gets closer to the vehicle ahead
 
         private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
         if (_speedDifferential > 20) exitWith {
-            private _limit = _distanceBetweenVehicles - 20;
-            hint str ["Limit by differential",_currentVehicle_speed,_limit];
+            private _limit = _distanceBetweenVehicles - 0;
+            
+            if (_debug) then {
+                hint str ["Limit by differential",_currentVehicle_speed,_limit];
+            };
+
             _currentVehicle limitSpeed _limit;
         };
+        
+        if (_debug) then {
+            hint str ["un limit generic",_distanceBetweenVehicles];
+        };
+        _currentVehicle limitSpeed -1;
     };
 
 

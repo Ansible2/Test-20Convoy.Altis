@@ -17,9 +17,9 @@ class EditorData
 	class Camera
 	{
 		pos[]={3477.0273,7.7082968,13263.03};
-		dir[]={0.75099021,-0.38589221,-0.53581798};
-		up[]={0.31413275,0.92254382,-0.22412807};
-		aside[]={-0.58080482,-1.4901161e-008,-0.81404275};
+		dir[]={0.54531503,-0.30504724,-0.78075457};
+		up[]={0.17467222,0.95233727,-0.25008687};
+		aside[]={-0.81982994,0,-0.5726071};
 	};
 };
 binarizationWanted=0;
@@ -219,8 +219,8 @@ class Mission
 					dataType="Object";
 					class PositionInfo
 					{
-						position[]={3484.009,2.204762,13260.56};
-						angles[]={0.0066682254,2.4883666,0.0066682254};
+						position[]={3476.2864,2.362777,13247.725};
+						angles[]={0.014664836,2.4883666,0.0066592805};
 					};
 					side="West";
 					flags=6;
@@ -231,12 +231,36 @@ class Mission
 					};
 					id=2;
 					type="B_Soldier_F";
+					atlOffset=-0.00020718575;
 				};
 			};
 			class Attributes
 			{
 			};
+			class CrewLinks
+			{
+				class LinkIDProvider
+				{
+					nextID=1;
+				};
+				class Links
+				{
+					items=1;
+					class Item0
+					{
+						linkID=0;
+						item0=2;
+						item1=34;
+						class CustomData
+						{
+							role=2;
+							turretPath[]={0};
+						};
+					};
+				};
+			};
 			id=0;
+			atlOffset=-0.00020718575;
 		};
 		class Item1
 		{
@@ -343,7 +367,7 @@ class Mission
 				};
 			};
 			id=3;
-			atlOffset=0.00099992752;
+			atlOffset=0.00096821785;
 		};
 		class Item2
 		{
@@ -791,7 +815,7 @@ class Mission
 			};
 			id=37;
 			type="B_MBT_01_TUSK_F";
-			atlOffset=0.00099992752;
+			atlOffset=0.00096821785;
 		};
 	};
 };
