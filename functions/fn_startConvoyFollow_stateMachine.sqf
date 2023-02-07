@@ -8,6 +8,8 @@
 #define SMALL_SPEED_LIMIT_DISTANCE_MODIFIER 1.25
 #define FOLLOW_VEHICLE_MAX_SPEED_TO_HALT 5
 #define LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW 2
+#define VEHICLE_SHOULD_CATCH_UP_DISTANCE 100
+#define SPEED_DIFFERENTIAL_LIMIT 20
 
 KISKA_fnc_selectLastIndex = {
     params [
@@ -187,7 +189,7 @@ private _onEachFrame = {
             _currentVehicle limitSpeed _speedToLimitTo;
         };
 
-        if (_distanceBetweenVehicles > 100) exitWith { 
+        if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
             if (_debug) then {
                 hint "un limit";
             };
@@ -199,14 +201,12 @@ private _onEachFrame = {
         // A follow vehicle will progressively decrease its speed as it gets closer to the vehicle ahead
 
         private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
-        if (_speedDifferential > 20) exitWith {
-            private _limit = _distanceBetweenVehicles - 0;
-            
+        if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
             if (_debug) then {
-                hint str ["Limit by differential",_currentVehicle_speed,_limit];
+                hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
             };
 
-            _currentVehicle limitSpeed _limit;
+            _currentVehicle limitSpeed _distanceBetweenVehicles;
         };
         
         if (_debug) then {
