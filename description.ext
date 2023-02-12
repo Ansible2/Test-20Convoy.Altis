@@ -9,11 +9,15 @@ class CfgFunctions
             {};
             class convoyAdvanced_addVehicle
             {};
+            class convoyAdvanced_delete
+            {};
             class convoyAdvanced_removeVehicle
             {};
             class convoyAdvanced_stopVehicle
             {};
             class convoyAdvanced_getConvoyVehicles
+            {};
+            class convoyAdvanced_getConvoyStatemachine
             {};
             class convoyAdvanced_getBumperPosition
             {};
