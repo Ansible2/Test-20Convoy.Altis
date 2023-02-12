@@ -42,7 +42,7 @@ _convoyVehicles apply {
 private _convoyStatemachine = [
     _convoyHashMap
 ] call KISKA_fnc_convoyAdvanced_getConvoyStatemachine;
-[_convoyStatemachine] call CBA_statemachin_fnc_delete;
+[_convoyStatemachine] call CBA_statemachine_fnc_delete;
 
 
 nil
