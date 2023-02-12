@@ -5,15 +5,11 @@ class CfgFunctions
         class functions
         {
             file = "functions";
-            class convoyAdvanced_create
-            {};
             class convoyAdvanced_addVehicle
             {};
+            class convoyAdvanced_create
+            {};
             class convoyAdvanced_delete
-            {};
-            class convoyAdvanced_removeVehicle
-            {};
-            class convoyAdvanced_stopVehicle
             {};
             class convoyAdvanced_getConvoyVehicles
             {};
@@ -23,6 +19,11 @@ class CfgFunctions
             {};
             class convoyAdvanced_onEachFrame
             {};
+            class convoyAdvanced_removeVehicle
+            {};
+            class convoyAdvanced_stopVehicle
+            {};
+            
             class getBumperPositionRelative
             {};
             class selectLastIndex
