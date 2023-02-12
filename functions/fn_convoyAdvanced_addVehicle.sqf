@@ -98,6 +98,9 @@ if (_insertIndex < 0) then {
     _convoyIndex = _convoyVehicles pushBack _vehicle;
     _convoyVehicles append _vehiclesToChangeIndex;
     _convoyHashMap set [_convoyIndex,_vehicle];
+    if (_insertIndex isEqualTo 0) then {
+        _convoyHashMap set ["_convoyLead",_vehicle];
+    };
 
     _vehiclesToChangeIndex apply {
         private _currentIndex = _x getVariable ["KISKA_convoyAdvanced_index",-1];
@@ -110,7 +113,6 @@ if (_insertIndex < 0) then {
         _convoyHashMap set [_newIndex,_x];
         _x setVariable ["KISKA_convoyAdvanced_index",_newIndex];
     };
-
 };
 
 
