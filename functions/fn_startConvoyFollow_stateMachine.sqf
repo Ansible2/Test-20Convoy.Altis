@@ -11,16 +11,6 @@
 #define VEHICLE_SHOULD_CATCH_UP_DISTANCE 100
 #define SPEED_DIFFERENTIAL_LIMIT 20
 
-KISKA_fnc_selectLastIndex = {
-    params [
-        ["_array",[],[[]]],
-        ["_defaultValue",nil,[]]
-    ];
-
-    private _arrayCount = count _array;
-    _array param [(_arrayCount - 1),_defaultValue];
-};
-
 KISKA_fnc_convoy_haltVehicle = {
     params ["_vehicle"];
 
@@ -29,7 +19,7 @@ KISKA_fnc_convoy_haltVehicle = {
     (driver _vehicle) disableAI "path";
 };
 
-KISKA_fnc_getBumperPosition = {
+KISKA_fnc_getBumperPosition_here = {
     params [
         "_vehicle",
         ["_isRearBumper",false,[true]]
@@ -102,7 +92,8 @@ localNamespace setVariable ["KISKA_convoy_vehicleRelativeFront",createHashMap];
 private _onEachFrame = {
     private _currentVehicle = _this;
     private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
-    private _debug = _convoyHashMap get "_debug";
+    private _debug = true;
+    // private _debug = _convoyHashMap get "_debug";
     private _convoyLead = _convoyHashMap get "_convoyLead";
     // private _stateMachine = _convoyHashMap get "_stateMachine";
 
@@ -130,9 +121,9 @@ private _onEachFrame = {
     /* ----------------------------------------------------------------------------
         Handle speed
     ---------------------------------------------------------------------------- */
-    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_getBumperPosition;
+    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_getBumperPosition_here;
     private _vehicleAhead = _currentVehicle getVariable ["KISKA_convoy_vehicleAhead",objNull];
-    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_getBumperPosition;
+    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_getBumperPosition_here;
     private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
 
     private _vehicleAhead_speed = speed _vehicleAhead;
@@ -196,10 +187,6 @@ private _onEachFrame = {
             _currentVehicle limitSpeed -1 
         };
         
-        // If the vehicle is far away, then un limit the speed
-        // If the vehicle is somewhat close to the boundary, make them just as fast
-        // A follow vehicle will progressively decrease its speed as it gets closer to the vehicle ahead
-
         private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
         if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
             if (_debug) then {

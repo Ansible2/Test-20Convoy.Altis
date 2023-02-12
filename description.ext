@@ -5,6 +5,22 @@ class CfgFunctions
         class functions
         {
             file = "functions";
+            class convoyAdvanced_create
+            {};
+            class convoyAdvanced_addVehicle
+            {};
+            class convoyAdvanced_removeVehicle
+            {};
+            class convoyAdvanced_stopVehicle
+            {};
+            class convoyAdvanced_getBumperPosition
+            {};
+            class convoyAdvanced_onEachFrame
+            {};
+            class getBumperPositionRelative
+            {};
+            class selectLastIndex
+            {};
             class configureConvoy_test
             {};
             class startConvoyFollow_basic

@@ -1,13 +1,20 @@
-[[
+private _convoyHashMap = [[
 	vic1,
 	// player
 	vic2,
-	vic3,
-	vic4,
-	vic5
+	vic3
+	// vic4,
+	// vic5
 // ]] call KISKA_fnc_startConvoyFollow_advanced;
-]] call KISKA_fnc_startConvoyFollow_stateMachine;
-// ]] call KISKA_fnc_startConvoyFollow_advanced_two;
+// ]] call KISKA_fnc_startConvoyFollow_stateMachine;
+],10] call KISKA_fnc_convoyAdvanced_create;
+
+// [_convoyHashMap,vic2,1] call KISKA_fnc_convoyAdvanced_addVehicle;
+
+[] spawn {
+	sleep 10;
+	[vic3] call KISKA_fnc_convoyAdvanced_removeVehicle;
+};
 
 // vic1 move [3567.54,13207.9,0];
 
