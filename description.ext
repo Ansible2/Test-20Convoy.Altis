@@ -21,20 +21,6 @@ class CfgFunctions
             {};
             class selectLastIndex
             {};
-            class configureConvoy_test
-            {};
-            class startConvoyFollow_basic
-            {};
-            class startConvoyFollow_stateMachine
-            {};
-            class startConvoyFollow_advanced
-            {};
-            class startConvoyFollow_advanced_two
-            {};
-            class convoyTest_1
-            {};
-            class convoyTest_2
-            {};
         };
     };
 };
