@@ -71,7 +71,7 @@ if ((speed _convoyLead) > 0) exitWith {
     nil
 };
 
-private _convoyVehicles = _convoyHashMap get "_convoyVehicles";
+private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 if (_vehicle in _convoyVehicles) exitWith {
     [["_vehicle ",_vehicle," is already in _convoyHashMap ",_convoyHashMap],true] call KISKA_fnc_log;
     _vehicle getVariable ["KISKA_convoyAdvanced_index",-1]

@@ -50,7 +50,9 @@ _debugDeletePathObjects apply {
 };
 
 
-private _convoyVehicles = _convoyHashMap get "_convoyVehicles";
+private _convoyVehicles = [
+	_convoyHashMap
+] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 private _vehicleIndex = _vehicle getVariable "KISKA_convoyAdvanced_index";
 _convoyVehicles deleteAt _vehicleIndex;
 
@@ -71,6 +73,7 @@ _vehiclesToChangeIndex apply {
 (driver _vehicle) enableAI "path";
 _vehicle limitSpeed -1;
 
+// move will cancel the setDriveOnPath
 if ((speed _vehicle) > 0) then {
     _vehicle move (getPosATLVisual _vehicle);
 };
