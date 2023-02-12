@@ -2,7 +2,9 @@
 Function: KISKA_fnc_convoyAdvanced_getConvoyVehicles
 
 Description:
-    Returns the list of vehicles in a convoy.
+    Returns the list of vehicles in a convoy. This is not a copy of the array used
+     for certain internal operations of the convoy. Make a copy if you intend to modify
+     the contents of the array (see example 2).
 
 Parameters:
     0: _convoyHashMap <HASHMAP> - The convoy hashmap get vehicles from
@@ -12,9 +14,15 @@ Returns:
 
 Examples:
     (begin example)
-		private _convoyVehicles = [
-			SomeConvoyHashMap
-		] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
+        private _convoyVehicles = [
+            SomeConvoyHashMap
+        ] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
+    (end)
+
+    (begin example)
+        private _convoyVehiclesCopy = +([
+            SomeConvoyHashMap
+        ] call KISKA_fnc_convoyAdvanced_getConvoyVehicles);
     (end)
 
 Author(s):
