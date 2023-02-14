@@ -53,12 +53,12 @@ _debugDeletePathObjects apply {
 private _convoyVehicles = [
 	_convoyHashMap
 ] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
-private _vehicleIndex = _vehicle getVariable "KISKA_convoyAdvanced_index";
+private _vehicleIndex = [_vehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
 _convoyVehicles deleteAt _vehicleIndex;
 
 private _vehiclesToChangeIndex = _convoyVehicles select [_vehicleIndex,MAX_ARRAY_LENGTH];
 _vehiclesToChangeIndex apply {
-    private _currentIndex = _x getVariable ["KISKA_convoyAdvanced_index",-1];
+    private _currentIndex = [_x] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
     if (_currentIndex isEqualTo -1) then {
         [["Could not find 'KISKA_convoyAdvanced_index' in namespace of ", _x," to change"],true] call KISKA_fnc_log;
         continue
