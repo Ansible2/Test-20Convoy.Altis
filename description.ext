@@ -21,6 +21,10 @@ class CfgFunctions
             {};
             class convoyAdvanced_getDefaultSeperation
             {};
+            class convoyAdvanced_setPointBuffer
+            {};
+            class convoyAdvanced_getPointBuffer
+            {};
             class convoyAdvanced_onEachFrame
             {};
             class convoyAdvanced_removeVehicle

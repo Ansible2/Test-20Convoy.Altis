@@ -1,0 +1,31 @@
+/* ----------------------------------------------------------------------------
+Function: KISKA_fnc_convoyAdvanced_setPointBuffer
+
+Description:
+    Sets the minimum distance that must be between each position added to a vehicles
+     drive path. Essentially how often the lead vehicle's position is recorded.
+    
+Parameters:
+    0: _convoyHashMap <HASHMAP> - The convoy hashmap to get the value from
+
+Returns:
+    NOTHING
+
+Examples:
+    (begin example)
+        [
+			_convoyHashMap
+		] call KISKA_fnc_convoyAdvanced_setPointBuffer;
+    (end)
+
+Author(s):
+    Ansible2
+---------------------------------------------------------------------------- */
+scriptName "KISKA_fnc_convoyAdvanced_setPointBuffer";
+
+params [
+    "_convoyHashMap",
+    ["_minBufferBetweenPoints",1,[123]]
+];
+
+_convoyHashMap set ["_minBufferBetweenPoints",_minBufferBetweenPoints];

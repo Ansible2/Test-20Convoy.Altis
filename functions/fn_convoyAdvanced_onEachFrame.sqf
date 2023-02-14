@@ -246,7 +246,7 @@ if (isNil "_lastestPointToDriveTo") exitWith {
 };
 
 private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
-private _minBufferBetweenPoints = 1;
+private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
 if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
 
 _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",_convoyLeadPosition];
