@@ -32,7 +32,9 @@ if (isNull _vehicle) exitWith {
     nil
 };
 
-private _convoyHashMap = _vehicle getVariable "KISKA_convoyAdvanced_hashMap";
+private _convoyHashMap = [
+    _vehicle
+] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
 if (isNil "_convoyHashMap") exitWith {
     [[_vehicle," does not have a KISKA_convoyAdvanced_hashMap in its namespace"],true] call KISKA_fnc_log;
     nil

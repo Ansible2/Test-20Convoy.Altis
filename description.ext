@@ -27,6 +27,8 @@ class CfgFunctions
             {};
             class convoyAdvanced_getVehicleIndex
             {};
+            class convoyAdvanced_getConvoyHashMapFromVehicle
+            {};
             class convoyAdvanced_setPointBuffer
             {};
             class convoyAdvanced_getPointBuffer
