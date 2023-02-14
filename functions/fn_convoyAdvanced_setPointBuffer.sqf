@@ -7,6 +7,8 @@ Description:
     
 Parameters:
     0: _convoyHashMap <HASHMAP> - The convoy hashmap to get the value from
+    1: _minBufferBetweenPoints <NUMBER> - The distance between positions in order for
+        them to be added to the convoy drive path
 
 Returns:
     NOTHING
