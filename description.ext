@@ -17,6 +17,10 @@ class CfgFunctions
             {};
             class convoyAdvanced_getBumperPosition
             {};
+            class convoyAdvanced_setDefaultSeperation
+            {};
+            class convoyAdvanced_getDefaultSeperation
+            {};
             class convoyAdvanced_onEachFrame
             {};
             class convoyAdvanced_removeVehicle

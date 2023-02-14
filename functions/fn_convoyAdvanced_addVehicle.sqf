@@ -120,7 +120,9 @@ _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];
 
 if (_convoySeperation < 0) then {
-    _convoySeperation = _convoyHashMap getOrDefault ["_convoySeperation",20];
+    _convoySeperation = [
+        _convoyHashMap
+    ] call KISKA_fnc_convoyAdvanced_getDefaultSeperation;
 
 } else {
     if (_convoySeperation < MIN_CONVOY_SEPERATION) then {

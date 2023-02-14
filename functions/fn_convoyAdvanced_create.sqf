@@ -60,7 +60,7 @@ _convoyHashMap set ["_convoyVehicles",_convoyVehicles];
 
 _convoyHashMap set ["_stateMachine",_stateMachine];
 _convoyHashMap set ["_minBufferBetweenPoints",1];
-_convoyHashMap set ["_convoySeperation",_convoySeperation];
+[_convoyHashMap,_convoySeperation] call KISKA_fnc_convoyAdvanced_setDefaultSeperation;
 
 _vics apply {
     [
