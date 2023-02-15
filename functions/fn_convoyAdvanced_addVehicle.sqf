@@ -33,7 +33,6 @@ Author(s):
 scriptName "KISKA_fnc_convoyAdvanced_addVehicle";
 
 #define MAX_ARRAY_LENGTH 1E7
-#define MIN_CONVOY_SEPERATION 10
 
 params [
     ["_convoyHashMap",nil,[createHashMap]],
@@ -124,13 +123,12 @@ if (_convoySeperation < 0) then {
         _convoyHashMap
     ] call KISKA_fnc_convoyAdvanced_getDefaultSeperation;
 
-} else {
-    if (_convoySeperation < MIN_CONVOY_SEPERATION) then {
-        _convoySeperation = MIN_CONVOY_SEPERATION
-    };
-
 };
-_vehicle setVariable ["KISKA_convoyAdvanced_seperation",_convoySeperation];
+
+[
+    _vehicle,
+    _convoySeperation
+] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
 
 
 _convoyIndex

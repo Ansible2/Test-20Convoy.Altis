@@ -32,6 +32,7 @@ scriptName "KISKA_fnc_convoyAdvanced_onEachFrame";
 #define LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW 2
 #define VEHICLE_SHOULD_CATCH_UP_DISTANCE 100
 #define SPEED_DIFFERENTIAL_LIMIT 20
+#define MIN_CONVOY_SEPERATION 10
 
 private _currentVehicle = _this;
 
@@ -78,7 +79,7 @@ private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_c
 private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
 
 private _vehicleAhead_speed = speed _vehicleAhead;
-private _currentVehicle_seperation = _currentVehicle getVariable ["KISKA_convoyAdvanced_seperation",20];
+private _currentVehicle_seperation = (_currentVehicle getVariable ["KISKA_convoyAdvanced_seperation",20]) max MIN_CONVOY_SEPERATION;
 private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < _currentVehicle_seperation;
 
 private _currentVehicle_isStopped = _currentVehicle getVariable ["KISKA_convoyAdvanced_isStopped",false];
