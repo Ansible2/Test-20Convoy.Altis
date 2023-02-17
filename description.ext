@@ -37,6 +37,10 @@ class CfgFunctions
             {};
             class convoyAdvanced_setVehicleSeperation
             {};
+            class convoyAdvanced_isVehicleInDebug
+            {};
+            class convoyAdvanced_setVehicleDebug
+            {};
             class convoyAdvanced_onEachFrame
             {};
             class convoyAdvanced_removeVehicle
