@@ -41,7 +41,68 @@ private _convoyHashMap = _currentVehicle getVariable "KISKA_convoyAdvanced_hashM
 private _convoyLead = _convoyHashMap get "_convoyLead";
 // private _stateMachine = _convoyHashMap get "_stateMachine";
 
+
+/* ----------------------------------------------------------------------------
+	Exit states
+---------------------------------------------------------------------------- */
+if !(alive _currentVehicle) exitWith {
+	private _function = _currentVehicle getVariable [
+		"KISKA_convoyAdvanced_handleVehicleDeath",
+		KISKA_convoyAdvanced_handleVehicleDeath_default
+	];
+
+	[
+		_currentVehicle,
+		_convoyHashMap,
+		_convoyLead
+	] call _function;
+};
+
+if !(canMove _currentVehicle) exitWith {
+	private _function = _currentVehicle getVariable [
+		"KISKA_convoyAdvanced_handleVehicleCantMove",
+		KISKA_convoyAdvanced_handleVehicleCantMove_default
+	];
+
+	[
+		_currentVehicle,
+		_convoyHashMap,
+		_convoyLead
+	] call _function;
+};
+
+private _currentVehicle_driver = driver _currentVehicle;
+if !(alive _currentVehicle_driver) exitWith {
+	private _function = _currentVehicle getVariable [
+		"KISKA_convoyAdvanced_handleDeadDriver",
+		KISKA_convoyAdvanced_handleDeadDriver_default
+	];
+
+	[
+		_currentVehicle,
+		_convoyHashMap,
+		_convoyLead,
+		_currentVehicle_driver
+	] call _function;
+};	
+
+if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
+	private _function = _currentVehicle getVariable [
+		"KISKA_convoyAdvanced_handleUnconciousDriver",
+		KISKA_convoyAdvanced_handleUnconciousDriver_default
+	];
+
+	[
+		_currentVehicle,
+		_convoyHashMap,
+		_convoyLead,
+		_currentVehicle_driver
+	] call _function;
+};	
+
 if (_currentVehicle isEqualTo _convoyLead) exitWith {};
+
+
 
 
 /* ----------------------------------------------------------------------------
@@ -90,7 +151,6 @@ if (_currentVehicle_isStopped) then {
 	if (_currentVehicle_shouldBeStopped) exitWith { _continue = true; };
 	
 	_currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",false];
-	private _currentVehicle_driver = driver _currentVehicle;
 	if !(_currentVehicle_driver checkAIFeature "path") then {
 		_currentVehicle_driver enableAI "path";
 	};
