@@ -1,11 +1,15 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoyAdvanced_addVehicle
+Function: KISKA_fnc_convoyAdvanced_removeVehicle
 
 Description:
-    Adds a given vehicle to a convoy.
+    Removes a given vehicle from its convoy.
+
+    This will shift the index's of all vehicles in the convoy that are lower
+     than the given vehicle to remove. If the vehicle is moving (speed > 0)
+     then the vehicle will be told to "stop" via a `move` order.
 
 Parameters:
-    0: _vehicle <OBJECT> - The vehicle to add
+    0: _vehicle <OBJECT> - The vehicle to remove
 
 Returns:
     NOTHING
@@ -41,6 +45,8 @@ if (isNil "_convoyHashMap") exitWith {
 };
 
 
+[_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_removeVehicleLocalEvent",_vehicle];
+[_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent",_vehicle];
 
 private _debugPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _debugPathObjects apply {
@@ -92,6 +98,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
     "KISKA_convoyAdvanced_queuedPoint",
     "KISKA_convoyAdvanced_debugDeletedPathObjects",
+    "KISKA_convoyAdvanced_vehicleKilledEventID",
     "KISKA_convoyAdvanced_seperation"
 ] apply {
     _vehicle setVariable [_x,nil];

@@ -27,4 +27,4 @@ scriptName "KISKA_fnc_convoyAdvanced_getConvoyLeader";
 params ["_convoyHashMap"];
 
 
-_convoyHashMap getOrDefault ["_convoyLead",objNull]
+_convoyHashMap getOrDefault [0,objNull]

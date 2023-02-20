@@ -38,26 +38,13 @@ private _currentVehicle = _this;
 
 
 private _convoyHashMap = _currentVehicle getVariable "KISKA_convoyAdvanced_hashMap";
-private _convoyLead = _convoyHashMap get "_convoyLead";
+private _convoyLead = _convoyHashMap get 0;
 // private _stateMachine = _convoyHashMap get "_stateMachine";
 
 
 /* ----------------------------------------------------------------------------
 	Exit states
 ---------------------------------------------------------------------------- */
-if !(alive _currentVehicle) exitWith {
-	private _function = _currentVehicle getVariable [
-		"KISKA_convoyAdvanced_handleVehicleDeath",
-		KISKA_convoyAdvanced_handleVehicleDeath_default
-	];
-
-	[
-		_currentVehicle,
-		_convoyHashMap,
-		_convoyLead
-	] call _function;
-};
-
 if !(canMove _currentVehicle) exitWith {
 	private _function = _currentVehicle getVariable [
 		"KISKA_convoyAdvanced_handleVehicleCantMove",
@@ -71,6 +58,7 @@ if !(canMove _currentVehicle) exitWith {
 	] call _function;
 };
 
+// TODO: it may make sense to attach this to a killed eventhandler instead
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
 	private _function = _currentVehicle getVariable [
@@ -100,7 +88,7 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
 	] call _function;
 };	
 
-if (_currentVehicle isEqualTo _convoyLead) exitWith {};
+if ((_currentVehicle isEqualTo _convoyLead) OR !(alive _convoyLead)) exitWith {};
 
 
 

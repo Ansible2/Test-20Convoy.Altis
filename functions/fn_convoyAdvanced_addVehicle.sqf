@@ -78,12 +78,6 @@ if (_vehicle in _convoyVehicles) exitWith {
 
 
 
-
-if (_convoyVehicles isEqualTo []) then {
-    _convoyHashMap set ["_convoyLead",_vehicle];
-};
-
-
 private _convoyCount = count _convoyVehicles;
 private "_convoyIndex";
 if (_insertIndex < 0) then {
@@ -97,9 +91,6 @@ if (_insertIndex < 0) then {
     _convoyIndex = _convoyVehicles pushBack _vehicle;
     _convoyVehicles append _vehiclesToChangeIndex;
     _convoyHashMap set [_convoyIndex,_vehicle];
-    if (_insertIndex isEqualTo 0) then {
-        _convoyHashMap set ["_convoyLead",_vehicle];
-    };
 
     _vehiclesToChangeIndex apply {
         private _currentIndex = [_x] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
@@ -130,5 +121,7 @@ if (_convoySeperation < 0) then {
     _convoySeperation
 ] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
 
+[_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
+[_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleLocalEvent;
 
 _convoyIndex
