@@ -127,6 +127,6 @@ if (_convoySeperation < 0) then {
 ] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
-[_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleLocalEvent;
+
 
 _convoyIndex

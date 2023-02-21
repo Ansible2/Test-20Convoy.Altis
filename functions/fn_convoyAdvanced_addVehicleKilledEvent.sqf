@@ -20,6 +20,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_addVehicleKilledEvent";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    nil
+};
+
 params [
     ["_vehicle",objNull,[objNull]]
 ];
@@ -31,8 +36,29 @@ if (isNull _vehicle) exitWith {
 };
 
 
-private _vehicleKilledEventId = _vehicle addEventHandler ["KILLED", {
-    params ["_vehicle"];
-    [_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_executeVehicleKilledEvent",2];
+private _vehicleKilledEventId = _vehicle addMPEventHandler ["MPKILLED", {
+    if (isServer) then {
+        _this params ["_vehicle"];
+
+        private _convoyHashMap = _vehicle getVariable "KISKA_convoyAdvanced_hashMap";
+        if (isNil "_convoyHashMap") then {
+            [["_convoyHashMap was nil, event was for _vehicle: ",_vehicle],true] call KISKA_fnc_log;
+
+        } else {
+            private _function = [
+                _vehicle
+            ] call KISKA_fnc_convoyAdvanced_getVehicleKilledEvent;
+            private _convoyLead = _convoyHashMap get 0;
+
+            [
+                _vehicle,
+                _convoyHashMap,
+                _convoyLead
+            ] call _function;
+
+        };
+    };
+
 }];
+
 _vehicle setVariable ["KISKA_convoyAdvanced_vehicleKilledEventID",_vehicleKilledEventId];
