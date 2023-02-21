@@ -7,46 +7,65 @@ class CfgFunctions
             file = "functions";
             class convoyAdvanced_addVehicle
             {};
+            class convoyAdvanced_addVehicleKilledEvent
+            {};
             class convoyAdvanced_create
             {};
             class convoyAdvanced_delete
             {};
-            class convoyAdvanced_getConvoyVehicles
-            {};
-            class convoyAdvanced_getConvoyStatemachine
-            {};
             class convoyAdvanced_getBumperPosition
+            {};
+            class convoyAdvanced_getConvoyHashMapFromVehicle
             {};
             class convoyAdvanced_getConvoyLeader
             {};
-            class convoyAdvanced_setDefaultSeperation
+            class convoyAdvanced_getConvoyStatemachine
+            {};
+            class convoyAdvanced_getConvoyVehicles
             {};
             class convoyAdvanced_getDefaultSeperation
+            {};
+            class convoyAdvanced_getPointBuffer
             {};
             class convoyAdvanced_getVehicleAtIndex
             {};
             class convoyAdvanced_getVehicleIndex
             {};
-            class convoyAdvanced_getConvoyHashMapFromVehicle
-            {};
-            class convoyAdvanced_setPointBuffer
-            {};
-            class convoyAdvanced_getPointBuffer
+            class convoyAdvanced_getVehicleKilledEvent
             {};
             class convoyAdvanced_getVehicleSeperation
             {};
-            class convoyAdvanced_setVehicleSeperation
+            class convoyAdvanced_handleDeadDriver_default
+            {};
+            class convoyAdvanced_handleUnconciousDriver_default
+            {};
+            class convoyAdvanced_handleVehicleCantMove_default
+            {};
+            class convoyAdvanced_handleVehicleKilled_default
             {};
             class convoyAdvanced_isVehicleInDebug
-            {};
-            class convoyAdvanced_setVehicleDebug
             {};
             class convoyAdvanced_onEachFrame
             {};
             class convoyAdvanced_removeVehicle
             {};
+            class convoyAdvanced_removeVehicleKilledEvent
+            {};
+            class convoyAdvanced_setDefaultSeperation
+            {};
+            class convoyAdvanced_setPointBuffer
+            {};
+            class convoyAdvanced_setVehicleDebug
+            {};
+            class convoyAdvanced_setVehicleKilledEvent
+            {};
+            class convoyAdvanced_setVehicleSeperation
+            {};
             class convoyAdvanced_stopVehicle
             {};
+
+
+            
             
             class getBumperPositionRelative
             {};
