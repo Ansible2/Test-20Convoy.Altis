@@ -30,6 +30,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_getConvoyVehicles";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    []
+};
+
 params ["_convoyHashMap"];
 
 

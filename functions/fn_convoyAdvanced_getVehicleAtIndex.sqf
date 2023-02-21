@@ -27,6 +27,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_getVehicleAtIndex";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    objNull
+};
+
 params [
     "_convoyHashMap",
     ["_index",1,[123]]

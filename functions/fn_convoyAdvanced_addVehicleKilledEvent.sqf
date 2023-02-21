@@ -33,19 +33,6 @@ if (isNull _vehicle) exitWith {
 
 private _vehicleKilledEventId = _vehicle addEventHandler ["KILLED", {
     params ["_vehicle"];
-
-    private _function = [
-        vic
-    ] call KISKA_fnc_convoyAdvanced_getVehicleKilledEvent;
-    // TODO: this actually will not be defined anywhere but on the machine where the convoy was started
-    private _convoyHashMap = _vehicle getVariable "KISKA_convoyAdvanced_hashMap";
-    private _convoyLead = _convoyHashMap get 0;
-
-    [
-        _vehicle,
-        _convoyHashMap,
-        _convoyLead
-    ] call _function;
-
+    [_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_executeVehicleKilledEvent",2];
 }];
 _vehicle setVariable ["KISKA_convoyAdvanced_vehicleKilledEventID",_vehicleKilledEventId];

@@ -22,6 +22,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_isVehicleInDebug";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    false
+};
+
 params [
     ["_vehicle",objNull,[objNull]]
 ];

@@ -11,7 +11,7 @@ Parameters:
     0: _vehicle <OBJECT> - The vehicle to get the killed event code of
 
 Returns:
-    NOTHING
+    <CODE> - The code that executes when a vehicle is killed in the convoy
 
 Examples:
     (begin example)
@@ -24,6 +24,11 @@ Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_getVehicleKilledEvent";
+
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    -1
+};
 
 params [
     ["_vehicle",objNull,[objNull]]

@@ -9,7 +9,7 @@ Parameters:
     0: _convoyHashMap <HASHMAP> - The convoy hashmap to add to
 
 Returns:
-    <> - 
+    NOTHING
 
 Examples:
     (begin example)
@@ -20,6 +20,11 @@ Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_delete";
+
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    nil
+};
 
 params [
     ["_convoyHashMap",nil,[createHashMap]]

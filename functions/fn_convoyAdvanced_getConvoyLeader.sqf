@@ -24,6 +24,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_getConvoyLeader";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    objNull
+};
+
 params ["_convoyHashMap"];
 
 

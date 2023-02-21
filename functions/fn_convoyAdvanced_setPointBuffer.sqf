@@ -25,6 +25,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_setPointBuffer";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    nil
+};
+
 params [
     "_convoyHashMap",
     ["_minBufferBetweenPoints",1,[123]]

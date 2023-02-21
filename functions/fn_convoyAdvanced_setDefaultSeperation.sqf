@@ -25,6 +25,11 @@ scriptName "KISKA_fnc_convoyAdvanced_setDefaultSeperation";
 
 #define MIN_CONVOY_SEPERATION 10
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    nil
+};
+
 params [
     "_convoyHashMap",
     ["_seperation",20,[123]]

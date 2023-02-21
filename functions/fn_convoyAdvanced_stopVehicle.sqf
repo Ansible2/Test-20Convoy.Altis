@@ -24,8 +24,14 @@ params [
     ["_vehicle",objNull,[objNull]]
 ];
 
+
 if (isNull _vehicle) exitWith {
     ["_vehicle is null",false] call KISKA_fnc_log;
+    nil
+};
+
+if !(local _vehicle) exitWith {
+    [["_vehicle ",_vehicle," is not local!"],true] call KISKA_fnc_log;
     nil
 };
 

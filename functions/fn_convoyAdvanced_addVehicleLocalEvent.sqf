@@ -35,19 +35,7 @@ private _localEventId = _vehicle addEventHandler ["Local", {
 
     if ((alive _vehicle) AND (!_isLocal)) then {
         [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent;
-        private _vehicleHandleDeathCode = [
-            vic
-        ] call KISKA_fnc_convoyAdvanced_getVehicleKilledEvent;
-
-        private _customKilledEventCodeWasSet = _vehicleHandleDeathCode isNotEqualTo KISKA_convoyAdvanced_handleVehicleKilled_default;
-        if (_customKilledEventCodeWasSet) then {
-            // set custom code on new owner
-            [
-                _vehicle,
-                _vehicleHandleDeathCode
-            ] remoteExecCall ["KISKA_fnc_convoyAdvanced_setVehicleKilledEvent",_vehicle];
-        };
-
+        [_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_addVehicleLocalEvent",_vehicle];
         [_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_addVehicleKilledEvent",_vehicle];
         [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicleLocalEvent;
     };

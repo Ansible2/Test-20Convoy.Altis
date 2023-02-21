@@ -22,6 +22,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_convoyAdvanced_handleVehicleKilled_default";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    nil
+};
+
 params [
     ["_vehicle",objNull,[objNull]],
     ["_convoyHashMap",nil],

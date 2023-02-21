@@ -22,6 +22,11 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_getConvoyStatemachine";
 
+if (!isServer) exitWith {
+    ["Must be executed on the server!",true] call KISKA_fnc_log;
+    locationNull
+};
+
 params ["_convoyHashMap"];
 
 
