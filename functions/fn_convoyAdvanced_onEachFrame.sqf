@@ -3,10 +3,10 @@ Function: KISKA_fnc_convoyAdvanced_onEachFrame
 
 Description:
     Mananges an individual vehicle's position relative to the vehicle in front of
-	 it in a convoy. This function is what the statemachine runs each frame/vehicle.
+     it in a convoy. This function is what the statemachine runs each frame/vehicle.
 
-	This function intentionally forgoes the use of several getter/setter functions 
-	 to reduce overhead because it runs every frame
+    This function intentionally forgoes the use of several getter/setter functions 
+     to reduce overhead because it runs every frame
 
 Parameters:
     _this <OBJECT> - A convoy vehicle to be processed during the current frame
@@ -43,49 +43,49 @@ private _convoyLead = _convoyHashMap get 0;
 
 
 /* ----------------------------------------------------------------------------
-	Exit states
+    Exit states
 ---------------------------------------------------------------------------- */
 if !(canMove _currentVehicle) exitWith {
-	private _function = _currentVehicle getVariable [
-		"KISKA_convoyAdvanced_handleVehicleCantMove",
-		KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default
-	];
+    private _function = _currentVehicle getVariable [
+        "KISKA_convoyAdvanced_handleVehicleCantMove",
+        KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default
+    ];
 
-	[
-		_currentVehicle,
-		_convoyHashMap,
-		_convoyLead
-	] call _function;
+    [
+        _currentVehicle,
+        _convoyHashMap,
+        _convoyLead
+    ] call _function;
 };
 
 // TODO: it may make sense to attach this to a killed eventhandler instead
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
-	private _function = _currentVehicle getVariable [
-		"KISKA_convoyAdvanced_handleDeadDriver",
-		KISKA_fnc_convoyAdvanced_handleDeadDriver_default
-	];
+    private _function = _currentVehicle getVariable [
+        "KISKA_convoyAdvanced_handleDeadDriver",
+        KISKA_fnc_convoyAdvanced_handleDeadDriver_default
+    ];
 
-	[
-		_currentVehicle,
-		_convoyHashMap,
-		_convoyLead,
-		_currentVehicle_driver
-	] call _function;
+    [
+        _currentVehicle,
+        _convoyHashMap,
+        _convoyLead,
+        _currentVehicle_driver
+    ] call _function;
 };	
 
 if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
-	private _function = _currentVehicle getVariable [
-		"KISKA_convoyAdvanced_handleUnconciousDriver",
-		KISKA_fnc_convoyAdvanced_handleUnconciousDriver_default
-	];
+    private _function = _currentVehicle getVariable [
+        "KISKA_convoyAdvanced_handleUnconciousDriver",
+        KISKA_fnc_convoyAdvanced_handleUnconciousDriver_default
+    ];
 
-	[
-		_currentVehicle,
-		_convoyHashMap,
-		_convoyLead,
-		_currentVehicle_driver
-	] call _function;
+    [
+        _currentVehicle,
+        _convoyHashMap,
+        _convoyLead,
+        _currentVehicle_driver
+    ] call _function;
 };	
 
 if ((_currentVehicle isEqualTo _convoyLead) OR !(alive _convoyLead)) exitWith {};
@@ -94,31 +94,42 @@ if ((_currentVehicle isEqualTo _convoyLead) OR !(alive _convoyLead)) exitWith {}
 
 
 /* ----------------------------------------------------------------------------
-	Setup
+    Setup
 ---------------------------------------------------------------------------- */
 private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
 private ["_currentVehicle_debugDrivePathObjects","_currentVehicle_debugDeletedDrivePathObjects"];
 if (_debug) then {
-	_currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debugPathObjects";
+    _currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debugPathObjects";
 };
+
+// TODO: be able to record points while not actually setting them as the drive path
+private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint";
+if !(isNil "_dynamicMovePoint") exitWith {
+    private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePointCompletionRadius",5];
+    private _currentVehicle_position = getPosATLVisual _currentVehicle; 
+    if (_currentVehicle_position vectorDistance _dynamicMovePoint <= _dynamicMovePoint_completionRadius) then {
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",nil];
+    };
+};
+
 
 private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";
 if (isNil "_currentVehicle_drivePath") then {
-	_currentVehicle_drivePath = [];
-	_currentVehicle setVariable ["KISKA_convoyAdvanced_drivePath",_currentVehicle_drivePath];
+    _currentVehicle_drivePath = [];
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_drivePath",_currentVehicle_drivePath];
 
-	if (_debug) then {
-		_currentVehicle_debugDeletedDrivePathObjects = [];
-		_currentVehicle setVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",_currentVehicle_debugDeletedDrivePathObjects];
-		_currentVehicle_debugDrivePathObjects = [];
-		_currentVehicle setVariable ["KISKA_convoyAdvanced_debugPathObjects",_currentVehicle_debugDrivePathObjects];
-	};
+    if (_debug) then {
+        _currentVehicle_debugDeletedDrivePathObjects = [];
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",_currentVehicle_debugDeletedDrivePathObjects];
+        _currentVehicle_debugDrivePathObjects = [];
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_debugPathObjects",_currentVehicle_debugDrivePathObjects];
+    };
 };
 
 
 private _continue = false;
 /* ----------------------------------------------------------------------------
-	Handle speed
+    Handle speed
 ---------------------------------------------------------------------------- */
 private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoyAdvanced_index";
 private _vehicleAhead = _convoyHashMap get (_currentVehicle_index - 1);
@@ -136,141 +147,141 @@ private _vehicleAhead_isStopped = _vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_
 private _currentVehicle_shouldBeStopped = _vehicleAhead_isStopped AND _vehiclesAreWithinBoundary;
 
 if (_currentVehicle_isStopped) then {
-	if (_currentVehicle_shouldBeStopped) exitWith { _continue = true; };
-	
-	_currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",false];
-	if !(_currentVehicle_driver checkAIFeature "path") then {
-		_currentVehicle_driver enableAI "path";
-	};
-	
+    if (_currentVehicle_shouldBeStopped) exitWith { _continue = true; };
+    
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",false];
+    if !(_currentVehicle_driver checkAIFeature "path") then {
+        _currentVehicle_driver enableAI "path";
+    };
+    
 } else {
-	if !(_currentVehicle_shouldBeStopped) exitWith {};
-		
-	if (_debug) then {
-		private _currentVehicle_speed = speed _currentVehicle;
-		hint str ["In Halt",_currentVehicle_speed,_distanceBetweenVehicles];
-	};
+    if !(_currentVehicle_shouldBeStopped) exitWith {};
+        
+    if (_debug) then {
+        private _currentVehicle_speed = speed _currentVehicle;
+        hint str ["In Halt",_currentVehicle_speed,_distanceBetweenVehicles];
+    };
 
-	_currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",true];
-	[_currentVehicle] call KISKA_fnc_convoyAdvanced_stopVehicle;
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",true];
+    [_currentVehicle] call KISKA_fnc_convoyAdvanced_stopVehicle;
 
-	_continue = true;
+    _continue = true;
 };
 
 if (_continue) exitWith {};
 
 
 /* ---------------------------------
-	Force speed based on distance
+    Force speed based on distance
 --------------------------------- */
 private _currentVehicle_speed = speed _currentVehicle;
 if (_vehiclesAreWithinBoundary) then {
-	private _modifier = ((_currentVehicle_seperation - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
-	private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
-	_currentVehicle limitSpeed _speedLimit;
-	
-	if (_debug) then {
-		hint ([
-			"limit speed",endl,
-			"Current Vehicle Speed: ", _currentVehicle_speed, endl,
-			"Current Speed Limit: ", _speedLimit, endl,
-			"Distance between: ", _distanceBetweenVehicles
-		] joinString "");
-	};
+    private _modifier = ((_currentVehicle_seperation - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
+    private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
+    _currentVehicle limitSpeed _speedLimit;
+    
+    if (_debug) then {
+        hint ([
+            "limit speed",endl,
+            "Current Vehicle Speed: ", _currentVehicle_speed, endl,
+            "Current Speed Limit: ", _speedLimit, endl,
+            "Distance between: ", _distanceBetweenVehicles
+        ] joinString "");
+    };
 
 } else {
-	private _distanceToLimitToVehicleAheadSpeed = _currentVehicle_seperation * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
-	if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
-		if (_debug) then {
-			hint "un limit small";
-		};
+    private _distanceToLimitToVehicleAheadSpeed = _currentVehicle_seperation * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
+    if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
+        if (_debug) then {
+            hint "un limit small";
+        };
 
-		private _speedToLimitTo = [_vehicleAhead_speed,5] select _vehicleAhead_isStopped;
-		_currentVehicle limitSpeed _speedToLimitTo;
-	};
+        private _speedToLimitTo = [_vehicleAhead_speed,5] select _vehicleAhead_isStopped;
+        _currentVehicle limitSpeed _speedToLimitTo;
+    };
 
-	if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
-		if (_debug) then {
-			hint "un limit";
-		};
-		_currentVehicle limitSpeed -1 
-	};
-	
-	private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
-	if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
-		if (_debug) then {
-			hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
-		};
+    if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
+        if (_debug) then {
+            hint "un limit";
+        };
+        _currentVehicle limitSpeed -1 
+    };
+    
+    private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
+    if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
+        if (_debug) then {
+            hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
+        };
 
-		_currentVehicle limitSpeed _distanceBetweenVehicles;
-	};
-	
-	if (_debug) then {
-		hint str ["un limit generic",_distanceBetweenVehicles];
-	};
-	_currentVehicle limitSpeed -1;
+        _currentVehicle limitSpeed _distanceBetweenVehicles;
+    };
+    
+    if (_debug) then {
+        hint str ["un limit generic",_distanceBetweenVehicles];
+    };
+    _currentVehicle limitSpeed -1;
 };
 
 
 /* ----------------------------------------------------------------------------
-	Delete old points
+    Delete old points
 ---------------------------------------------------------------------------- */
 private _currentVehicle_position = getPosATLVisual _currentVehicle;
 private _deleteStartIndex = -1;
 private _numberToDelete = 0;
 {
-	private _pointReached = (_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS;
+    private _pointReached = (_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS;
 
-	if !(_pointReached) then { break };
-	_numberToDelete = _numberToDelete + 1;
+    if !(_pointReached) then { break };
+    _numberToDelete = _numberToDelete + 1;
 
-	private _deleteStartIndexDefined = _deleteStartIndex isNotEqualTo -1;
-	if (_deleteStartIndexDefined) then { continue };
-	_deleteStartIndex = _forEachIndex;
+    private _deleteStartIndexDefined = _deleteStartIndex isNotEqualTo -1;
+    if (_deleteStartIndexDefined) then { continue };
+    _deleteStartIndex = _forEachIndex;
 
 } forEach _currentVehicle_drivePath;
 
 private _pointsCanBeDeleted = (_deleteStartIndex >= 0) AND (_numberToDelete > 0);
 if (_pointsCanBeDeleted) then {
-	_currentVehicle_drivePath deleteRange [_deleteStartIndex,_numberToDelete];
+    _currentVehicle_drivePath deleteRange [_deleteStartIndex,_numberToDelete];
 
-	if (_debug) then {
-		private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
-		private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_deletedPoint","Sign_Arrow_Large_blue_F"];
-		private _deletedPointMarker = createVehicle [_debugObjectType, _currentVehicle_position, [], 0, "CAN_COLLIDE"];
-		_currentVehicle_debugDeletedDrivePathObjects pushBack _deletedPointMarker;
+    if (_debug) then {
+        private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
+        private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_deletedPoint","Sign_Arrow_Large_blue_F"];
+        private _deletedPointMarker = createVehicle [_debugObjectType, _currentVehicle_position, [], 0, "CAN_COLLIDE"];
+        _currentVehicle_debugDeletedDrivePathObjects pushBack _deletedPointMarker;
 
-		for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
-			deleteVehicle (_currentVehicle_debugDrivePathObjects select _i);
-		};
-		_currentVehicle_debugDrivePathObjects deleteRange [_deleteStartIndex,_numberToDelete];
-	};
+        for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
+            deleteVehicle (_currentVehicle_debugDrivePathObjects select _i);
+        };
+        _currentVehicle_debugDrivePathObjects deleteRange [_deleteStartIndex,_numberToDelete];
+    };
 };
 
 
 /* ----------------------------------------------------------------------------
-	create new from queued point
+    create new from queued point
 ---------------------------------------------------------------------------- */
 private _queuedPoint = _currentVehicle getVariable "KISKA_convoyAdvanced_queuedPoint";
 if !(isNil "_queuedPoint") exitWith {
-	_currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",nil];
-	
-	if (_debug) then {
-		private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
-		private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
-		_currentVehicle_debugDrivePathObjects pushBack _debugObject;
-	};
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",nil];
+    
+    if (_debug) then {
+        private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
+        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
+        _currentVehicle_debugDrivePathObjects pushBack _debugObject;
+    };
 
-	private _indexInserted = _currentVehicle_drivePath pushBack _queuedPoint;
-	// vehicle need at least two points for setDriveOnPath to work
-	if (_indexInserted >= 1) then {
-		_currentVehicle setDriveOnPath _currentVehicle_drivePath;
-	};
+    private _indexInserted = _currentVehicle_drivePath pushBack _queuedPoint;
+    // vehicle need at least two points for setDriveOnPath to work
+    if (_indexInserted >= 1) then {
+        _currentVehicle setDriveOnPath _currentVehicle_drivePath;
+    };
 };
 
 
 /* ----------------------------------------------------------------------------
-	Add Queued point if needed
+    Add Queued point if needed
 ---------------------------------------------------------------------------- */
 // private _currentVehicle_lastQueuedTime = _currentVehicle getVariable ["KISKA_convoy_queuedTime",-1];
 // private _pointHasBeenQueued = _currentVehicle_lastQueuedTime isNotEqualTo -1;
@@ -286,12 +297,12 @@ if !(isNil "_queuedPoint") exitWith {
 
 
 /* ----------------------------------------------------------------------------
-	Only Queue points that aren't too close together
+    Only Queue points that aren't too close together
 ---------------------------------------------------------------------------- */
 private _convoyLeadPosition = getPosATLVisual _convoyLead;
 private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
 if (isNil "_lastestPointToDriveTo") exitWith {
-	_currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",_convoyLeadPosition];
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",_convoyLeadPosition];
 };
 
 private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;

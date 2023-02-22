@@ -79,18 +79,18 @@ if (isNull _convoyLead) exitWith {
 	Logic
 ---------------------------------------------------------------------------- */
 [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
+private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
 if (_vehicle isEqualTo _convoyLead) exitWith {
-    // convoy tries to drive around,
-    // if the vehicles can't drive, then halt
-
-	// stop convoy
-	// remove current vehicle
-	// change leader to next vehicle
-    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
     if (isNull _newConvoyLead) exitWith {};
 
+    // There's no consistent way to know what the former lead's intended path is, so stop
 	[_newConvoyLead] call KISKA_fnc_convoyAdvanced_stopVehicle;
 };
+
+
+private _moveToPosition = getPosATLVisual _newConvoyLead;
+
+_vehicle move _moveToPosition;
 
 
 // if vehicle is not convoy lead:
