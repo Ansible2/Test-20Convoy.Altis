@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_convoyAdvanced_handleDeadDriver_default
+Function: KISKA_fnc_convoyAdvanced_handleDeadDriver_default
 
 Description:
 
@@ -18,7 +18,7 @@ Examples:
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_convoyAdvanced_handleDeadDriver_default";
+scriptName "KISKA_fnc_convoyAdvanced_handleDeadDriver_default";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

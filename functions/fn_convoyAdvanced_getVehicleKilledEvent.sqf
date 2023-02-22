@@ -37,5 +37,5 @@ params [
 
 _vehicle getVariable [
     "KISKA_convoyAdvanced_handleVehicleKilled",
-    KISKA_convoyAdvanced_handleVehicleKilled_default
+    KISKA_fnc_convoyAdvanced_handleVehicleKilled_default
 ]

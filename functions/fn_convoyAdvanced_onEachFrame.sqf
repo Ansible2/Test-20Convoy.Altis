@@ -48,7 +48,7 @@ private _convoyLead = _convoyHashMap get 0;
 if !(canMove _currentVehicle) exitWith {
 	private _function = _currentVehicle getVariable [
 		"KISKA_convoyAdvanced_handleVehicleCantMove",
-		KISKA_convoyAdvanced_handleVehicleCantMove_default
+		KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default
 	];
 
 	[
@@ -63,7 +63,7 @@ private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
 	private _function = _currentVehicle getVariable [
 		"KISKA_convoyAdvanced_handleDeadDriver",
-		KISKA_convoyAdvanced_handleDeadDriver_default
+		KISKA_fnc_convoyAdvanced_handleDeadDriver_default
 	];
 
 	[
@@ -77,7 +77,7 @@ if !(alive _currentVehicle_driver) exitWith {
 if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
 	private _function = _currentVehicle getVariable [
 		"KISKA_convoyAdvanced_handleUnconciousDriver",
-		KISKA_convoyAdvanced_handleUnconciousDriver_default
+		KISKA_fnc_convoyAdvanced_handleUnconciousDriver_default
 	];
 
 	[

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_convoyAdvanced_handleVehicleKilled_default
+Function: KISKA_fnc_convoyAdvanced_handleVehicleKilled_default
 
 Description:
 	The default behaviour that happens when a vehicle in the convoy dies.
@@ -20,7 +20,7 @@ Examples:
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_convoyAdvanced_handleVehicleKilled_default";
+scriptName "KISKA_fnc_convoyAdvanced_handleVehicleKilled_default";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -79,7 +79,6 @@ if (isNull _convoyLead) exitWith {
 	Logic
 ---------------------------------------------------------------------------- */
 [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
-
 if (_vehicle isEqualTo _convoyLead) exitWith {
     // convoy tries to drive around,
     // if the vehicles can't drive, then halt

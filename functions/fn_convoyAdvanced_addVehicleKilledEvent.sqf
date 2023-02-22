@@ -40,7 +40,10 @@ private _vehicleKilledEventId = _vehicle addMPEventHandler ["MPKILLED", {
     if (isServer) then {
         _this params ["_vehicle"];
 
-        private _convoyHashMap = _vehicle getVariable "KISKA_convoyAdvanced_hashMap";
+        private _convoyHashMap = [
+            _vehicle
+        ] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
+
         if (isNil "_convoyHashMap") then {
             [["_convoyHashMap was nil, event was for _vehicle: ",_vehicle],true] call KISKA_fnc_log;
 
@@ -48,7 +51,7 @@ private _vehicleKilledEventId = _vehicle addMPEventHandler ["MPKILLED", {
             private _function = [
                 _vehicle
             ] call KISKA_fnc_convoyAdvanced_getVehicleKilledEvent;
-            private _convoyLead = _convoyHashMap get 0;
+            private _convoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
 
             [
                 _vehicle,
