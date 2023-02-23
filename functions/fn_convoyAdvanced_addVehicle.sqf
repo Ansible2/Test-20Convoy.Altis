@@ -113,6 +113,7 @@ if (_insertIndex < 0) then {
 
 _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];
+_vehicle setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 
 if (_convoySeperation < 0) then {
     _convoySeperation = [

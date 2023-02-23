@@ -89,19 +89,14 @@ if (_vehicle isEqualTo _convoyLead) exitWith {
 
 
 private _moveToPosition = getPosATLVisual _newConvoyLead;
-
 _vehicle move _moveToPosition;
+// Two paths
+// 1. completely delete the current drive path and simply tell the vehicle to move to the 
+/// new leader's current position
+// 2. try to delete just the necessary points and then have the vehicle resume from the
+/// the last point that would make sense
 
-
-// if vehicle is not convoy lead:
-// vehicles should be able to drive around
-/// the vehicle that was destroyed
-
-// this means there will need to be some adjustment to their
-/// drive path dynamically
-
-
-// need to detect when vehicle dies
-// vehicle may not be local to machine running convoy
-// need to be able to call the same KISKA_convoyAdvanced_handleVehicleKilled function
-// no matter who is local
+// Ultimately, this amounts to giving the vehicle a new point they need to move to
+// once they are close enough to this new point, consider it complete and then
+// they can resume following the drive path
+private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";

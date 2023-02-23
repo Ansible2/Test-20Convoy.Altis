@@ -262,21 +262,26 @@ if (_pointsCanBeDeleted) then {
 /* ----------------------------------------------------------------------------
     create new from queued point
 ---------------------------------------------------------------------------- */
-private _queuedPoint = _currentVehicle getVariable "KISKA_convoyAdvanced_queuedPoint";
-if !(isNil "_queuedPoint") exitWith {
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",nil];
-    
-    if (_debug) then {
-        private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
-        private _debugObject = createVehicle ["Sign_Arrow_Large_Cyan_F", _queuedPoint, [], 0, "CAN_COLLIDE"];
-        _currentVehicle_debugDrivePathObjects pushBack _debugObject;
+private _queuedPoints = _currentVehicle getVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+private _doFollowPath = _currentVehicle getVariable ["KISKA_convoyAdvanced_followPath",true];
+if ((_queuedPoints isNotEqualTo []) AND _doFollowPath) exitWith {
+    private _indexInserted = -1;
+    _queuedPoints apply {
+        if (_debug) then {
+            private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
+            private _debugObject = createVehicle [_debugObjectType, _x, [], 0, "CAN_COLLIDE"];
+            _currentVehicle_debugDrivePathObjects pushBack _debugObject;
+        };
+
+        _indexInserted = _currentVehicle_drivePath pushBack _x;
     };
 
-    private _indexInserted = _currentVehicle_drivePath pushBack _queuedPoint;
     // vehicle need at least two points for setDriveOnPath to work
     if (_indexInserted >= 1) then {
         _currentVehicle setDriveOnPath _currentVehicle_drivePath;
     };
+
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 };
 
 
@@ -302,11 +307,11 @@ if !(isNil "_queuedPoint") exitWith {
 private _convoyLeadPosition = getPosATLVisual _convoyLead;
 private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
 if (isNil "_lastestPointToDriveTo") exitWith {
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",_convoyLeadPosition];
+    _queuedPoints pushBack _convoyLeadPosition;
 };
 
 private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
 private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
 if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
 
-_currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoint",_convoyLeadPosition];
+_queuedPoints pushBack _convoyLeadPosition;
