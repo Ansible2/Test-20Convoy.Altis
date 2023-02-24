@@ -106,7 +106,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_vehicleKilledEventID",
     "KISKA_convoyAdvanced_seperation",
     "KISKA_convoyAdvanced_dynamicMovePoint",
-    "KISKA_convoyAdvanced_dynamicMovePointCompletionRadius"
+    "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius"
 ] apply {
     _vehicle setVariable [_x,nil];
 };

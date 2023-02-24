@@ -102,12 +102,12 @@ if (_debug) then {
     _currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debugPathObjects";
 };
 
-// TODO: be able to record points while not actually setting them as the drive path
-private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint";
-if !(isNil "_dynamicMovePoint") exitWith {
-    private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePointCompletionRadius",5];
+// TODO: this is currently messy and you would still be unable to record points while this is in effect
+private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius";
+if !(isNil "_dynamicMovePoint") then {
+    private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",5];
     private _currentVehicle_position = getPosATLVisual _currentVehicle; 
-    if (_currentVehicle_position vectorDistance _dynamicMovePoint <= _dynamicMovePoint_completionRadius) then {
+    if ((_currentVehicle_position vectorDistance _dynamicMovePoint) <= _dynamicMovePoint_completionRadius) then {
         _currentVehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",nil];
     };
 };
