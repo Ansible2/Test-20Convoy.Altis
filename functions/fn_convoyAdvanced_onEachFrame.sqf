@@ -102,14 +102,29 @@ if (_debug) then {
     _currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debugPathObjects";
 };
 
-// TODO: this is currently messy and you would still be unable to record points while this is in effect
-private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius";
-if !(isNil "_dynamicMovePoint") then {
+// TODO: use the vehicle ahead to queue points off of here
+private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint";
+if !(isNil "_dynamicMovePoint") exitWith {
+    systemChat "Dynamic move point";
     private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",5];
-    private _currentVehicle_position = getPosATLVisual _currentVehicle; 
+    private _currentVehicle_position = getPosATLVisual _currentVehicle;
     if ((_currentVehicle_position vectorDistance _dynamicMovePoint) <= _dynamicMovePoint_completionRadius) then {
+        systemChat "KISKA_convoyAdvanced_dynamicMovePoint set to nil";
         _currentVehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",nil];
     };
+
+    private _convoyLeadPosition = getPosATLVisual _convoyLead;
+    private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";
+    private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
+    if (isNil "_lastestPointToDriveTo") exitWith {
+        _queuedPoints pushBack _convoyLeadPosition;
+    };
+
+    private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
+    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
+    if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
+
+    _queuedPoints pushBack _convoyLeadPosition;
 };
 
 

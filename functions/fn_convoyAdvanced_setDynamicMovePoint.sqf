@@ -54,4 +54,5 @@ if (_position isEqualTo []) exitWith {
 };
 
 
+_vehicle limitSpeed -1;
 _vehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",_position];

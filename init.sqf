@@ -1,3 +1,5 @@
+player allowDamage false;
+
 [] spawn {
 
 private _convoyHashMap = [
@@ -15,9 +17,17 @@ private _convoyHashMap = [
 	_convoyHashMap,
 	vic1,
 	0
-] call KISKA_fnc_convoyAdvanced_addVehicle
+] call KISKA_fnc_convoyAdvanced_addVehicle;
 
+[vic3,true] call KISKA_fnc_convoyAdvanced_setVehicleDebug;
 
+sleep 5;
+
+vic2 setDamage 1;
+
+// [
+// 	_convoyHashMap
+// ] call KISKA_fnc_convoyAdvanced_delete;
 
 
 };

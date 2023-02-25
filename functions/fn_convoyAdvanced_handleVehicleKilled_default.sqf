@@ -79,6 +79,7 @@ if (isNull _convoyLead) exitWith {
 	Logic
 ---------------------------------------------------------------------------- */
 [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
+private _vehicleIndex = [_vehicle] call KISKA_convoyAdvanced_getVehicleIndex;
 private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
 if (_vehicle isEqualTo _convoyLead) exitWith {
     if (isNull _newConvoyLead) exitWith {};
@@ -88,9 +89,10 @@ if (_vehicle isEqualTo _convoyLead) exitWith {
 };
 
 
+private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
 private _moveToPosition = getPosATLVisual _newConvoyLead;
-_vehicle move _moveToPosition;
-[_vehicle,_moveToPosition] call KISKA_fnc_convoyAdvanced_setDynamicMovePoint;
+_vehicleThatWasBehind move _moveToPosition;
+[_vehicleThatWasBehind,_moveToPosition] call KISKA_fnc_convoyAdvanced_setDynamicMovePoint;
 // Two paths
 // 1. completely delete the current drive path and simply tell the vehicle to move to the 
 /// new leader's current position
@@ -100,10 +102,10 @@ _vehicle move _moveToPosition;
 // Ultimately, this amounts to giving the vehicle a new point they need to move to
 // once they are close enough to this new point, consider it complete and then
 // they can resume following the drive path
-_vehicle setVariable ["KISKA_convoyAdvanced_drivePath",[]];
-_vehicle setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
+_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 // TODO: delete queued points with debug objects?
-private _vehicle_debugPath = _vehicle getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
-_vehicle_debugPath apply {
+private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
+_vehicleThatWasBehind_debugPath apply {
     deleteVehicle _x;
 };
