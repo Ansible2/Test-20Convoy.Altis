@@ -103,29 +103,31 @@ if (_debug) then {
 };
 
 // TODO: use the vehicle ahead to queue points off of here
-private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint";
-if !(isNil "_dynamicMovePoint") exitWith {
-    systemChat "Dynamic move point";
-    private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",5];
-    private _currentVehicle_position = getPosATLVisual _currentVehicle;
-    if ((_currentVehicle_position vectorDistance _dynamicMovePoint) <= _dynamicMovePoint_completionRadius) then {
-        systemChat "KISKA_convoyAdvanced_dynamicMovePoint set to nil";
-        _currentVehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",nil];
-    };
+// private _dynamicMovePoint = _currentVehicle getVariable "KISKA_convoyAdvanced_dynamicMovePoint";
+// private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoyAdvanced_index";
+// private _vehicleAhead = _convoyHashMap get (_currentVehicle_index - 1);
+// if !(isNil "_dynamicMovePoint") exitWith {
+//     systemChat "Dynamic move point";
+//     private _dynamicMovePoint_completionRadius = _currentVehicle getVariable ["KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",5];
+//     private _currentVehicle_position = getPosATLVisual _currentVehicle;
+//     if ((_currentVehicle_position vectorDistance _dynamicMovePoint) <= _dynamicMovePoint_completionRadius) then {
+//         systemChat "KISKA_convoyAdvanced_dynamicMovePoint set to nil";
+//         _currentVehicle setVariable ["KISKA_convoyAdvanced_dynamicMovePoint",nil];
+//     };
 
-    private _convoyLeadPosition = getPosATLVisual _convoyLead;
-    private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";
-    private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
-    if (isNil "_lastestPointToDriveTo") exitWith {
-        _queuedPoints pushBack _convoyLeadPosition;
-    };
+//     private _vehicleAhead_position = getPosATLVisual _vehicleAhead;
+//     private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";
+//     private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
+//     if (isNil "_lastestPointToDriveTo") exitWith {
+//         _queuedPoints pushBack _vehicleAhead_position;
+//     };
 
-    private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
-    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
-    if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
+//     private _vehicleAhead_distanceToLastDrivePoint = _vehicleAhead_position vectorDistance _lastestPointToDriveTo;
+//     private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
+//     if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
 
-    _queuedPoints pushBack _convoyLeadPosition;
-};
+//     _queuedPoints pushBack _vehicleAhead_position;
+// };
 
 
 private _currentVehicle_drivePath = _currentVehicle getVariable "KISKA_convoyAdvanced_drivePath";
@@ -278,8 +280,7 @@ if (_pointsCanBeDeleted) then {
     create new from queued point
 ---------------------------------------------------------------------------- */
 private _queuedPoints = _currentVehicle getVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
-private _doFollowPath = _currentVehicle getVariable ["KISKA_convoyAdvanced_followPath",true];
-if ((_queuedPoints isNotEqualTo []) AND _doFollowPath) exitWith {
+if (_queuedPoints isNotEqualTo []) exitWith {
     private _indexInserted = -1;
     _queuedPoints apply {
         if (_debug) then {
@@ -319,14 +320,20 @@ if ((_queuedPoints isNotEqualTo []) AND _doFollowPath) exitWith {
 /* ----------------------------------------------------------------------------
     Only Queue points that aren't too close together
 ---------------------------------------------------------------------------- */
-private _convoyLeadPosition = getPosATLVisual _convoyLead;
+// Vehicles follow convoy lead by default as following the vehicle directly ahead
+/// makes the path precision decrease linearly as the convoy grows.
+// Meaning if one vehicle barely clips a building but makes it past, 
+/// the next vehicle will run directly into the building
+
+private _vehicleToFollow = _currentVehicle getVariable ["KISKA_convoyAdvanced_vehicleToFollow",_convoyLead];
+private _vehicleToFollow_position = getPosATLVisual _vehicleToFollow;
 private _lastestPointToDriveTo = [_currentVehicle_drivePath] call KISKA_fnc_selectLastIndex;
 if (isNil "_lastestPointToDriveTo") exitWith {
-    _queuedPoints pushBack _convoyLeadPosition;
+    _queuedPoints pushBack _vehicleToFollow_position;
 };
 
-private _vehicleAhead_distanceToLastDrivePoint = _convoyLeadPosition vectorDistance _lastestPointToDriveTo;
+private _vehicleToFollow_distanceToLastDrivePoint = _vehicleToFollow_position vectorDistance _lastestPointToDriveTo;
 private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
-if (_vehicleAhead_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
+if (_vehicleToFollow_distanceToLastDrivePoint <= _minBufferBetweenPoints) exitWith {};
 
-_queuedPoints pushBack _convoyLeadPosition;
+_queuedPoints pushBack _vehicleToFollow_position;

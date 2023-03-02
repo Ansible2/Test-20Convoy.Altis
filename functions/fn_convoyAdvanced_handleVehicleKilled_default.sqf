@@ -5,8 +5,8 @@ Description:
 	The default behaviour that happens when a vehicle in the convoy dies.
 
 Parameters:
-    0: _vehicle <OBJECT> - The vehicle that died
-    1: _convoyHashMap <OBJECT> - The hashmap used for the convoy
+    0: _killedVehicle <OBJECT> - The vehicle that died
+    1: _convoyHashMap <HASHMAP> - The hashmap used for the convoy
     2: _convoyLead <OBJECT> - The lead vehicle of the convoy
 
 Returns:
@@ -28,7 +28,7 @@ if (!isServer) exitWith {
 };
 
 params [
-    ["_vehicle",objNull,[objNull]],
+    ["_killedVehicle",objNull,[objNull]],
     ["_convoyHashMap",nil],
     ["_convoyLead",objNull,[objNull]]
 ];
@@ -36,10 +36,10 @@ params [
 /* ----------------------------------------------------------------------------
 	Parameter check
 ---------------------------------------------------------------------------- */
-if (isNull _vehicle) exitWith {
+if (isNull _killedVehicle) exitWith {
     [
         [
-            "null _vehicle was passed, _convoyHashMap is: ",
+            "null _killedVehicle was passed, _convoyHashMap is: ",
             _convoyHashMap
         ],
         true
@@ -51,8 +51,8 @@ if (isNull _vehicle) exitWith {
 if (isNil "_convoyHashMap") exitWith {
     [   
         [
-            "nil _convoyHashMap was passed, _vehicle is: ",
-            _vehicle
+            "nil _convoyHashMap was passed, _killedVehicle is: ",
+            _killedVehicle
         ],
         true
     ] call KISKA_fnc_log;
@@ -63,8 +63,8 @@ if (isNil "_convoyHashMap") exitWith {
 if (isNull _convoyLead) exitWith {
     [   
         [
-            "null _convoyLead was passed, _vehicle is: ",
-            _vehicle,
+            "null _convoyLead was passed, _killedVehicle is: ",
+            _killedVehicle,
 			" and _convoyHashMap is: ",
 			_convoyHashMap
         ],
@@ -78,10 +78,12 @@ if (isNull _convoyLead) exitWith {
 /* ----------------------------------------------------------------------------
 	Logic
 ---------------------------------------------------------------------------- */
-[_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
-private _vehicleIndex = [_vehicle] call KISKA_convoyAdvanced_getVehicleIndex;
+private _killedVehicle_drivePath = _killedVehicle getVariable ["KISKA_convoyAdvanced_drivePath",[]];
+[_killedVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
+
+private _vehicleIndex = [_killedVehicle] call KISKA_convoyAdvanced_getVehicleIndex;
 private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
-if (_vehicle isEqualTo _convoyLead) exitWith {
+if (_killedVehicle isEqualTo _convoyLead) exitWith {
     if (isNull _newConvoyLead) exitWith {};
 
     // There's no consistent way to know what the former lead's intended path is, so stop
@@ -89,21 +91,43 @@ if (_vehicle isEqualTo _convoyLead) exitWith {
 };
 
 
+/* ---------------------------------
+	Getting the rear vehicle to move to the lead vehicle
+--------------------------------- */
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
-private _moveToPosition = getPosATLVisual _newConvoyLead;
-_vehicleThatWasBehind move _moveToPosition;
-[_vehicleThatWasBehind,_moveToPosition] call KISKA_fnc_convoyAdvanced_setDynamicMovePoint;
-// Two paths
-// 1. completely delete the current drive path and simply tell the vehicle to move to the 
-/// new leader's current position
-// 2. try to delete just the necessary points and then have the vehicle resume from the
-/// the last point that would make sense
-
-// Ultimately, this amounts to giving the vehicle a new point they need to move to
-// once they are close enough to this new point, consider it complete and then
-// they can resume following the drive path
 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+[_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
+
+private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
+if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
+
+// using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
+// other options will go completely around instead of driving past
+private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
+_calculatePathAgent setVariable ["KISKA_convoyAdvanced_pathVehicle",_vehicleThatWasBehind];
+_calculatePathAgent setVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",_killedVehicle_drivePath];
+_calculatePathAgent addEventHandler ["PathCalculated", {
+    params ["_calculatePathAgent","_path"];
+
+    private _vehicleThatWasBehind = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_pathVehicle",objNull];
+    private _vehicleThatWasBehind_isStillInConvoy = !(isNil { _vehicleThatWasBehind getVariable "KISKA_convoyAdvanced_hashMap" });
+    if ((alive _vehicleThatWasBehind) AND _vehicleThatWasBehind_isStillInConvoy) then {
+        {
+            private _marker = createMarker ["marker" + str _forEachIndex, _x];
+            _marker setMarkerType "mil_dot";
+            _marker setMarkerText str _forEachIndex;
+        } forEach _path;
+
+        private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
+        _path append _killedVehicle_drivePath;
+        _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
+
+        // TODO: get all other vehicles behind to follow this path too
+    };
+}];
+
+
 // TODO: delete queued points with debug objects?
 private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _vehicleThatWasBehind_debugPath apply {
