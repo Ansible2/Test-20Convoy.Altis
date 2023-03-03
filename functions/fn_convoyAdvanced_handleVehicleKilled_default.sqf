@@ -95,41 +95,70 @@ if (_killedVehicle isEqualTo _convoyLead) exitWith {
 	Getting the rear vehicle to move to the lead vehicle
 --------------------------------- */
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
-_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
-_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
+_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 
 private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
 if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 
-// using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
-// other options will go completely around instead of driving past
-private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
-_calculatePathAgent setVariable ["KISKA_convoyAdvanced_pathVehicle",_vehicleThatWasBehind];
-_calculatePathAgent setVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",_killedVehicle_drivePath];
-_calculatePathAgent addEventHandler ["PathCalculated", {
-    params ["_calculatePathAgent","_path"];
 
-    private _vehicleThatWasBehind = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_pathVehicle",objNull];
-    private _vehicleThatWasBehind_isStillInConvoy = !(isNil { _vehicleThatWasBehind getVariable "KISKA_convoyAdvanced_hashMap" });
-    if ((alive _vehicleThatWasBehind) AND _vehicleThatWasBehind_isStillInConvoy) then {
-        {
-            private _marker = createMarker ["marker" + str _forEachIndex, _x];
-            _marker setMarkerType "mil_dot";
-            _marker setMarkerText str _forEachIndex;
-        } forEach _path;
+// TODO:
 
-        private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
-        _path append _killedVehicle_drivePath;
-        _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
+// stop the vehicle
+/// keep queueing points
+/// do not drive to those points or add to drivePath
+// clear drive path
+// clear queued path
+// calc path to last queued point of killed vehicle
+// define overall queued path as the calc'd path plus the points that were queued while the vehicle was stopped
 
-        // TODO: get all other vehicles behind to follow this path too
-    };
-}];
+// Waiting because using calculatePath too soon returns strange paths
+[
+    {
+        params [
+            "_vehicleThatWasBehind",
+            "_killedVehicle_firstDrivePathPoint",
+            "_killedVehicle_drivePath"
+        ];
+
+        // using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
+        // other options will go completely around instead of driving past
+        private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
+        _calculatePathAgent setVariable ["KISKA_convoyAdvanced_pathVehicle",_vehicleThatWasBehind];
+        _calculatePathAgent setVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",_killedVehicle_drivePath];
+        _calculatePathAgent addEventHandler ["PathCalculated", {
+            params ["_calculatePathAgent","_path"];
+
+            private _vehicleThatWasBehind = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_pathVehicle",objNull];
+            private _vehicleThatWasBehind_isStillInConvoy = !(isNil { _vehicleThatWasBehind getVariable "KISKA_convoyAdvanced_hashMap" });
+            if ((alive _vehicleThatWasBehind) AND _vehicleThatWasBehind_isStillInConvoy) then {
+                // set height
+                _path apply {
+                    _x set [2,0];
+                };
+
+                private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
+                _path append _killedVehicle_drivePath;
+                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
+                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
+                (driver _vehicleThatWasBehind) enableAI "path";
+
+                // TODO: get all other vehicles behind to follow this path too
+            };
+        }];
+    },
+    [
+        _vehicleThatWasBehind,
+        _killedVehicle_firstDrivePathPoint,
+        _killedVehicle_drivePath
+    ],
+    2
+] call CBA_fnc_waitAndExecute;
 
 
 // TODO: delete queued points with debug objects?
 private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
+_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _vehicleThatWasBehind_debugPath apply {
     deleteVehicle _x;
 };

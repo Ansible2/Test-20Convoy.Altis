@@ -283,6 +283,8 @@ private _queuedPoints = _currentVehicle getVariable ["KISKA_convoyAdvanced_queue
 if (_queuedPoints isNotEqualTo []) exitWith {
     private _indexInserted = -1;
     _queuedPoints apply {
+        if ((_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS) then {continue};
+
         if (_debug) then {
             private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
             private _debugObject = createVehicle [_debugObjectType, _x, [], 0, "CAN_COLLIDE"];
