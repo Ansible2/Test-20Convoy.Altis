@@ -20,6 +20,7 @@ private _convoyHashMap = [
 ] call KISKA_fnc_convoyAdvanced_addVehicle;
 
 [vic3,true] call KISKA_fnc_convoyAdvanced_setVehicleDebug;
+// [vic2,true] call KISKA_fnc_convoyAdvanced_setVehicleDebug;
 
 sleep 5;
 

@@ -101,6 +101,8 @@ _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
 if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 
+// shove vehicle to the side
+_killedVehicle setVelocityModelSpace [-10,0,0];
 
 // TODO:
 
@@ -118,9 +120,11 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
         params [
             "_vehicleThatWasBehind",
             "_killedVehicle_firstDrivePathPoint",
-            "_killedVehicle_drivePath"
+            "_killedVehicle_drivePath",
+            "_killedVehicle"
         ];
 
+        _killedVehicle setMass ((getMass _vehicleThatWasBehind) / 2);
         // using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
         // other options will go completely around instead of driving past
         private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
@@ -141,8 +145,16 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
                 _path append _killedVehicle_drivePath;
                 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
                 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
+                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
                 (driver _vehicleThatWasBehind) enableAI "path";
 
+                 
+
+                // private _point = ATLToASL (_path select 0);
+                // private _vehicleThatWasBehind_position = getPosASLVisual _vehicleThatWasBehind;
+                // private _directionVectorNormalized = vectorNormalized (_point vectorDiff _vehicleThatWasBehind_position);
+                // private _velocityToPoint = (_directionVectorNormalized vectorMultiply 20);
+                // _vehicleThatWasBehind setVelocityModelSpace _velocityToPoint;
                 // TODO: get all other vehicles behind to follow this path too
             };
         }];
@@ -150,7 +162,8 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
     [
         _vehicleThatWasBehind,
         _killedVehicle_firstDrivePathPoint,
-        _killedVehicle_drivePath
+        _killedVehicle_drivePath,
+        _killedVehicle
     ],
     2
 ] call CBA_fnc_waitAndExecute;
@@ -162,3 +175,18 @@ _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _vehicleThatWasBehind_debugPath apply {
     deleteVehicle _x;
 };
+
+
+
+
+
+
+
+
+
+
+// private _point = getPosASLVisual thePoint;
+// private _vicPosition = getPosASLVisual vic;
+// private _directionVectorNormalized = vectorNormalized (_point vectorDiff _vicPosition);
+// private _velocityToPoint = (_directionVectorNormalized vectorMultiply 20);
+// vic setVelocity _velocityToPoint;
