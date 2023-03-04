@@ -101,18 +101,9 @@ _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
 if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 
-// shove vehicle to the side
-_killedVehicle setVelocityModelSpace [-10,0,0];
+// shove vehicle to the side because AI drivers can't drive past consistently
+[_killedVehicle, [-10,0,0]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
 
-// TODO:
-
-// stop the vehicle
-/// keep queueing points
-/// do not drive to those points or add to drivePath
-// clear drive path
-// clear queued path
-// calc path to last queued point of killed vehicle
-// define overall queued path as the calc'd path plus the points that were queued while the vehicle was stopped
 
 // Waiting because using calculatePath too soon returns strange paths
 [
@@ -124,9 +115,15 @@ _killedVehicle setVelocityModelSpace [-10,0,0];
             "_killedVehicle"
         ];
 
-        _killedVehicle setMass ((getMass _vehicleThatWasBehind) / 2);
+        // adjust mass so that a vehicle can push the dead one out of the way
+        // in case it runs into the dead one
+        [
+            _killedVehicle, 
+            ((getMass _vehicleThatWasBehind) / 2) 
+        ] remoteExecCall ["setMass",_killedVehicle];
+
         // using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
-        // other options will go completely around instead of driving past
+        // other options will generate paths that go completely around (on another road) instead of driving past
         private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
         _calculatePathAgent setVariable ["KISKA_convoyAdvanced_pathVehicle",_vehicleThatWasBehind];
         _calculatePathAgent setVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",_killedVehicle_drivePath];
@@ -136,25 +133,24 @@ _killedVehicle setVelocityModelSpace [-10,0,0];
             private _vehicleThatWasBehind = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_pathVehicle",objNull];
             private _vehicleThatWasBehind_isStillInConvoy = !(isNil { _vehicleThatWasBehind getVariable "KISKA_convoyAdvanced_hashMap" });
             if ((alive _vehicleThatWasBehind) AND _vehicleThatWasBehind_isStillInConvoy) then {
-                // set height
+                // set height of _path points to be 0 (ATL)
                 _path apply {
                     _x set [2,0];
                 };
 
                 private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
                 _path append _killedVehicle_drivePath;
+
+                private _queuedPathSinceStop = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+                _path append _queuedPathSinceStop;
+
                 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
                 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
                 _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
-                (driver _vehicleThatWasBehind) enableAI "path";
 
-                 
+                private _driver = driver _vehicleThatWasBehind;
+                [_driver,"path"] remoteExecCall ["enableAI",_driver];
 
-                // private _point = ATLToASL (_path select 0);
-                // private _vehicleThatWasBehind_position = getPosASLVisual _vehicleThatWasBehind;
-                // private _directionVectorNormalized = vectorNormalized (_point vectorDiff _vehicleThatWasBehind_position);
-                // private _velocityToPoint = (_directionVectorNormalized vectorMultiply 20);
-                // _vehicleThatWasBehind setVelocityModelSpace _velocityToPoint;
                 // TODO: get all other vehicles behind to follow this path too
             };
         }];
@@ -175,18 +171,3 @@ _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _vehicleThatWasBehind_debugPath apply {
     deleteVehicle _x;
 };
-
-
-
-
-
-
-
-
-
-
-// private _point = getPosASLVisual thePoint;
-// private _vicPosition = getPosASLVisual vic;
-// private _directionVectorNormalized = vectorNormalized (_point vectorDiff _vicPosition);
-// private _velocityToPoint = (_directionVectorNormalized vectorMultiply 20);
-// vic setVelocity _velocityToPoint;

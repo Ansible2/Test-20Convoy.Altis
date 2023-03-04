@@ -41,35 +41,30 @@ if (isNull _vehicle) exitWith {
     nil
 };
 
-private _convoyHashMap = [
-    _vehicle
-] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
+private _convoyHashMap = [_vehicle] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
 if (isNil "_convoyHashMap") exitWith {
     [[_vehicle," does not have a KISKA_convoyAdvanced_hashMap in its namespace"],true] call KISKA_fnc_log;
     nil
 };
 
 
-[_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_removeVehicleLocalEvent",_vehicle];
-[_vehicle] remoteExecCall ["KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent",_vehicle];
+[_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent;
 
 private _debugPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
 _debugPathObjects apply {
     deleteVehicle _x;
 };
-private _debugDeletePathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",[]];
-_debugDeletePathObjects apply {
+private _debugDeletedPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",[]];
+_debugDeletedPathObjects apply {
     deleteVehicle _x;
 };
 
 
-private _convoyVehicles = [
-	_convoyHashMap
-] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
+private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 private _vehicleIndex = [_vehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
 _convoyVehicles deleteAt _vehicleIndex;
 
-private _vehiclesToChangeIndex = _convoyVehicles select [_vehicleIndex,MAX_ARRAY_LENGTH];
+private _vehiclesToChangeIndex = _convoyVehicles select [_vehicleIndex, MAX_ARRAY_LENGTH];
 _vehiclesToChangeIndex apply {
     private _currentIndex = [_x] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
     if (_currentIndex isEqualTo -1) then {
@@ -82,13 +77,12 @@ _vehiclesToChangeIndex apply {
     _x setVariable ["KISKA_convoyAdvanced_index",_newIndex];
 };
 
-
-(driver _vehicle) enableAI "path";
+[_vehicle,"path"] remoteExecCall ["enableAI",_vehicle];
 _vehicle limitSpeed -1;
 
 // move will cancel the setDriveOnPath
 if ((speed _vehicle) > 0) then {
-    _vehicle move (getPosATLVisual _vehicle);
+    [_vehicle, (getPosATLVisual _vehicle)] remoteExecCall ["move",_vehicle];
 };
 
 
