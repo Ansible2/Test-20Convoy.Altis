@@ -99,7 +99,7 @@ if ((_currentVehicle isEqualTo _convoyLead) OR !(alive _convoyLead)) exitWith {}
 private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
 private ["_currentVehicle_debugDrivePathObjects","_currentVehicle_debugDeletedDrivePathObjects"];
 if (_debug) then {
-    _currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debugPathObjects";
+    _currentVehicle_debugDrivePathObjects = _currentVehicle getVariable "KISKA_convoyAdvanced_debug_followPathObjects";
 };
 
 // TODO: use the vehicle ahead to queue points off of here
@@ -137,9 +137,9 @@ if (isNil "_currentVehicle_drivePath") then {
 
     if (_debug) then {
         _currentVehicle_debugDeletedDrivePathObjects = [];
-        _currentVehicle setVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",_currentVehicle_debugDeletedDrivePathObjects];
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_debug_followedPathObjects",_currentVehicle_debugDeletedDrivePathObjects];
         _currentVehicle_debugDrivePathObjects = [];
-        _currentVehicle setVariable ["KISKA_convoyAdvanced_debugPathObjects",_currentVehicle_debugDrivePathObjects];
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",_currentVehicle_debugDrivePathObjects];
     };
 };
 
@@ -277,29 +277,47 @@ if (_pointsCanBeDeleted) then {
 
 
 /* ----------------------------------------------------------------------------
-    create new from queued point
+    Handle queued points
 ---------------------------------------------------------------------------- */
 private _queuedPoints = _currentVehicle getVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 if (_queuedPoints isNotEqualTo []) exitWith {
-    private _indexInserted = -1;
-    _queuedPoints apply {
-        if ((_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS) then {continue};
 
-        if (_debug) then {
-            private _debugObjectType = _currentVehicle getVariable ["KISKA_convoyAdvanced_debugMarkerType_queuedPoint","Sign_Arrow_Large_Cyan_F"];
-            private _debugObject = createVehicle [_debugObjectType, _x, [], 0, "CAN_COLLIDE"];
-            _currentVehicle_debugDrivePathObjects pushBack _debugObject;
+    if (_currentVehicle getVariable ["KISKA_convoyAdvanced_doDriveOnPath",true]) then {
+        private _indexInserted = -1;
+        _queuedPoints apply {
+            if ((_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS) then {continue};
+
+            if (_debug) then {
+                private _debugObjectType = _currentVehicle getVariable [
+                    "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
+                    "Sign_Arrow_Large_Cyan_F"
+                ];
+                private _debugObject = createVehicle [_debugObjectType, _x, [], 0, "CAN_COLLIDE"];
+                _currentVehicle_debugDrivePathObjects pushBack _debugObject;
+            };
+
+            _indexInserted = _currentVehicle_drivePath pushBack _x;
         };
 
-        _indexInserted = _currentVehicle_drivePath pushBack _x;
+        // vehicle need at least two points for setDriveOnPath to work
+        if (_indexInserted >= 1) then {
+            _currentVehicle setDriveOnPath _currentVehicle_drivePath;
+        };
+
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+
+    } else {
+        private _vehicleToFollow = _currentVehicle getVariable ["KISKA_convoyAdvanced_vehicleToFollow",_convoyLead];
+        private _lastQueuedPoint = [_queuedPoints] call KISKA_fnc_selectLastIndex;
+        private _vehicleToFollow_position = getPosATLVisual _vehicleToFollow;
+        private _vehicleToFollow_distanceToLastQueuedPoint = _vehicleToFollow_position vectorDistance _lastQueuedPoint;
+        private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
+        if (_vehicleToFollow_distanceToLastQueuedPoint <= _minBufferBetweenPoints) exitWith {};
+
+        _queuedPoints pushBack _vehicleToFollow_position;
+
     };
 
-    // vehicle need at least two points for setDriveOnPath to work
-    if (_indexInserted >= 1) then {
-        _currentVehicle setDriveOnPath _currentVehicle_drivePath;
-    };
-
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
 };
 
 

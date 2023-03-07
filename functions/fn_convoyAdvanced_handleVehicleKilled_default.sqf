@@ -78,7 +78,7 @@ if (isNull _convoyLead) exitWith {
 /* ----------------------------------------------------------------------------
 	Logic
 ---------------------------------------------------------------------------- */
-private _killedVehicle_drivePath = _killedVehicle getVariable ["KISKA_convoyAdvanced_drivePath",[]];
+private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
 [_killedVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
 
 private _vehicleIndex = [_killedVehicle] call KISKA_convoyAdvanced_getVehicleIndex;
@@ -96,7 +96,8 @@ if (_killedVehicle isEqualTo _convoyLead) exitWith {
 --------------------------------- */
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
-_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+[_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+[_vehicleThatWasBehind, []] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
 
 private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
 if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
@@ -141,12 +142,13 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
                 private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
                 _path append _killedVehicle_drivePath;
 
-                private _queuedPathSinceStop = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_queuedPoints",[]];
+                private _queuedPathSinceStop = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getVehicleQueuedPoints;
                 _path append _queuedPathSinceStop;
-
-                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_queuedPoints",_path];
-                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_drivePath",[]];
-                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
+                
+                [_vehicleThatWasBehind, _path] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
+                [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_clearVehicleDrivePath;
+                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
+                [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
 
                 private _driver = driver _vehicleThatWasBehind;
                 [_driver,"path"] remoteExecCall ["enableAI",_driver];
@@ -166,8 +168,8 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 
 
 // TODO: delete queued points with debug objects?
-private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
-_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
+private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
+_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
 _vehicleThatWasBehind_debugPath apply {
     deleteVehicle _x;
 };

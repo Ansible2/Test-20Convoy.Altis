@@ -50,11 +50,11 @@ if (isNil "_convoyHashMap") exitWith {
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent;
 
-private _debugPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugPathObjects",[]];
+private _debugPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
 _debugPathObjects apply {
     deleteVehicle _x;
 };
-private _debugDeletedPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debugDeletedPathObjects",[]];
+private _debugDeletedPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debug_followedPathObjects",[]];
 _debugDeletedPathObjects apply {
     deleteVehicle _x;
 };
@@ -89,18 +89,19 @@ if ((speed _vehicle) > 0) then {
 [
     "KISKA_convoyAdvanced_isStopped",
     "KISKA_convoyAdvanced_drivePath",
-    "KISKA_convoyAdvanced_debugPathObjects",
+    "KISKA_convoyAdvanced_debug_followPathObjects",
+    "KISKA_convoyAdvanced_debug_followedPathObjects",
     "KISKA_convoyAdvanced_debug",
     "KISKA_convoyAdvanced_hashMap",
     "KISKA_convoyAdvanced_index",
     "KISKA_convoyAdvanced_debugMarkerType_deletedPoint",
     "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
     "KISKA_convoyAdvanced_queuedPoint",
-    "KISKA_convoyAdvanced_debugDeletedPathObjects",
     "KISKA_convoyAdvanced_vehicleKilledEventID",
     "KISKA_convoyAdvanced_seperation",
     "KISKA_convoyAdvanced_dynamicMovePoint",
-    "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius"
+    "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",
+    "KISKA_convoyAdvanced_doDriveOnPath"
 ] apply {
     _vehicle setVariable [_x,nil];
 };

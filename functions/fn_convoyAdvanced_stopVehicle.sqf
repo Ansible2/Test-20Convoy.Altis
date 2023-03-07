@@ -42,7 +42,7 @@ if (isNull _vehicle) exitWith {
 
 _vehicle limitSpeed 1;
 // Limiting the speed is not enough for some vehicles (armor)
-// They will either not stop fast enough in close follow distances
+// They will either not stop fast enough when follow distances are small
 // Or they start to move around and find random places to go
 private _driver = driver _vehicle;
 [_driver,"path"] remoteExecCall ["disableAI",_driver];
