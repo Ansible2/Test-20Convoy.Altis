@@ -147,7 +147,8 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
                 
                 [_vehicleThatWasBehind, _path] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
                 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_clearVehicleDrivePath;
-                _vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
+                // TODO: add clear function and getter
+                [_vehicleThatWasBehind,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
                 [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
 
                 private _driver = driver _vehicleThatWasBehind;
@@ -167,9 +168,4 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 ] call CBA_fnc_waitAndExecute;
 
 
-// TODO: delete queued points with debug objects?
-private _vehicleThatWasBehind_debugPath = _vehicleThatWasBehind getVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
-_vehicleThatWasBehind setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
-_vehicleThatWasBehind_debugPath apply {
-    deleteVehicle _x;
-};
+[_vehicleThatWasBehind,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;

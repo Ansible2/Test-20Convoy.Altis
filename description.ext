@@ -9,6 +9,10 @@ class CfgFunctions
             {};
             class convoyAdvanced_addVehicleKilledEvent
             {};
+            class convoyAdvanced_clearVehicleDebugFollowedPath
+            {};
+            class convoyAdvanced_clearVehicleDebugFollowPath
+            {};
             class convoyAdvanced_clearVehicleDrivePath
             {};
             class convoyAdvanced_create
@@ -32,6 +36,10 @@ class CfgFunctions
             class convoyAdvanced_getPointBuffer
             {};
             class convoyAdvanced_getVehicleAtIndex
+            {};
+            class convoyAdvanced_getVehicleDebugFollowedPath
+            {};
+            class convoyAdvanced_getVehicleDebugFollowPath
             {};
             class convoyAdvanced_getVehicleDoDriveOnPath
             {};

@@ -49,15 +49,9 @@ if (isNil "_convoyHashMap") exitWith {
 
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicleKilledEvent;
+[_vehicle,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
+[_vehicle,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowedPath;
 
-private _debugPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
-_debugPathObjects apply {
-    deleteVehicle _x;
-};
-private _debugDeletedPathObjects = _vehicle getVariable ["KISKA_convoyAdvanced_debug_followedPathObjects",[]];
-_debugDeletedPathObjects apply {
-    deleteVehicle _x;
-};
 
 
 private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
@@ -80,7 +74,7 @@ _vehiclesToChangeIndex apply {
 [_vehicle,"path"] remoteExecCall ["enableAI",_vehicle];
 _vehicle limitSpeed -1;
 
-// move will cancel the setDriveOnPath
+// `move` will cancel the setDriveOnPath
 if ((speed _vehicle) > 0) then {
     [_vehicle, (getPosATLVisual _vehicle)] remoteExecCall ["move",_vehicle];
 };
