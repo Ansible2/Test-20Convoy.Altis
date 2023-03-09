@@ -32,12 +32,14 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_addVehicle";
 
+#define MAX_ARRAY_LENGTH 1E7
+
+
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
     nil
 };
 
-#define MAX_ARRAY_LENGTH 1E7
 
 params [
     ["_convoyHashMap",nil,[createHashMap]],
