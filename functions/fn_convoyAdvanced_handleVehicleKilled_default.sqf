@@ -147,14 +147,23 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
                 
                 [_vehicleThatWasBehind, _path] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
                 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_clearVehicleDrivePath;
-                // TODO: add clear function and getter
-                [_vehicleThatWasBehind,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
+                [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
                 [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
 
                 private _driver = driver _vehicleThatWasBehind;
                 [_driver,"path"] remoteExecCall ["enableAI",_driver];
 
+                private _convoyHashMap = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
+                private _vehicleThatWasBehind_index = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
+                private _vehiclesBehind = [
+                    _convoyHashMap,
+                    _vehicleThatWasBehind_index - 1
+                ] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
+
                 // TODO: get all other vehicles behind to follow this path too
+                _vehiclesBehind apply {
+
+                };
             };
         }];
     },
