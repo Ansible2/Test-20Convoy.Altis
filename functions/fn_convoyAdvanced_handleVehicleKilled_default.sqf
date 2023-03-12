@@ -97,13 +97,27 @@ if (_killedVehicle isEqualTo _convoyLead) exitWith {
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
 [_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
-[_vehicleThatWasBehind, []] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
 
-private _killedVehicle_firstDrivePathPoint = _killedVehicle_drivePath param [0,[]];
-if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
+// push to the right by default
+private _pushToTheSideVelocity = 10;
+private _killedVehicle_position = getPosWorldVisual _killedVehicle;
+for "_i" from 1 to 25 do { 
+    private _positionLeft = AGLToASL (_killedVehicle getRelPos [_i,270]);
+    private _objectsAreOnTheLeft = (lineIntersectsObjs [_killedVehicle_position, _positionLeft, _killedVehicle, objNull,true,32]) isNotEqualTo [];
+    if (_objectsAreOnTheLeft) then { break };
+    
+    private _positionRight = AGLToASL (_killedVehicle getRelPos [_i,90]);
+    private _objectsAreOnTheRight = (lineIntersectsObjs [_killedVehicle_position, _positionRight, _killedVehicle, objNull,true,32]) isNotEqualTo [];
+    if (_objectsAreOnTheRight) then {
+        // push to the left
+        _pushToTheSideVelocity = -10; 
+        break 
+    };
+};
+
 
 // shove vehicle to the side because AI drivers can't drive past consistently
-[_killedVehicle, [-10,0,0]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
+[_killedVehicle, [_pushToTheSideVelocity,0,2]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
 
 
 // Waiting because using calculatePath too soon returns strange paths
@@ -123,49 +137,11 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
             ((getMass _vehicleThatWasBehind) / 2) 
         ] remoteExecCall ["setMass",_killedVehicle];
 
-        // using "man" to calculatePath because vehicles will otherwise refuse to squeeze past vehicles in the road
-        // other options will generate paths that go completely around (on another road) instead of driving past
-        private _calculatePathAgent = calculatePath ["man","safe",getPosATLVisual _vehicleThatWasBehind,_killedVehicle_firstDrivePathPoint];
-        _calculatePathAgent setVariable ["KISKA_convoyAdvanced_pathVehicle",_vehicleThatWasBehind];
-        _calculatePathAgent setVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",_killedVehicle_drivePath];
-        _calculatePathAgent addEventHandler ["PathCalculated", {
-            params ["_calculatePathAgent","_path"];
 
-            private _vehicleThatWasBehind = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_pathVehicle",objNull];
-            private _vehicleThatWasBehind_isStillInConvoy = !(isNil { _vehicleThatWasBehind getVariable "KISKA_convoyAdvanced_hashMap" });
-            if ((alive _vehicleThatWasBehind) AND _vehicleThatWasBehind_isStillInConvoy) then {
-                // set height of _path points to be 0 (ATL)
-                _path apply {
-                    _x set [2,0];
-                };
+        private _driver = driver _vehicleThatWasBehind;
+        [_driver,"path"] remoteExecCall ["enableAI",_driver];
 
-                private _killedVehicle_drivePath = _calculatePathAgent getVariable ["KISKA_convoyAdvanced_killedVehicle_drivePath",[]];
-                _path append _killedVehicle_drivePath;
-
-                private _queuedPathSinceStop = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getVehicleQueuedPoints;
-                _path append _queuedPathSinceStop;
-                
-                [_vehicleThatWasBehind, _path] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
-                [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_clearVehicleDrivePath;
-                [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
-                [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
-
-                private _driver = driver _vehicleThatWasBehind;
-                [_driver,"path"] remoteExecCall ["enableAI",_driver];
-
-                private _convoyHashMap = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getConvoyHashMapFromVehicle;
-                private _vehicleThatWasBehind_index = [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
-                private _vehiclesBehind = [
-                    _convoyHashMap,
-                    _vehicleThatWasBehind_index - 1
-                ] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
-
-                // TODO: get all other vehicles behind to follow this path too
-                _vehiclesBehind apply {
-
-                };
-            };
-        }];
+        [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
     },
     [
         _vehicleThatWasBehind,
@@ -177,4 +153,4 @@ if (_killedVehicle_firstDrivePathPoint isEqualTo []) exitWith {};
 ] call CBA_fnc_waitAndExecute;
 
 
-[_vehicleThatWasBehind,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
+nil
