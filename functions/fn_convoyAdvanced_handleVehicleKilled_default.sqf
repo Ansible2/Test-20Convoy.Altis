@@ -103,11 +103,11 @@ private _pushToTheSideVelocity = 10;
 private _killedVehicle_position = getPosWorldVisual _killedVehicle;
 for "_i" from 1 to 25 do { 
     private _positionLeft = AGLToASL (_killedVehicle getRelPos [_i,270]);
-    private _objectsAreOnTheLeft = (lineIntersectsObjs [_killedVehicle_position, _positionLeft, _killedVehicle, objNull,true,32]) isNotEqualTo [];
+    private _objectsAreOnTheLeft = (lineIntersectsObjs [_killedVehicle_position, _positionLeft, _killedVehicle, objNull,false,32]) isNotEqualTo [];
     if (_objectsAreOnTheLeft) then { break };
     
     private _positionRight = AGLToASL (_killedVehicle getRelPos [_i,90]);
-    private _objectsAreOnTheRight = (lineIntersectsObjs [_killedVehicle_position, _positionRight, _killedVehicle, objNull,true,32]) isNotEqualTo [];
+    private _objectsAreOnTheRight = (lineIntersectsObjs [_killedVehicle_position, _positionRight, _killedVehicle, objNull,false,32]) isNotEqualTo [];
     if (_objectsAreOnTheRight) then {
         // push to the left
         _pushToTheSideVelocity = -10; 
