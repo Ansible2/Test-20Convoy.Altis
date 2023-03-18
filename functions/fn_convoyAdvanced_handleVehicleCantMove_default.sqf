@@ -4,8 +4,8 @@ private _findClearSide = {
     params ["_disabledVehicle","_affectedPositionsATL","_requiredSpace"];
 
     (_affectedPositionsATL select 0) params ["_closestAffectedPosition"];
-    private _affectedPositionsCount = count _affectedPositionsATL;
     
+    private _affectedPositionsCount = count _affectedPositionsATL;
     private _middleIndex = (round (_affectedPositionsCount / 2)) - 1;
     (_affectedPositionsATL select _middleIndex) params ["_middleAffectedPosition"];
     
@@ -34,23 +34,23 @@ private _findClearSide = {
         /// but say you have some objects just close to the _disabledVehicle but plenty of space beyond that
 
         if (_clearLeft) then {
-            private _positionLeftASL = _positionASL getPos [_requiredSpace, _leftAzimuth];
+            private _positionLeftASL = AGLToASL(_positionASL getPos [_requiredSpace, _leftAzimuth]);
             private _objectsOnLeft = lineIntersectsObjs [_positionASL, _positionLeftASL, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheLeft = _objectsOnLeft isNotEqualTo [];
-            
+
             // DEBUG
-            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionLeftASL),[],0,""];
+            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionLeftASL),[],0,"CAN_COLLIDE"];
             
             if (_objectsAreOnTheLeft) then { _clearLeft = false; };
         };
 
         if (_clearRight) then {
-            private _positionRightASL = _positionASL getPos [_requiredSpace, _rightAzimuth];
+            private _positionRightASL = AGLToASL(_positionASL getPos [_requiredSpace, _rightAzimuth]);
             private _objectsOnRight = lineIntersectsObjs [_positionASL, _positionRightASL, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheRight = _objectsOnRight isNotEqualTo [];
             
             // DEBUG
-            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionRightASL),[],0,""];
+            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionRightASL),[],0,"CAN_COLLIDE"];
             
             if (_objectsAreOnTheRight) then { _clearRight = false };
         };
@@ -65,8 +65,6 @@ private _findClearSide = {
         if (_clearRight) then { _clearSide = 1; };
     };
 
-    // DEBUG
-    // hint str _clearSide;
 
     _clearSide
 };
@@ -135,12 +133,12 @@ if (_affectedPositionsATL isNotEqualTo []) then {
     private _boxMaxes = _disabledVehicle_boundingBox select 1; 
     private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2;
 
-    // 1. find clearest side
     private _clearSide = [
         _disabledVehicle,
         _affectedPositionsATL,
         (_vehicleBehind_width + 2 + _disabledVehicle_halfWidth)
     ] call _findClearSide;
+    
 
     private _noSideIsClear = _clearSide isEqualTo -1;
     if (_noSideIsClear) exitWith {};
@@ -152,7 +150,7 @@ if (_affectedPositionsATL isNotEqualTo []) then {
     private _adjustmentAzimuth = _adjustmentDirectionBase + _disabledVehicle_dir;
     
     private _firstPosition = (_affectedPositionsATL select 0) select 0;
-    private _firstPositionAdjusted = _firstPosition getPos [_adjustmentDistance, _adjustmentAzimuth];
+    private _firstPositionAdjusted = ASLToATL(AGLToASL(_firstPosition getPos [_adjustmentDistance, _adjustmentAzimuth]));
     private _vectorOffset = _firstPosition vectorDiff _firstPositionAdjusted;
 
     // DEBUG
@@ -168,17 +166,6 @@ if (_affectedPositionsATL isNotEqualTo []) then {
         createVehicle [_colorTypes select _rotation,_positionAdjusted,[],0,"CAN_COLLIDE"];
         _rotation = _rotation + 1;
         if (_rotation > 2) then {_rotation = 0};
-
-        // TODO: determine how to edit affected position in _vehicleBehind_path
-
-        // using the provided widths, adjust positions in path to be spaced around
-        // 2. take lineIntersect out to ~25m (maybe less) to find a path by
-            // a. walk in the lineIntersect 1-2m increments until it can be fit
-            // b. do not allow the point in the earlier bounding box of affected points
-        // 3. place the affected point at the farthest possible point along the line
-        /// in which there is no intersection
-
-        // NOTE: also need to account for the bounding box of the vehicle that is trying to get through
     };
 
 };
