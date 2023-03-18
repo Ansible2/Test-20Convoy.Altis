@@ -8,6 +8,9 @@ private _findClearSide = {
     private _middleIndex = (round (_affectedPositionsCount / 2)) - 1;
     private _middleAffectedPosition = _affectedPositions select _middleIndex;
     private _lastAffectedPosition = _affectedPositions select (_affectedPositionsCount - 1);
+    private _disabledVehicle_dir = getDirVisual _disabledVehicle;
+    private _leftAzimuth = 270 + _disabledVehicle_dir;
+    private _rightAzimuth = 90 + _disabledVehicle_dir;
 
     private _clearSide = -1;
     private _clearLeft = true;
@@ -26,14 +29,14 @@ private _findClearSide = {
         /// but say you have some objects just close to the _disabledVehicle but plenty of space beyond that
 
         if (_clearLeft) then {
-            private _positionLeft = AGLToASL (_x getRelPos [_requiredSpace, 270]);
+            private _positionLeft = AGLToASL (_x getPos [_requiredSpace, _leftAzimuth]);
             private _objectsOnLeft = lineIntersectsObjs [_positionASL, _positionLeft, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheLeft = _objectsOnLeft isNotEqualTo [];
             if (_objectsAreOnTheLeft) then { _clearLeft = false; };
         };
 
         if (_clearRight) then {
-            private _positionRight = AGLToASL (_x getRelPos [_requiredSpace, 90]);
+            private _positionRight = AGLToASL (_x getPos [_requiredSpace, _rightAzimuth]);
             private _objectsOnRight = lineIntersectsObjs [_positionASL, _positionRight, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheRight = _objectsOnRight isNotEqualTo [];
             if (_objectsAreOnTheRight) then { _clearRight = false };
@@ -48,7 +51,7 @@ private _findClearSide = {
         if (_clearRight) then { _clearSide = 1; };
     };
 
-
+    hint str _clearSide;
     _clearSide
 };
 
@@ -64,7 +67,7 @@ private _boxMaxes = _disabledVehicleBoundingBox select 1;
 // x and y are not halved because while it would be more precise, we
 // need to make sure there is enough clearance for vehicles to actually
 // pass by the side of it
-private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2
+private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2;
 private _areaX = _disabledVehicle_halfWidth + 5;
 private _areaY = (abs ((_boxMaxes select 1) - (_boxMins select 1))) / 2 + 10;
 private _areaZ = (abs ((_boxMaxes select 2) - (_boxMins select 2))) / 2;
@@ -73,17 +76,37 @@ private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
 private _vehicleBehind_path = (["pathLayer"] call KISKA_fnc_getMissionLayerObjects) apply { getPosASLVisual _x };
 private _startIndex = -1;
 private _endIndex = -1;
+private _lastIndex = (count _vehicleBehind_path) - 1;
 {
-    private _areaAngle = _x getDir (_vehicleBehind_path param [_forEachIndex + 1,[0,0,0]]);
+    if (_forEachIndex isEqualTo _lastIndex) then { break };
+
+    private _areaAngle = _x getDir (_vehicleBehind_path select (_forEachIndex + 1));
+    // TODO: this area select is not right
+    // private _pointIsInArea = _x inArea [
+    //     _areaCenter,
+    //     _areaX,
+    //     _areaY,
+    //     0,
+    //     true,
+    //     _areaZ
+    // ];
     private _pointIsInArea = _x inArea [
+        _areaCenter,
+        5,
+        5,
+        0,
+        true,
+        10
+    ];
+    hint str [
         _areaCenter,
         _areaX,
         _areaY,
-        _areaAngle,
+        0,
         true,
         _areaZ
     ];
-    
+
     if (_pointIsInArea) then {
         if (_startIndex isEqualTo -1) then {
             _startIndex = _forEachIndex;
@@ -100,6 +123,7 @@ private _endIndex = -1;
     };
 
 } forEach _vehicleBehind_path;
+
 
 if (_startIndex isNotEqualTo -1) then {
     private _affectedPositions = _vehicleBehind_path select [_startIndex,_endIndex + 1];
@@ -118,7 +142,14 @@ if (_startIndex isNotEqualTo -1) then {
     private _noSideIsClear = _clearSide isEqualTo -1;
     if (_noSideIsClear) exitWith {};
 
+    private _adjustmentDistance = _vehicleBehind_width + _disabledVehicle_halfWidth + 2;
+    private _disabledVehicle_dir = getDirVisual _disabledVehicle;
+    // [left,right] select _clearSide
+    private _adjustmentDirectionBase = [270,90] select _clearSide;
+    private _adjustmentAzimuth = _adjustmentDirectionBase + _disabledVehicle_dir;
     _affectedPositions apply {
+        private _positionAdjusted = AGLToASL (_x getPos [_adjustmentDistance, _adjustmentAzimuth]);
+        createVehicle ["Sign_Arrow_Large_Cyan_F",(ASLToATL _positionAdjusted),[],0,""];
         // TODO: determine how to edit affected position in _vehicleBehind_path
 
         // using the provided widths, adjust positions in path to be spaced around
