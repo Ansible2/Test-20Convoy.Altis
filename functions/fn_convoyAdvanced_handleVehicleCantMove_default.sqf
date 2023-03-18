@@ -143,7 +143,7 @@ if (_affectedPositionsATL isNotEqualTo []) then {
     private _noSideIsClear = _clearSide isEqualTo -1;
     if (_noSideIsClear) exitWith {};
 
-    private _adjustmentDistance = _vehicleBehind_width + _disabledVehicle_halfWidth + 2;
+    private _adjustmentDistance = _vehicleBehind_width + _disabledVehicle_halfWidth + 1;
     private _disabledVehicle_dir = getDirVisual _disabledVehicle;
     // [left,right] select _clearSide
     private _adjustmentDirectionBase = [270,90] select _clearSide;
