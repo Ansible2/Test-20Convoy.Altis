@@ -32,7 +32,6 @@ private _findClearSide = {
         // checking a minimum of 5m from the _disabledVehicle in order to have a decent buffer
         // also stepping by 5 just in case you have a wide open area to go around
         /// but say you have some objects just close to the _disabledVehicle but plenty of space beyond that
-
         if (_clearLeft) then {
             private _positionLeftASL = AGLToASL(_positionASL getPos [_requiredSpace, _leftAzimuth]);
             private _objectsOnLeft = lineIntersectsObjs [_positionASL, _positionLeftASL, _disabledVehicle, objNull,true,32];
@@ -56,7 +55,7 @@ private _findClearSide = {
         };
 
 
-        if !(_clearLeft AND _clearRight) then { break };
+        if ((!_clearLeft) AND (!_clearRight)) then { break };
     };
 
     if (_clearLeft) then {
