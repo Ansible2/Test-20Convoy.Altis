@@ -3,11 +3,16 @@
 private _findClearSide = {
     params ["_disabledVehicle","_affectedPositionsATL","_requiredSpace"];
 
-    private _closestAffectedPosition = _affectedPositionsATL select 0;
+    (_affectedPositionsATL select 0) params ["_closestAffectedPosition"];
     private _affectedPositionsCount = count _affectedPositionsATL;
+    
     private _middleIndex = (round (_affectedPositionsCount / 2)) - 1;
-    private _middleAffectedPosition = _affectedPositionsATL select _middleIndex;
-    private _lastAffectedPosition = _affectedPositionsATL select (_affectedPositionsCount - 1);
+    (_affectedPositionsATL select _middleIndex) params ["_middleAffectedPosition"];
+    
+    private _lastIndex = _affectedPositionsCount - 1;
+    (_affectedPositionsATL select _lastIndex) params ["_lastAffectedPosition"];
+    
+
     private _disabledVehicle_dir = getDirVisual _disabledVehicle;
     private _leftAzimuth = 270 + _disabledVehicle_dir;
     private _rightAzimuth = 90 + _disabledVehicle_dir;
@@ -50,6 +55,7 @@ private _findClearSide = {
             if (_objectsAreOnTheRight) then { _clearRight = false };
         };
 
+
         if !(_clearLeft AND _clearRight) then { break };
     };
 
@@ -81,19 +87,8 @@ private _fn_getAffectedPositions = {
     private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
     private _lastIndex = (count _vehicleBehind_path) - 1;
     
-    [["_areaCenter: ",_areaCenter]] call KISKA_fnc_log;
-
-    [["X before abs and division: ",(_boxMaxes select 0) - (_boxMins select 0)]] call KISKA_fnc_log;
-    [["_areaX: ",_areaX]] call KISKA_fnc_log;
-
-    [["Y before abs and division: ",(_boxMaxes select 1) - (_boxMins select 1)]] call KISKA_fnc_log;
-    [["_areaY: ",_areaY]] call KISKA_fnc_log;
-
-    [["Z before abs and division: ",(_boxMaxes select 2) - (_boxMins select 2)]] call KISKA_fnc_log;
-    [["_areaZ: ",_areaZ]] call KISKA_fnc_log;
-
     private _affectedPositionsATL = [];
-    _vehicleBehind_path apply {
+    {
         if (_forEachIndex isEqualTo _lastIndex) then { break };
 
         private _areaAngle = _x getDir (_vehicleBehind_path select (_forEachIndex + 1));
@@ -110,12 +105,12 @@ private _fn_getAffectedPositions = {
         if (_anAffectedPositionWasFound AND (!_pointIsInArea)) then { break };
 
         if (_pointIsInArea) then {
-            _affectedPositionsATL pushBack _x;
+            _affectedPositionsATL pushBack [_x,_forEachIndex];
         };
-    };
 
-    // DEBUG
-    // hint str _affectedPositionsATL;
+    } forEach _vehicleBehind_path;
+
+
     _affectedPositionsATL
 };
 
@@ -131,10 +126,6 @@ private _affectedPositionsATL = [
 ] call _fn_getAffectedPositions;
 
 if (_affectedPositionsATL isNotEqualTo []) then {
-    // DEBUG
-    hint str (count _affectedPositionsATL);
-    // hint str _affectedPositionsATL;
-
     private _vehicleBehind_boundingBox = 0 boundingBoxReal _vehicleBehind;
     private _vehicleBehind_boxMins = _vehicleBehind_boundingBox select 0; 
     private _vehicleBehind_boxMaxes = _vehicleBehind_boundingBox select 1; 
@@ -160,18 +151,23 @@ if (_affectedPositionsATL isNotEqualTo []) then {
     private _adjustmentDirectionBase = [270,90] select _clearSide;
     private _adjustmentAzimuth = _adjustmentDirectionBase + _disabledVehicle_dir;
     
+    private _firstPosition = (_affectedPositionsATL select 0) select 0;
+    private _firstPositionAdjusted = _firstPosition getPos [_adjustmentDistance, _adjustmentAzimuth];
+    private _vectorOffset = _firstPosition vectorDiff _firstPositionAdjusted;
+
     // DEBUG
     private _colorTypes = ["Sign_Arrow_Large_Yellow_F", "Sign_Arrow_Large_F", "Sign_Arrow_Large_Pink_F"];
-
     private _rotation = 0;
 
     _affectedPositionsATL apply {
-        private _positionAdjusted = _x getPos [_adjustmentDistance, _adjustmentAzimuth];
+        _x params ["_position","_index"];
+        private _positionAdjusted = _position vectorDiff _vectorOffset;
+        _vehicleBehind_path set [_index,_positionAdjusted];
+
         // DBEUG
-        createVehicle [_colorTypes select _rotation,_positionAdjusted,[],0,""];
+        createVehicle [_colorTypes select _rotation,_positionAdjusted,[],0,"CAN_COLLIDE"];
         _rotation = _rotation + 1;
         if (_rotation > 2) then {_rotation = 0};
-
 
         // TODO: determine how to edit affected position in _vehicleBehind_path
 
@@ -184,4 +180,14 @@ if (_affectedPositionsATL isNotEqualTo []) then {
 
         // NOTE: also need to account for the bounding box of the vehicle that is trying to get through
     };
+
 };
+
+
+
+
+
+_vehicleBehind_path apply {
+    _x pushBack 20;
+};
+vic1 setDriveOnPath _vehicleBehind_path;                                    
