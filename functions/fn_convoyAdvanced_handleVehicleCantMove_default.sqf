@@ -1,13 +1,13 @@
 
 // TODO: finish function to find out what (if any) side is clear
 private _findClearSide = {
-    params ["_disabledVehicle","_affectedPositions","_requiredSpace"];
+    params ["_disabledVehicle","_affectedPositionsATL","_requiredSpace"];
 
-    private _closestAffectedPosition = _affectedPositions select 0;
-    private _affectedPositionsCount = count _affectedPositions;
+    private _closestAffectedPosition = _affectedPositionsATL select 0;
+    private _affectedPositionsCount = count _affectedPositionsATL;
     private _middleIndex = (round (_affectedPositionsCount / 2)) - 1;
-    private _middleAffectedPosition = _affectedPositions select _middleIndex;
-    private _lastAffectedPosition = _affectedPositions select (_affectedPositionsCount - 1);
+    private _middleAffectedPosition = _affectedPositionsATL select _middleIndex;
+    private _lastAffectedPosition = _affectedPositionsATL select (_affectedPositionsCount - 1);
     private _disabledVehicle_dir = getDirVisual _disabledVehicle;
     private _leftAzimuth = 270 + _disabledVehicle_dir;
     private _rightAzimuth = 90 + _disabledVehicle_dir;
@@ -29,16 +29,24 @@ private _findClearSide = {
         /// but say you have some objects just close to the _disabledVehicle but plenty of space beyond that
 
         if (_clearLeft) then {
-            private _positionLeft = AGLToASL (_x getPos [_requiredSpace, _leftAzimuth]);
-            private _objectsOnLeft = lineIntersectsObjs [_positionASL, _positionLeft, _disabledVehicle, objNull,true,32];
+            private _positionLeftASL = _positionASL getPos [_requiredSpace, _leftAzimuth];
+            private _objectsOnLeft = lineIntersectsObjs [_positionASL, _positionLeftASL, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheLeft = _objectsOnLeft isNotEqualTo [];
+            
+            // DEBUG
+            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionLeftASL),[],0,""];
+            
             if (_objectsAreOnTheLeft) then { _clearLeft = false; };
         };
 
         if (_clearRight) then {
-            private _positionRight = AGLToASL (_x getPos [_requiredSpace, _rightAzimuth]);
-            private _objectsOnRight = lineIntersectsObjs [_positionASL, _positionRight, _disabledVehicle, objNull,true,32];
+            private _positionRightASL = _positionASL getPos [_requiredSpace, _rightAzimuth];
+            private _objectsOnRight = lineIntersectsObjs [_positionASL, _positionRightASL, _disabledVehicle, objNull,true,32];
             private _objectsAreOnTheRight = _objectsOnRight isNotEqualTo [];
+            
+            // DEBUG
+            createVehicle ["Sign_Arrow_Large_Green_F",(ASLToATL _positionRightASL),[],0,""];
+            
             if (_objectsAreOnTheRight) then { _clearRight = false };
         };
 
@@ -51,91 +59,95 @@ private _findClearSide = {
         if (_clearRight) then { _clearSide = 1; };
     };
 
-    hint str _clearSide;
+    // DEBUG
+    // hint str _clearSide;
+
     _clearSide
 };
 
+private _fn_getAffectedPositions = {
+    params ["_vehicleBehind_path","_disabledVehicle","_disabledVehicle_boundingBox"];
 
+    private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
+    private _boxMins = _disabledVehicle_boundingBox select 0; 
+    private _boxMaxes = _disabledVehicle_boundingBox select 1; 
+    // x and y are not halved because while it would be more precise, we
+    // need to make sure there is enough clearance for vehicles to actually
+    // pass by the side of it
+    private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2;
+    private _areaX = _disabledVehicle_halfWidth + 5;
+    private _areaY = (abs ((_boxMaxes select 1) - (_boxMins select 1))) / 2 + 10;
+    private _areaZ = (abs ((_boxMaxes select 2) - (_boxMins select 2))) / 2;
+    private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
+    private _lastIndex = (count _vehicleBehind_path) - 1;
+    
+    [["_areaCenter: ",_areaCenter]] call KISKA_fnc_log;
 
+    [["X before abs and division: ",(_boxMaxes select 0) - (_boxMins select 0)]] call KISKA_fnc_log;
+    [["_areaX: ",_areaX]] call KISKA_fnc_log;
+
+    [["Y before abs and division: ",(_boxMaxes select 1) - (_boxMins select 1)]] call KISKA_fnc_log;
+    [["_areaY: ",_areaY]] call KISKA_fnc_log;
+
+    [["Z before abs and division: ",(_boxMaxes select 2) - (_boxMins select 2)]] call KISKA_fnc_log;
+    [["_areaZ: ",_areaZ]] call KISKA_fnc_log;
+
+    private _affectedPositionsATL = [];
+    _vehicleBehind_path apply {
+        if (_forEachIndex isEqualTo _lastIndex) then { break };
+
+        private _areaAngle = _x getDir (_vehicleBehind_path select (_forEachIndex + 1));
+        private _pointIsInArea = _x inArea [
+            _areaCenter,
+            _areaX,
+            _areaY,
+            _areaAngle,
+            true,
+            _areaZ
+        ];
+
+        private _anAffectedPositionWasFound = _affectedPositionsATL isNotEqualTo [];
+        if (_anAffectedPositionWasFound AND (!_pointIsInArea)) then { break };
+
+        if (_pointIsInArea) then {
+            _affectedPositionsATL pushBack _x;
+        };
+    };
+
+    // DEBUG
+    // hint str _affectedPositionsATL;
+    _affectedPositionsATL
+};
 
 private _disabledVehicle = vic;
 private _vehicleBehind = vic1;
+private _vehicleBehind_path = (["pathLayer"] call KISKA_fnc_getMissionLayerObjects) apply { getPosATLVisual _x };
+private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
 
-private _disabledVehicleBoundingBox = 0 boundingBoxReal vic;
-private _boxMins = _disabledVehicleBoundingBox select 0; 
-private _boxMaxes = _disabledVehicleBoundingBox select 1; 
-// x and y are not halved because while it would be more precise, we
-// need to make sure there is enough clearance for vehicles to actually
-// pass by the side of it
-private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2;
-private _areaX = _disabledVehicle_halfWidth + 5;
-private _areaY = (abs ((_boxMaxes select 1) - (_boxMins select 1))) / 2 + 10;
-private _areaZ = (abs ((_boxMaxes select 2) - (_boxMins select 2))) / 2;
-private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
+private _affectedPositionsATL = [
+    _vehicleBehind_path,
+    _disabledVehicle,
+    _disabledVehicle_boundingBox
+] call _fn_getAffectedPositions;
 
-private _vehicleBehind_path = (["pathLayer"] call KISKA_fnc_getMissionLayerObjects) apply { getPosASLVisual _x };
-private _startIndex = -1;
-private _endIndex = -1;
-private _lastIndex = (count _vehicleBehind_path) - 1;
-{
-    if (_forEachIndex isEqualTo _lastIndex) then { break };
+if (_affectedPositionsATL isNotEqualTo []) then {
+    // DEBUG
+    hint str (count _affectedPositionsATL);
+    // hint str _affectedPositionsATL;
 
-    private _areaAngle = _x getDir (_vehicleBehind_path select (_forEachIndex + 1));
-    // TODO: this area select is not right
-    // private _pointIsInArea = _x inArea [
-    //     _areaCenter,
-    //     _areaX,
-    //     _areaY,
-    //     0,
-    //     true,
-    //     _areaZ
-    // ];
-    private _pointIsInArea = _x inArea [
-        _areaCenter,
-        5,
-        5,
-        0,
-        true,
-        10
-    ];
-    hint str [
-        _areaCenter,
-        _areaX,
-        _areaY,
-        0,
-        true,
-        _areaZ
-    ];
-
-    if (_pointIsInArea) then {
-        if (_startIndex isEqualTo -1) then {
-            _startIndex = _forEachIndex;
-            _endIndex = _forEachIndex;
-        } else {
-            _endIndex = _forEachIndex;
-        };
-
-        continue;
-
-    } else {
-        if (_startIndex isNotEqualTo -1) then { break };
-
-    };
-
-} forEach _vehicleBehind_path;
-
-
-if (_startIndex isNotEqualTo -1) then {
-    private _affectedPositions = _vehicleBehind_path select [_startIndex,_endIndex + 1];
     private _vehicleBehind_boundingBox = 0 boundingBoxReal _vehicleBehind;
     private _vehicleBehind_boxMins = _vehicleBehind_boundingBox select 0; 
     private _vehicleBehind_boxMaxes = _vehicleBehind_boundingBox select 1; 
     private _vehicleBehind_width = abs ((_vehicleBehind_boxMaxes select 0) - (_vehicleBehind_boxMins select 0));
 
+    private _boxMins = _disabledVehicle_boundingBox select 0; 
+    private _boxMaxes = _disabledVehicle_boundingBox select 1; 
+    private _disabledVehicle_halfWidth = (abs ((_boxMaxes select 0) - (_boxMins select 0))) / 2;
+
     // 1. find clearest side
     private _clearSide = [
         _disabledVehicle,
-        _affectedPositions,
+        _affectedPositionsATL,
         (_vehicleBehind_width + 2 + _disabledVehicle_halfWidth)
     ] call _findClearSide;
 
@@ -147,9 +159,20 @@ if (_startIndex isNotEqualTo -1) then {
     // [left,right] select _clearSide
     private _adjustmentDirectionBase = [270,90] select _clearSide;
     private _adjustmentAzimuth = _adjustmentDirectionBase + _disabledVehicle_dir;
-    _affectedPositions apply {
-        private _positionAdjusted = AGLToASL (_x getPos [_adjustmentDistance, _adjustmentAzimuth]);
-        createVehicle ["Sign_Arrow_Large_Cyan_F",(ASLToATL _positionAdjusted),[],0,""];
+    
+    // DEBUG
+    private _colorTypes = ["Sign_Arrow_Large_Yellow_F", "Sign_Arrow_Large_F", "Sign_Arrow_Large_Pink_F"];
+
+    private _rotation = 0;
+
+    _affectedPositionsATL apply {
+        private _positionAdjusted = _x getPos [_adjustmentDistance, _adjustmentAzimuth];
+        // DBEUG
+        createVehicle [_colorTypes select _rotation,_positionAdjusted,[],0,""];
+        _rotation = _rotation + 1;
+        if (_rotation > 2) then {_rotation = 0};
+
+
         // TODO: determine how to edit affected position in _vehicleBehind_path
 
         // using the provided widths, adjust positions in path to be spaced around
