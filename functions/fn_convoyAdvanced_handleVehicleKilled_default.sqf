@@ -81,7 +81,7 @@ if (isNull _convoyLead) exitWith {
 private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
 [_killedVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
 
-private _vehicleIndex = [_killedVehicle] call KISKA_convoyAdvanced_getVehicleIndex;
+private _vehicleIndex = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
 private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
 if (_killedVehicle isEqualTo _convoyLead) exitWith {
     if (isNull _newConvoyLead) exitWith {};
