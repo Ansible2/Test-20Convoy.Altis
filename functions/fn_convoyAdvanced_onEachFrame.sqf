@@ -46,7 +46,7 @@ private _convoyLead = _convoyHashMap get 0;
     Exit states
 ---------------------------------------------------------------------------- */
 if !(canMove _currentVehicle) exitWith {
-    private _function = _currentVehicle getVariable [
+    private _cantMoveEventHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleVehicleCantMove",
         KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default
     ];
@@ -55,7 +55,7 @@ if !(canMove _currentVehicle) exitWith {
         _currentVehicle,
         _convoyHashMap,
         _convoyLead
-    ] call _function;
+    ] call _cantMoveEventHandler;
 };
 
 // TODO: it may make sense to attach this to a killed eventhandler instead
@@ -75,7 +75,7 @@ if !(alive _currentVehicle_driver) exitWith {
 };	
 
 if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
-    private _function = _currentVehicle getVariable [
+    private _driverIncapictatedEventHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleUnconciousDriver",
         KISKA_fnc_convoyAdvanced_handleUnconciousDriver_default
     ];
@@ -85,7 +85,7 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
         _convoyHashMap,
         _convoyLead,
         _currentVehicle_driver
-    ] call _function;
+    ] call _driverIncapictatedEventHandler;
 };	
 
 if ((_currentVehicle isEqualTo _convoyLead) OR !(alive _convoyLead)) exitWith {};
