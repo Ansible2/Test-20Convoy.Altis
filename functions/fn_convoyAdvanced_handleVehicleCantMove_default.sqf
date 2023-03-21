@@ -302,3 +302,7 @@ _vehicleBehind_blockedPositionsATL apply {
 
 
 nil
+
+
+// TODO: handle vehicles not wanting to drive over units that have exited _disabledVehicle
+// can maybe move those units to the opposite side after getting out?
