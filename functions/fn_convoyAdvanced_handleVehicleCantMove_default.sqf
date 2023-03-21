@@ -24,8 +24,7 @@ scriptName "KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default";
 
 #define X_AREA_BUFFER 5
 #define Y_AREA_BUFFER 10
-#define REQUIRED_SPACE_BUFFER 2
-#define MOVING_POSITIONS_BUFFER 1
+#define MOVING_POSITIONS_BUFFER 2
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -38,7 +37,6 @@ params [
     ["_convoyLead",objNull,[objNull]]
 ];
 
-hint "disabled";
 
 /* ----------------------------------------------------------------------------
 	Parameter check
@@ -115,8 +113,7 @@ private _getBlockedPositions = {
 
         private _nextPointInPath = _vehicleBehind_drivePath select (_forEachIndex + 1);
         private _azimuthToNextPoint = _x getDir _nextPointInPath;
-        // TODO: something is still wrong with this check
-        // tank did not even take up and positons
+
         private _currentPointIsInArea = _x inArea [
             _areaCenter,
             _areaX,
@@ -137,6 +134,7 @@ private _getBlockedPositions = {
 
     _blockedPositions_ATL
 };
+
 
 private _findClearSide = {
     params ["_blockedPositions_ATL","_disabledVehicle","_requiredSpace"];
@@ -253,9 +251,9 @@ private _vehicleBehind_width = abs (_vehicleBehind_xMax - _vehicleBehind_xMin);
 
 private _disbaledVehicle_xMin = (_disabledVehicle_boundingBox select 0) select 0;
 private _disbaledVehicle_xMax = (_disabledVehicle_boundingBox select 1) select 0;
-private _disabledVehicle_halfWidth = abs (_disbaledVehicle_xMax - _disbaledVehicle_xMin);
+private _disabledVehicle_halfWidth = (abs (_disbaledVehicle_xMax - _disbaledVehicle_xMin)) / 2;
 
-private _requiredSpace = _vehicleBehind_width + _disabledVehicle_halfWidth + REQUIRED_SPACE_BUFFER;
+private _requiredSpace = _vehicleBehind_width + _disabledVehicle_halfWidth;
 private _clearSide = [
     _vehicleBehind_blockedPositionsATL,
     _disabledVehicle,
@@ -265,11 +263,11 @@ private _clearSide = [
 
 private _noSideIsClear = _clearSide isEqualTo -1;
 if (_noSideIsClear) exitWith {
-    [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
-    [_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+    [_vehicleBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
+    [_vehicleBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
 
     [[
-        "Did not find any blocked drive path positions: _vehicleBehind: ",
+        "Could not find clear side for: _vehicleBehind: ",
         _vehicleBehind,
         " _disabledVehicle: ",
         _disabledVehicle
