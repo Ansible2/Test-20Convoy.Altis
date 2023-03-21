@@ -38,14 +38,15 @@ params [
     ["_convoyLead",objNull,[objNull]]
 ];
 
+hint "disabled";
 
 /* ----------------------------------------------------------------------------
 	Parameter check
 ---------------------------------------------------------------------------- */
-if (isNull _killedVehicle) exitWith {
+if (isNull _disabledVehicle) exitWith {
     [
         [
-            "null _killedVehicle was passed, _convoyHashMap is: ",
+            "null _disabledVehicle was passed, _convoyHashMap is: ",
             _convoyHashMap
         ],
         true
@@ -57,8 +58,8 @@ if (isNull _killedVehicle) exitWith {
 if (isNil "_convoyHashMap") exitWith {
     [   
         [
-            "nil _convoyHashMap was passed, _killedVehicle is: ",
-            _killedVehicle
+            "nil _convoyHashMap was passed, _disabledVehicle is: ",
+            _disabledVehicle
         ],
         true
     ] call KISKA_fnc_log;
@@ -69,8 +70,8 @@ if (isNil "_convoyHashMap") exitWith {
 if (isNull _convoyLead) exitWith {
     [   
         [
-            "null _convoyLead was passed, _killedVehicle is: ",
-            _killedVehicle,
+            "null _convoyLead was passed, _disabledVehicle is: ",
+            _disabledVehicle,
 			" and _convoyHashMap is: ",
 			_convoyHashMap
         ],
@@ -79,6 +80,7 @@ if (isNull _convoyLead) exitWith {
 
     nil
 };
+
 
 /* ----------------------------------------------------------------------------
 	Function Defintions
@@ -91,16 +93,16 @@ private _getBlockedPositions = {
 
     // Adding buffers to X and Y because points that are too close to the _disabledVehicle
     // will result in _vehicleBehind crashing into it.
-    private _xMin = _boxMins select 0;
-    private _xMax = _boxMaxes select 0;
+    private _xMin = _disabledVehicle_boundingBoxMins select 0;
+    private _xMax = _disabledVehicle_boundingBoxMaxes select 0;
     private _areaX = ((abs (_xMax - _xMin)) / 2) + X_AREA_BUFFER;
     
-    private _yMin = _boxMins select 1;
-    private _yMax = _boxMaxes select 1;
+    private _yMin = _disabledVehicle_boundingBoxMins select 1;
+    private _yMax = _disabledVehicle_boundingBoxMaxes select 1;
     private _areaY = ((abs (_yMax - _yMin)) / 2) + Y_AREA_BUFFER;
 
-    private _zMin = _boxMins select 2;
-    private _zMax = _boxMaxes select 2;
+    private _zMin = _disabledVehicle_boundingBoxMins select 2;
+    private _zMax = _disabledVehicle_boundingBoxMaxes select 2;
     private _areaZ = (abs (_zMax - _zMin)) / 2;
 
     private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
@@ -113,11 +115,13 @@ private _getBlockedPositions = {
 
         private _nextPointInPath = _vehicleBehind_drivePath select (_forEachIndex + 1);
         private _azimuthToNextPoint = _x getDir _nextPointInPath;
+        // TODO: something is still wrong with this check
+        // tank did not even take up and positons
         private _currentPointIsInArea = _x inArea [
             _areaCenter,
             _areaX,
             _areaY,
-            _areaAngle,
+            _azimuthToNextPoint,
             true,
             _areaZ
         ];
@@ -137,14 +141,14 @@ private _getBlockedPositions = {
 private _findClearSide = {
     params ["_blockedPositions_ATL","_disabledVehicle","_requiredSpace"];
 
-    private _firstBlockedPosition = _blockedPositions_ATL select 0;
+    private _firstBlockedPosition = (_blockedPositions_ATL select 0) select 0;
 
     private _blockedPositionsCount = count _blockedPositions_ATL;
     private _middleIndex = (round (_blockedPositionsCount / 2)) - 1;
-    private _middleBlockedPosition = _blockedPositions_ATL select _middleIndex;
+    private _middleBlockedPosition = (_blockedPositions_ATL select _middleIndex) select 0;
 
     private _lastIndex = _blockedPositionsCount - 1;
-    private _lastBlockedPosition = _blockedPositions_ATL select _lastIndex;
+    private _lastBlockedPosition = (_blockedPositions_ATL select _lastIndex) select 0;
 
     private _disabledVehicle_dir = getDirVisual _disabledVehicle;
     private _leftAzimuth = 270 + _disabledVehicle_dir;
@@ -159,6 +163,7 @@ private _findClearSide = {
         _middleBlockedPosition,
         _lastBlockedPosition
     ] apply {
+        
         private _positionASL = ATLToASL _x;
 
         if (_clearLeft) then {
@@ -204,16 +209,22 @@ private _findClearSide = {
     _clearSide
 };
 
+
+
 /* ----------------------------------------------------------------------------
 	Logic
 ---------------------------------------------------------------------------- */
 private _disabledVehicle_index = [_disabledVehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
-private _vehicleBehind_index = _disabledVehicle_index - 1;
+private _vehicleBehind_index = _disabledVehicle_index + 1;
 private _vehicleBehind = [_convoyHashMap, _vehicleBehind_index] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
+
+
+[_disabledVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
 if (isNull _vehicleBehind) exitWith {
     [["No _vehicleBehind found at index: ",_vehicleBehind_index]] call KISKA_fnc_log;
     nil
 };
+
 
 private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
 private _vehicleBehind_currentDrivePath = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
@@ -224,9 +235,7 @@ private _vehicleBehind_blockedPositionsATL = [
 ] call _getBlockedPositions;
 
 
-if (_blockedPositions_ATL isEqualTo []) exitWith {
-    [_disabledVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
-
+if (_vehicleBehind_blockedPositionsATL isEqualTo []) exitWith {
     [[
         "Did not find any blocked drive path positions: _vehicleBehind: ",
         _vehicleBehind,
@@ -248,7 +257,7 @@ private _disabledVehicle_halfWidth = abs (_disbaledVehicle_xMax - _disbaledVehic
 
 private _requiredSpace = _vehicleBehind_width + _disabledVehicle_halfWidth + REQUIRED_SPACE_BUFFER;
 private _clearSide = [
-    _blockedPositions_ATL,
+    _vehicleBehind_blockedPositionsATL,
     _disabledVehicle,
     _requiredSpace
 ] call _findClearSide;
@@ -256,7 +265,6 @@ private _clearSide = [
 
 private _noSideIsClear = _clearSide isEqualTo -1;
 if (_noSideIsClear) exitWith {
-    [_disabledVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
     [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
     [_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
 
@@ -273,22 +281,25 @@ if (_noSideIsClear) exitWith {
 
 
 private _distanceToMovePositions = _vehicleBehind_width + _disabledVehicle_halfWidth + MOVING_POSITIONS_BUFFER;
-private _disabledVehicle_dir getDirVisual _disabledVehicle;
+private _disabledVehicle_dir = getDirVisual _disabledVehicle;
 
 // [left,right] select _clearSide
 private _movementDirectionBase = [270,90] select _clearSide;
 private _movePositionAzimuth = _movementDirectionBase + _disabledVehicle_dir;
 
-private _firstPositionToMove = (_blockedPositions_ATL select 0) select 0;
-private _firstPositionAdjusted_AGL = _firstPositionToMove getPos [_adjustmentDistance, _adjustmentAzimuth];
+private _firstPositionToMove = (_vehicleBehind_blockedPositionsATL select 0) select 0;
+private _firstPositionAdjusted_AGL = _firstPositionToMove getPos [_distanceToMovePositions, _movePositionAzimuth];
 private _firstPositionAdjusted_ATL = ASLToATL (AGLToASL _firstPositionAdjusted_AGL);
 private _movedPositionVectorOffset = _firstPositionToMove vectorDiff _firstPositionAdjusted_ATL;
 
-_blockedPositions_ATL apply {
+_vehicleBehind_blockedPositionsATL apply {
     _x params ["_positionATL","_drivePathIndex"];
 
     private _positionAdjusted = _positionATL vectorDiff _movedPositionVectorOffset;
     _vehicleBehind_currentDrivePath set [_drivePathIndex,_positionAdjusted];
+
+    // TODO: remove
+    createVehicle ["Sign_Arrow_Large_Yellow_F",_positionAdjusted,[],0,"CAN_COLLIDE"];
 };
 
 
