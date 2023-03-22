@@ -130,6 +130,15 @@ if (_convoySeperation < 0) then {
 ] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
+// TODO: make into function
+_vehicle addEventHandler ["GetOut",{
+    params ["_vehicle", "", "_unit"];
+
+    [[_unit," got out of vehicle ",_vehicle]] call KISKA_fnc_log;
+    if (!(canMove _vehicle)) then {
+        [[_vehicle," can't move in GetOut event handler"]] call KISKA_fnc_log;
+    };
+}];
 
 
 _convoyIndex

@@ -37,6 +37,7 @@ params [
     ["_convoyLead",objNull,[objNull]]
 ];
 
+[[_disabledVehicle," can't move handler called"]] call KISKA_fnc_log;
 
 /* ----------------------------------------------------------------------------
 	Parameter check
@@ -300,6 +301,33 @@ _vehicleBehind_blockedPositionsATL apply {
     createVehicle ["Sign_Arrow_Large_Yellow_F",_positionAdjusted,[],0,"CAN_COLLIDE"];
 };
 
+
+private _unitsToAdjustDismountPosition = [];
+private _timeVehicleWasDiscoveredDisabled = time;
+private _unitGetOutTimeHashMap = _disabledVehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimeHashMap";
+private _currentCrew = crew _disabledVehicle;
+_currentCrew apply {
+    // TODO: determine how to make sure you do not override the get out time of units
+    // that are still in the vehicle and may have dismounted at some point
+};
+
+
+if !(isNil "_unitGetOutTimeHashMap") then {
+    // TODO: the key here (_x) is no the actual object, but is the hashvalue of it
+    _unitsToAdjustDismountPosition = _unitGetOutTimeHashMap apply { [_x,_y] };
+};
+
+
+_unitsToAdjustDismountPosition apply {
+    // TODO: ideally, do not leave any trace of the convoy in the unit's namespace
+    // would like to have this on the vehicle so that if it is removed from a convoy
+    // can just delete these vars from teh vehicle namespace
+    private _timeUnitGotOut = _x getVariable ["KISKA_convoyAdvanced_timeUnitGotOut",_timeVehicleWasDiscoveredDisabled];
+    private _timeSinceUnitGotOut = _timeVehicleWasDiscoveredDisabled - _timeUnitGotOut;
+    if (_timeSinceUnitGotOut >= 1) then { continue };
+
+
+};
 
 nil
 
