@@ -211,7 +211,7 @@ private _findClearSide = {
 
 
 /* ----------------------------------------------------------------------------
-	Logic
+	Drive around disabled vehicles
 ---------------------------------------------------------------------------- */
 private _disabledVehicle_index = [_disabledVehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
 private _vehicleBehind_index = _disabledVehicle_index + 1;
@@ -302,35 +302,34 @@ _vehicleBehind_blockedPositionsATL apply {
 };
 
 
-private _unitsToAdjustDismountPosition = [];
+/* ----------------------------------------------------------------------------
+	Handle units that dismount disabled vehicle
+
+    // units may dismount in the path of the vehicle behind attempting to drive past
+    // the driving AI will try to avoid driving over friendlies and will
+    /// run into the back of the disabled vehicle in some cases
+---------------------------------------------------------------------------- */
+private _unitsToAdjustDismountPosition = crew _disabledVehicle;
+
 private _timeVehicleWasDiscoveredDisabled = time;
-private _unitGetOutTimeHashMap = _disabledVehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimeHashMap";
-private _currentCrew = crew _disabledVehicle;
-_currentCrew apply {
-    // TODO: determine how to make sure you do not override the get out time of units
-    // that are still in the vehicle and may have dismounted at some point
-};
-
-
+private _unitGetOutTimeHashMap = _disabledVehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimesHashMap";
 if !(isNil "_unitGetOutTimeHashMap") then {
-    // TODO: the key here (_x) is no the actual object, but is the hashvalue of it
-    _unitsToAdjustDismountPosition = _unitGetOutTimeHashMap apply { [_x,_y] };
+    _unitGetOutTimeHashMap apply {  
+        private _timeSinceUnitGotOut = _timeVehicleWasDiscoveredDisabled - _y;
+        private _unitGotOutMoreThanASecondAgo = _timeSinceUnitGotOut >= 1;
+        if (_unitGotOutMoreThanASecondAgo) then { continue };
+
+        private _unit = [
+            _x
+        ] call KISKA_fnc_hashmap_getObjectOrGroupFromRealKey;
+        _unitsToAdjustDismountPosition pushBackUnique _unit;
+    };
 };
 
-
+private _dismountPosition = [_disabledVehicle,true] call KISKA_fnc_convoyAdvanced_getBumperPosition;
 _unitsToAdjustDismountPosition apply {
-    // TODO: ideally, do not leave any trace of the convoy in the unit's namespace
-    // would like to have this on the vehicle so that if it is removed from a convoy
-    // can just delete these vars from teh vehicle namespace
-    private _timeUnitGotOut = _x getVariable ["KISKA_convoyAdvanced_timeUnitGotOut",_timeVehicleWasDiscoveredDisabled];
-    private _timeSinceUnitGotOut = _timeVehicleWasDiscoveredDisabled - _timeUnitGotOut;
-    if (_timeSinceUnitGotOut >= 1) then { continue };
-
-
+    _x setPosWorld _dismountPosition;
 };
+
 
 nil
-
-
-// TODO: handle vehicles not wanting to drive over units that have exited _disabledVehicle
-// can maybe move those units to the opposite side after getting out?

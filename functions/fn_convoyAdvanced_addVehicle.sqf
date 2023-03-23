@@ -130,13 +130,18 @@ if (_convoySeperation < 0) then {
 ] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
-// TODO: make into function
+
+_vehicle setVariable ["KISKA_convoyAdvanced_unitGetOutTimesHashMap",_getOutTimeHashMap];
 _vehicle addEventHandler ["GetOut",{
     params ["_vehicle", "", "_unit"];
 
-    [[_unit," got out of vehicle ",_vehicle]] call KISKA_fnc_log;
-    if (!(canMove _vehicle)) then {
-        [[_vehicle," can't move in GetOut event handler"]] call KISKA_fnc_log;
+    private _unitGetOutTimeHashMap = _vehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimesHashMap";
+    if !(isNil "_getOutTimeHashMap") then {
+        [
+            _unitGetOutTimeHashMap,
+            _unit,
+            time
+        ] call KISKA_fnc_hashmap_set;
     };
 }];
 
