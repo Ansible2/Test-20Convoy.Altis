@@ -131,7 +131,8 @@ if (_convoySeperation < 0) then {
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
 
-_vehicle setVariable ["KISKA_convoyAdvanced_unitGetOutTimesHashMap",_getOutTimeHashMap];
+// TODO: remove eventhandler when vehicle is out of convoy
+_vehicle setVariable ["KISKA_convoyAdvanced_unitGetOutTimesHashMap",createHashMap];
 _vehicle addEventHandler ["GetOut",{
     params ["_vehicle", "", "_unit"];
 

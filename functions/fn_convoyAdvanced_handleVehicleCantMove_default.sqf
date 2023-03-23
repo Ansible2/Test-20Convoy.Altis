@@ -291,14 +291,18 @@ private _firstPositionAdjusted_AGL = _firstPositionToMove getPos [_distanceToMov
 private _firstPositionAdjusted_ATL = ASLToATL (AGLToASL _firstPositionAdjusted_AGL);
 private _movedPositionVectorOffset = _firstPositionToMove vectorDiff _firstPositionAdjusted_ATL;
 
+private _debug = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_isVehicleInDebug;
+private _debugFollowedPath = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_getVehicleDebugFollowedPath;
 _vehicleBehind_blockedPositionsATL apply {
     _x params ["_positionATL","_drivePathIndex"];
 
     private _positionAdjusted = _positionATL vectorDiff _movedPositionVectorOffset;
     _vehicleBehind_currentDrivePath set [_drivePathIndex,_positionAdjusted];
 
-    // TODO: remove
-    createVehicle ["Sign_Arrow_Large_Yellow_F",_positionAdjusted,[],0,"CAN_COLLIDE"];
+    if (_debug) then {
+        private _debugMarker = createVehicle ["Sign_Arrow_Large_Yellow_F",_positionAdjusted,[],0,"CAN_COLLIDE"];
+        _debugFollowedPath pushBack _debugMarker;
+    };
 };
 
 
@@ -326,9 +330,21 @@ if !(isNil "_unitGetOutTimeHashMap") then {
     };
 };
 
-private _dismountPosition = [_disabledVehicle,true] call KISKA_fnc_convoyAdvanced_getBumperPosition;
+private _disabledVehicle_boundingBoxMins = _disabledVehicle_boundingBox select 0;
+private _disabledVehicle_boundingBoxMaxes = _disabledVehicle_boundingBox select 1;
+private _xOffset = [
+    _disabledVehicle_boundingBoxMaxes select 0,
+    _disabledVehicle_boundingBoxMins select 0
+] select _clearSide;
+private _relativeDismountPosition = [
+    _xOffset + 2,
+    _disabledVehicle_boundingBoxMins select 1,
+    _disabledVehicle_boundingBoxMins select 2
+];
+
+private _dismountPosition = _disabledVehicle modelToWorldVisualWorld _relativeDismountPosition;
 _unitsToAdjustDismountPosition apply {
-    _x setPosWorld _dismountPosition;
+    _x setPosWorld _dismountPosition
 };
 
 
