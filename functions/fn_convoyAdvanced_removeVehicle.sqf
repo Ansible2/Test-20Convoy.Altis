@@ -53,6 +53,9 @@ if (isNil "_convoyHashMap") exitWith {
 [_vehicle,true] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowedPath;
 
 
+private _getOutEventHandlerId = _vehicle getVariable ["KISKA_convoyAdvanced_getOutEventHandlerId",-1];
+_vehicle removeEventHandler ["GetOut",_getOutEventHandlerId];
+
 
 private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 private _vehicleIndex = [_vehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
@@ -96,6 +99,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_dynamicMovePoint",
     "KISKA_convoyAdvanced_dynamicMovePoint_completionRadius",
     "KISKA_convoyAdvanced_doDriveOnPath",
+    "KISKA_convoyAdvanced_getOutEventHandlerId",
     "KISKA_convoyAdvanced_getOutTimesHashMap"
 ] apply {
     _vehicle setVariable [_x,nil];
