@@ -35,7 +35,7 @@ scriptName "KISKA_fnc_convoyAdvanced_onEachFrame";
 #define MIN_CONVOY_SEPERATION 10
 
 private _currentVehicle = _this;
-
+// TODO: handle when driver is player
 
 private _convoyHashMap = _currentVehicle getVariable "KISKA_convoyAdvanced_hashMap";
 private _convoyLead = _convoyHashMap get 0;
