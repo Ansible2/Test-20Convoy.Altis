@@ -305,7 +305,7 @@ _vehicleBehind_blockedPositionsATL apply {
     };
 };
 
-
+// TODO: how can other vehicles follow this path
 /* ----------------------------------------------------------------------------
 	Handle units that dismount disabled vehicle
 
