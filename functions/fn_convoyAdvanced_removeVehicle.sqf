@@ -96,6 +96,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_queuedPoint",
     "KISKA_convoyAdvanced_vehicleKilledEventID",
     "KISKA_convoyAdvanced_seperation",
+    "KISKA_convoyAdvanced_lastAddedPoint",
     "KISKA_convoyAdvanced_doDriveOnPath",
     "KISKA_convoyAdvanced_getOutEventHandlerId",
     "KISKA_convoyAdvanced_getOutTimesHashMap"

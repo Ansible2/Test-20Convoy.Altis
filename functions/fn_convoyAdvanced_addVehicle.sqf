@@ -86,10 +86,15 @@ if (_vehicle in _convoyVehicles) exitWith {
 
 
 private _convoyCount = count _convoyVehicles;
+private _indexToCopyFrom = -1;
 private "_convoyIndex";
 if (_insertIndex < 0) then {
     _convoyIndex = _convoyVehicles pushBack _vehicle;
     _convoyHashMap set [_convoyIndex,_vehicle];
+
+    if (_convoyIndex isEqualTo 1) exitWith {};
+
+    _indexToCopyFrom = _convoyIndex - 1;
 
 } else {
     private _vehiclesToChangeIndex = _convoyVehicles select [_insertIndex,MAX_ARRAY_LENGTH];
@@ -110,9 +115,36 @@ if (_insertIndex < 0) then {
         _convoyHashMap set [_newIndex,_x];
         _x setVariable ["KISKA_convoyAdvanced_index",_newIndex];
     };
-    
+
+    _indexToCopyFrom = _insertIndex;
+
+}; 
+
+if (_indexToCopyFrom isNotEqualTo -1) then {
+    private _vehicleToCopyPathFrom = [
+        _convoyHashMap,
+        _indexToCopyFrom
+    ] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
+
+    private _vehicleToCopyPathFrom_drivePath = _vehicleToCopyPathFrom getVariable ["KISKA_convoyAdvanced_drivePath",[]];
+    // TODO: make functions for this
+    _vehicle setVariable ["KISKA_convoyAdvanced_drivePath",+_vehicleToCopyPathFrom_drivePath];
+
+    private _lastAddedPointInDrivePath = _vehicleToCopyPathFrom getVariable "KISKA_convoyAdvanced_lastAddedPoint";
+    // if vehicles are added at a convoy inception, this point is often not defined yet for some vehicles
+    if !(isNil "_lastAddedPointInDrivePath") then {
+        // TODO: make functions for this
+        _vehicle setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_lastAddedPointInDrivePath];
+    };
+
+} else {
+    _vehicle setVariable ["KISKA_convoyAdvanced_drivePath",[]];
 };
 
+
+// TODO: make functions
+_vehicle setVariable ["KISKA_convoyAdvanced_debug_followedPathObjects",[]];
+_vehicle setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
 
 _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];

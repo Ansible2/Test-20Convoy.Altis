@@ -26,7 +26,7 @@ sleep 5;
 
 // vic2 setDamage 1;
 
-vic2 setHitPointDamage["hitengine",1];
+// vic2 setHitPointDamage["hitengine",1];
 // vic2 setHitPointDamage["hitrtrack",1];
 
 // [
