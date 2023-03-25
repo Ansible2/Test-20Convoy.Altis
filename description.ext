@@ -31,8 +31,6 @@ class CfgFunctions
             {};
             class convoyAdvanced_getDefaultSeperation
             {};
-            class convoyAdvanced_getDynamicMovePoint
-            {};
             class convoyAdvanced_getPointBuffer
             {};
             class convoyAdvanced_getVehicleAtIndex
@@ -70,8 +68,6 @@ class CfgFunctions
             class convoyAdvanced_removeVehicleKilledEvent
             {};
             class convoyAdvanced_setDefaultSeperation
-            {};
-            class convoyAdvanced_setDynamicMovePoint
             {};
             class convoyAdvanced_setPointBuffer
             {};
