@@ -349,3 +349,22 @@ _unitsToAdjustDismountPosition apply {
 
 
 nil
+
+// 1. all points are distributed from the same array from the lead vehicle
+/// A follow vehicle will keep track of the section of this array that it currently has points to
+/// Such as from index 5 to index 10
+
+// 2. all points are distributed from the same array from the lead vehicle
+/// then when a position needs to be changed, a hashmap is used to adjust the
+/// the position by replacing the value within the hashmap. The position is the key to the hashmap
+
+// 3. All vehicles will have every position checked in the same way that the vehicle behind did
+/// Looking to see what positions fall within the block area and then simply replace those with the newly created ones
+
+
+
+// 4. all points from the same array
+/// simply use the last index found as a reference point from the end of the overall array
+/// you'd know what positions to adjust by subtracting the range between the first and last affected position of the _vehicleBehind
+/// and then subtracting the last index from the overall number of indexes in the array to see how far off the latest point it is
+/// this will be the same for all vehicles
