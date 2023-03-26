@@ -301,7 +301,7 @@ private _adjustedPositions = _positionsBlockedByDisabledVehicle_ATL apply {_x ve
 
 private _deletionRange = count _adjustedPositions;
 private _vehicleBehind_lastIndexToBeAdjustedInPath = _blockedPositionsResult select 1;
-private _lastIndexOffset = (count _vehicleBehind_currentDrivePath - 1) - _vehicleBehind_lastIndexToBeAdjustedInPath;
+private _lastIndexOffset = (count _vehicleBehind_currentDrivePath) - (_vehicleBehind_lastIndexToBeAdjustedInPath + 1);
 
 private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 {
@@ -312,15 +312,16 @@ private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConv
     private _vehiclesDrivePathCount = count _vehiclesDrivePath;
     private _endIndex = _vehiclesDrivePathCount - _lastIndexOffset;
     private _startIndex = _endIndex - _deletionRange;
-
-    private _onlyAddPoints = _startIndex < 0;
-    if (_onlyAddPoints) then { 
-        _vehiclesDrivePath insert [0, _adjustedPositions];
-    } else {
-        _vehiclesDrivePath deleteRange [_startIndex, _deletionRange];
-        _vehiclesDrivePath insert [_startIndex, _adjustedPositions];
+    
+    if (_startIndex < 0) then {
+        _deletionRange = _deletionRange + _startIndex;
+        _startIndex = 0;
     };
+
+    _vehiclesDrivePath deleteRange [_startIndex, _deletionRange];
+    _vehiclesDrivePath insert [_startIndex max 0, _adjustedPositions];
 } forEach _convoyVehicles;
+
 
 
 /* ----------------------------------------------------------------------------
