@@ -36,7 +36,6 @@ _convoyVehicles apply {
 	private _lastAddedPoint = _x getVariable "KISKA_convoyAdvanced_lastAddedPoint";
 	if (_lastAddedPoint isEqualTo _latestPointToAdd) then { continue };
 
-	// TODO: function
 	_x setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_latestPointToAdd];
 
 	if ([_x] call KISKA_fnc_convoyAdvanced_isVehicleInDebug) then {

@@ -131,11 +131,9 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
         [_vehicleToCopyPathFrom] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath
     ] call KISKA_fnc_convoyAdvanced_modifyVehicleDrivePath;
 
-    // TODO: add getter/setter
-    private _lastAddedPointInDrivePath = _vehicleToCopyPathFrom getVariable "KISKA_convoyAdvanced_lastAddedPoint";
+    private _lastAddedPointInDrivePath = [_vehicleToCopyPathFrom] call KISKA_fnc_convoyAdvanced_getVehicleLastAddedPoint;
     // if vehicles are added at a convoy inception, this point is often not defined yet for some vehicles
     if !(isNil "_lastAddedPointInDrivePath") then {
-        // TODO: make functions for this
         _vehicle setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_lastAddedPointInDrivePath];
     };
 

@@ -108,11 +108,6 @@ if (_currentVehicle isEqualTo _convoyLead) exitWith {
     _convoyPath pushBack _convoyLead_currentPosition_ATL;
     _convoyHashMap set ["_latestPointOnPath",_convoyLead_currentPosition_ATL];
     
-    // private _convoyVehicles = _convoyHashMap get "_convoyVehicles";
-    // _convoyVehicles apply {
-    //     private _vehicleDrivePath = _x getVariable "KISKA_convoyAdvanced_drivePath";
-    //     _vehicleDrivePath pushBack _convoyLead_currentPosition_ATL;
-    // };
 };
 
 
