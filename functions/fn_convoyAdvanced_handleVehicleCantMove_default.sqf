@@ -25,6 +25,8 @@ scriptName "KISKA_fnc_convoyAdvanced_handleVehicleCantMove_default";
 #define X_AREA_BUFFER 5
 #define Y_AREA_BUFFER 10
 #define MOVING_POSITIONS_BUFFER 2
+#define LEFT_AZIMUTH_RELATIVE_NORTH 270
+#define RIGHT_AZIMUTH_RELATIVE_NORTH 90
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -105,10 +107,10 @@ private _getBlockedPositions = {
     private _areaZ = (abs (_zMax - _zMin)) / 2;
 
     private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
-
     private _lastIndex = (count _vehicleBehind_drivePath) - 1;
 
     private _blockedPositions_ATL = [];
+    private _lastBlockedIndex = _lastIndex;
     {
         if (_forEachIndex isEqualTo _lastIndex) then { break };
 
@@ -128,30 +130,31 @@ private _getBlockedPositions = {
         if (_aBlockedPositionWasAlreadyFound AND (!_currentPointIsInArea)) then { break };
 
         if (_currentPointIsInArea) then {
-            _blockedPositions_ATL pushBack [_x, _forEachIndex];
+            _blockedPositions_ATL pushBack _x;
+            _lastBlockedIndex = _forEachIndex;
         };
     } forEach _vehicleBehind_drivePath;
 
 
-    _blockedPositions_ATL
+    [_blockedPositions_ATL, _lastBlockedIndex]
 };
 
 
 private _findClearSide = {
     params ["_blockedPositions_ATL","_disabledVehicle","_requiredSpace"];
 
-    private _firstBlockedPosition = (_blockedPositions_ATL select 0) select 0;
+    private _firstBlockedPosition = _blockedPositions_ATL select 0;
 
     private _blockedPositionsCount = count _blockedPositions_ATL;
     private _middleIndex = (round (_blockedPositionsCount / 2)) - 1;
-    private _middleBlockedPosition = (_blockedPositions_ATL select _middleIndex) select 0;
+    private _middleBlockedPosition = _blockedPositions_ATL select _middleIndex;
 
     private _lastIndex = _blockedPositionsCount - 1;
-    private _lastBlockedPosition = (_blockedPositions_ATL select _lastIndex) select 0;
+    private _lastBlockedPosition = _blockedPositions_ATL select _lastIndex;
 
     private _disabledVehicle_dir = getDirVisual _disabledVehicle;
-    private _leftAzimuth = 270 + _disabledVehicle_dir;
-    private _rightAzimuth = 90 + _disabledVehicle_dir;
+    private _leftAzimuth = LEFT_AZIMUTH_RELATIVE_NORTH + _disabledVehicle_dir;
+    private _rightAzimuth = RIGHT_AZIMUTH_RELATIVE_NORTH + _disabledVehicle_dir;
 
     private _clearSide = -1;
     private _clearLeft = true;
@@ -225,16 +228,19 @@ if (isNull _vehicleBehind) exitWith {
 };
 
 
+[_convoyHashMap] call KISKA_fnc_convoyAdvanced_syncLatestDrivePoint;
+
 private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
 private _vehicleBehind_currentDrivePath = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
-private _vehicleBehind_blockedPositionsATL = [
+private _blockedPositionsResult = [
     _vehicleBehind_currentDrivePath,
     _disabledVehicle,
     _disabledVehicle_boundingBox
 ] call _getBlockedPositions;
 
 
-if (_vehicleBehind_blockedPositionsATL isEqualTo []) exitWith {
+private _positionsBlockedByDisabledVehicle_ATL = _blockedPositionsResult select 0;
+if (_positionsBlockedByDisabledVehicle_ATL isEqualTo []) exitWith {
     [[
         "Did not find any blocked drive path positions: _vehicleBehind: ",
         _vehicleBehind,
@@ -256,7 +262,7 @@ private _disabledVehicle_halfWidth = (abs (_disbaledVehicle_xMax - _disbaledVehi
 
 private _requiredSpace = _vehicleBehind_width + _disabledVehicle_halfWidth;
 private _clearSide = [
-    _vehicleBehind_blockedPositionsATL,
+    _positionsBlockedByDisabledVehicle_ATL,
     _disabledVehicle,
     _requiredSpace
 ] call _findClearSide;
@@ -282,28 +288,29 @@ if (_noSideIsClear) exitWith {
 private _distanceToMovePositions = _vehicleBehind_width + _disabledVehicle_halfWidth + MOVING_POSITIONS_BUFFER;
 private _disabledVehicle_dir = getDirVisual _disabledVehicle;
 
-// [left,right] select _clearSide
-private _movementDirectionBase = [270,90] select _clearSide;
+private _movementDirectionBase = [LEFT_AZIMUTH_RELATIVE_NORTH, RIGHT_AZIMUTH_RELATIVE_NORTH] select _clearSide;
 private _movePositionAzimuth = _movementDirectionBase + _disabledVehicle_dir;
 
-private _firstPositionToMove = (_vehicleBehind_blockedPositionsATL select 0) select 0;
+private _firstPositionToMove = _positionsBlockedByDisabledVehicle_ATL select 0;
 private _firstPositionAdjusted_AGL = _firstPositionToMove getPos [_distanceToMovePositions, _movePositionAzimuth];
 private _firstPositionAdjusted_ATL = ASLToATL (AGLToASL _firstPositionAdjusted_AGL);
 private _movedPositionVectorOffset = _firstPositionToMove vectorDiff _firstPositionAdjusted_ATL;
 
-private _debug = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_isVehicleInDebug;
-private _debugFollowedPath = [_vehicleBehind] call KISKA_fnc_convoyAdvanced_getVehicleDebugFollowedPath;
-_vehicleBehind_blockedPositionsATL apply {
-    _x params ["_positionATL","_drivePathIndex"];
+private _positionsBlockedByDisabledVehicle_ATL = _blockedPositionsResult select 0;
+private _adjustedPositions = _positionsBlockedByDisabledVehicle_ATL apply {_x vectorDiff _movedPositionVectorOffset};
+private _indexRange = count _adjustedPositions;
+private _vehicleBehind_lastIndexToBeAdjustedInPath = _blockedPositionsResult select 1;
 
-    private _positionAdjusted = _positionATL vectorDiff _movedPositionVectorOffset;
-    _vehicleBehind_currentDrivePath set [_drivePathIndex,_positionAdjusted];
+private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
+{
+    if (_forEachIndex isEqualTo 0) then { continue };
 
-    if (_debug) then {
-        private _debugMarker = createVehicle ["Sign_Arrow_Large_Yellow_F",_positionAdjusted,[],0,"CAN_COLLIDE"];
-        _debugFollowedPath pushBack _debugMarker;
-    };
-};
+    private _vehiclesDrivePath = _x getVariable "KISKA_convoyAdvanced_drivePath";
+    // TODO: how to swap points
+    private _insertIndex = (count )
+    _vehiclesDrivePath deleteRange []
+} forEach _convoyVehicles;
+
 
 // TODO: how can other vehicles follow this path
 /* ----------------------------------------------------------------------------

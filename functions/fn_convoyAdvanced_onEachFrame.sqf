@@ -264,7 +264,7 @@ if (_pointsCanBeDeleted) then {
 
 
 /* ----------------------------------------------------------------------------
-    Update current vehicle drive path with new points
+    Update current vehicle drive path with new point
 ---------------------------------------------------------------------------- */
 private _pointToAdd = _convoyHashMap get "_latestPointOnPath";
 private _lastAddedPoint = _currentVehicle getVariable "KISKA_convoyAdvanced_lastAddedPoint";
@@ -275,6 +275,7 @@ _currentVehicle setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_pointToAdd];
 
 if (_debug) then {
     private _debugObjectType = _currentVehicle getVariable [
+        // TODO: adjsut name of variable to not be "queued"
         "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
         "Sign_Arrow_Large_Cyan_F"
     ];
