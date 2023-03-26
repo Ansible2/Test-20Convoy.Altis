@@ -92,7 +92,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_hashMap",
     "KISKA_convoyAdvanced_index",
     "KISKA_convoyAdvanced_debugMarkerType_deletedPoint",
-    "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
+    "KISKA_convoyAdvanced_debugMarkerType_drivePath",
     "KISKA_convoyAdvanced_queuedPoint",
     "KISKA_convoyAdvanced_vehicleKilledEventID",
     "KISKA_convoyAdvanced_seperation",

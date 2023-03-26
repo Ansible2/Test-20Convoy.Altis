@@ -308,18 +308,15 @@ private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConv
     // don't need to adjust convoy lead
     if (_forEachIndex isEqualTo 0) then { continue };
 
-    private _vehiclesDrivePath = _x getVariable "KISKA_convoyAdvanced_drivePath";
+    private _vehiclesDrivePath = [_x] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
     private _vehiclesDrivePathCount = count _vehiclesDrivePath;
-    private _endIndex = _vehiclesDrivePathCount - _lastIndexOffset;
-    private _startIndex = _endIndex - _deletionRange;
+    private _lastIndexToModify = _vehiclesDrivePathCount - _lastIndexOffset;
     
-    if (_startIndex < 0) then {
-        _deletionRange = _deletionRange + _startIndex;
-        _startIndex = 0;
-    };
-
-    _vehiclesDrivePath deleteRange [_startIndex, _deletionRange];
-    _vehiclesDrivePath insert [_startIndex max 0, _adjustedPositions];
+    [
+        _x,
+        _lastIndexToModify,
+        _adjustedPositions
+    ] call KISKA_fnc_convoyAdvanced_modifyVehicleDrivePath;
 } forEach _convoyVehicles;
 
 

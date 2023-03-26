@@ -275,8 +275,8 @@ _currentVehicle setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_pointToAdd];
 
 if (_debug) then {
     private _debugObjectType = _currentVehicle getVariable [
-        // TODO: adjsut name of variable to not be "queued"
-        "KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
+        // TODO: add getter/setter
+        "KISKA_convoyAdvanced_debugMarkerType_drivePath",
         "Sign_Arrow_Large_Cyan_F"
     ];
     private _debugObject = createVehicle [_debugObjectType, _pointToAdd, [], 0, "CAN_COLLIDE"];

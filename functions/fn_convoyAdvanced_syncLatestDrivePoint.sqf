@@ -41,8 +41,7 @@ _convoyVehicles apply {
 
 	if ([_x] call KISKA_fnc_convoyAdvanced_isVehicleInDebug) then {
 		private _debugObjectType = _x getVariable [
-			// TODO: adjsut name of variable to not be "queued"
-			"KISKA_convoyAdvanced_debugMarkerType_queuedPoint",
+			"KISKA_convoyAdvanced_debugMarkerType_drivePath",
 			"Sign_Arrow_Large_Cyan_F"
 		];
 		private _debugObject = createVehicle [_debugObjectType, _latestPointToAdd, [], 0, "CAN_COLLIDE"];
