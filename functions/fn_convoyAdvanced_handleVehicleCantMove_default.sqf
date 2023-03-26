@@ -348,6 +348,7 @@ if !(isNil "_unitGetOutTimeHashMap") then {
     };
 };
 
+// TODO: dismount position is not quite right, too far back
 private _disabledVehicle_boundingBoxMins = _disabledVehicle_boundingBox select 0;
 private _disabledVehicle_boundingBoxMaxes = _disabledVehicle_boundingBox select 1;
 private _xOffset = [
