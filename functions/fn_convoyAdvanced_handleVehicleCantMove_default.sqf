@@ -298,21 +298,31 @@ private _movedPositionVectorOffset = _firstPositionToMove vectorDiff _firstPosit
 
 private _positionsBlockedByDisabledVehicle_ATL = _blockedPositionsResult select 0;
 private _adjustedPositions = _positionsBlockedByDisabledVehicle_ATL apply {_x vectorDiff _movedPositionVectorOffset};
-private _indexRange = count _adjustedPositions;
+
+private _deletionRange = count _adjustedPositions;
 private _vehicleBehind_lastIndexToBeAdjustedInPath = _blockedPositionsResult select 1;
+private _lastIndexOffset = (count _vehicleBehind_currentDrivePath - 1) - _vehicleBehind_lastIndexToBeAdjustedInPath;
 
 private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
 {
+    // don't need to adjust convoy lead
     if (_forEachIndex isEqualTo 0) then { continue };
 
     private _vehiclesDrivePath = _x getVariable "KISKA_convoyAdvanced_drivePath";
-    // TODO: how to swap points
-    private _insertIndex = (count )
-    _vehiclesDrivePath deleteRange []
+    private _vehiclesDrivePathCount = count _vehiclesDrivePath;
+    private _endIndex = _vehiclesDrivePathCount - _lastIndexOffset;
+    private _startIndex = _endIndex - _deletionRange;
+
+    private _onlyAddPoints = _startIndex < 0;
+    if (_onlyAddPoints) then { 
+        _vehiclesDrivePath insert [0, _adjustedPositions];
+    } else {
+        _vehiclesDrivePath deleteRange [_startIndex, _deletionRange];
+        _vehiclesDrivePath insert [_startIndex, _adjustedPositions];
+    };
 } forEach _convoyVehicles;
 
 
-// TODO: how can other vehicles follow this path
 /* ----------------------------------------------------------------------------
 	Handle units that dismount disabled vehicle
 
@@ -356,22 +366,3 @@ _unitsToAdjustDismountPosition apply {
 
 
 nil
-
-// 1. all points are distributed from the same array from the lead vehicle
-/// A follow vehicle will keep track of the section of this array that it currently has points to
-/// Such as from index 5 to index 10
-
-// 2. all points are distributed from the same array from the lead vehicle
-/// then when a position needs to be changed, a hashmap is used to adjust the
-/// the position by replacing the value within the hashmap. The position is the key to the hashmap
-
-// 3. All vehicles will have every position checked in the same way that the vehicle behind did
-/// Looking to see what positions fall within the block area and then simply replace those with the newly created ones
-
-
-
-// 4. all points from the same array
-/// simply use the last index found as a reference point from the end of the overall array
-/// you'd know what positions to adjust by subtracting the range between the first and last affected position of the _vehicleBehind
-/// and then subtracting the last index from the overall number of indexes in the array to see how far off the latest point it is
-/// this will be the same for all vehicles
