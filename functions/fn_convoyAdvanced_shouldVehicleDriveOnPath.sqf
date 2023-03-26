@@ -1,12 +1,11 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoyAdvanced_getVehicleDoDriveOnPath
+Function: KISKA_fnc_convoyAdvanced_shouldVehicleDriveOnPath
 
 Description:
     Gets whether or not the vehicle will initiate new `setDriveOnPath`'s whenever
-     queued points are available to add to the actual current drive path.
+     a new point is added to the vehicle's drive path.
     
-    While false, a vehicle will continue to queue points from the vehicle ahead of it
-     given it meets the normal criteria to do so.
+    While false, a vehicle will continue to receive new points in the vehicles drive path.
          
 Parameters:
     0: _vehicle <OBJECT> - The vehicle to check the value of
@@ -16,13 +15,13 @@ Returns:
 
 Examples:
     (begin example)
-        private _doDriveOnPath = [_vehicle] call KISKA_fnc_convoyAdvanced_getVehicleDoDriveOnPath;
+        private _doDriveOnPath = [_vehicle] call KISKA_fnc_convoyAdvanced_shouldVehicleDriveOnPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoyAdvanced_getVehicleDoDriveOnPath";
+scriptName "KISKA_fnc_convoyAdvanced_shouldVehicleDriveOnPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

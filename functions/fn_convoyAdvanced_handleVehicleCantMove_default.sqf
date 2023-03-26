@@ -271,7 +271,7 @@ private _clearSide = [
 private _noSideIsClear = _clearSide isEqualTo -1;
 if (_noSideIsClear) exitWith {
     [_vehicleBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
-    [_vehicleBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+    [_vehicleBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
 
     [[
         "Could not find clear side for: _vehicleBehind: ",

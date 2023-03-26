@@ -1,16 +1,17 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath
+Function: KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath
 
 Description:
     Sets whether or not the vehicle will initiate new `setDriveOnPath`'s whenever
-     queued points are available to add to the actual current drive path.
+     new positions are added to its internal drive path.
     
-    While false, a vehicle will continue to queue points from the vehicle ahead of it
-     given it meets the normal criteria to do so.
+    While false, a vehicle will continue to add points from the lead vehicle to its
+     drive path and will continue to drive on the path prior to the setting of this 
+     to false unless otherwise stopped.
          
 Parameters:
     0: _vehicle <OBJECT> - The vehicle to set the doDriveOnPath var of
-    1: _mode <BOOL> - `true` to enable, `false` to disable driving on newly queued points
+    1: _mode <BOOL> - `true` to enable, `false` to disable driving on newly added points
 
 Returns:
     NOTHING
@@ -21,13 +22,13 @@ Examples:
         [
             _vehicle,
             true
-        ] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+        ] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath";
+scriptName "KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

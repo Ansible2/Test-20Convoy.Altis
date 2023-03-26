@@ -43,8 +43,7 @@ if (!isServer) exitWith {
 params [
     ["_vehicle",objNull,[objNull]],
     ["_lastIndexToModify",0,[123]],
-    ["_pointsToAdd",[],[[]]],
-    ["_orderDriveOnPath",false,[true]]
+    ["_pointsToAdd",[],[[]]]
 ];
 
 if (isNull _vehicle) exitWith {
@@ -75,6 +74,6 @@ if (_vehicleDrivePath isEqualTo []) then {
 };
 
 
-if (_orderDriveOnPath) then {
+if ([_vehicle] call KISKA_fnc_convoyAdvanced_shouldVehicleDriveOnPath) then {
     _vehicle setDriveOnPath _vehicleDrivePath;
 };

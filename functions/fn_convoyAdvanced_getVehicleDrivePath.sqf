@@ -6,9 +6,7 @@ Description:
      to the actual array used with `setDriveOnPath` for the vehicle's following.
     
     You should not set a vehicle's drive path directly. If you want to overwrite a vehicle's
-     current path, clear the drive path (KISKA_fnc_convoyAdvanced_clearVehicleDrivePath) 
-     and then queue the new points (KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints). 
-     To add points to the existing path, only queue points and do NOT clear the current drive path.
+     current path, use KISKA_fnc_convoyAdvanced_modifyVehicleDrivePath.
 
 Parameters:
     0: _vehicle <OBJECT> - The vehicle to get the drive path of

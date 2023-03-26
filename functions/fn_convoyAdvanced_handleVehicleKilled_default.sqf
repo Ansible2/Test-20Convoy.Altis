@@ -22,6 +22,12 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_fnc_convoyAdvanced_handleVehicleKilled_default";
 
+#define WAIT_TIME_FOR_VEHICLE 2
+#define PUSH_LEFT_SPEED -10
+#define PUSH_RIGHT_SPEED -10
+#define PUSH_Z_VELOCITY 2
+#define MASS_DIVISION 2
+
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
     nil
@@ -96,10 +102,10 @@ if (_killedVehicle isEqualTo _convoyLead) exitWith {
 --------------------------------- */
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
-[_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+[_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
 
 // push to the right by default
-private _pushToTheSideVelocity = 10;
+private _pushToTheSideVelocity = PUSH_RIGHT_SPEED;
 private _killedVehicle_position = getPosWorldVisual _killedVehicle;
 for "_i" from 1 to 25 do { 
     private _positionLeft = AGLToASL (_killedVehicle getRelPos [_i,270]);
@@ -109,18 +115,17 @@ for "_i" from 1 to 25 do {
     private _positionRight = AGLToASL (_killedVehicle getRelPos [_i,90]);
     private _objectsAreOnTheRight = (lineIntersectsObjs [_killedVehicle_position, _positionRight, _killedVehicle, objNull,false,32]) isNotEqualTo [];
     if (_objectsAreOnTheRight) then {
-        // push to the left
-        _pushToTheSideVelocity = -10; 
+        _pushToTheSideVelocity = PUSH_LEFT_SPEED; 
         break 
     };
 };
 
 
 // shove vehicle to the side because AI drivers can't drive past consistently
-[_killedVehicle, [_pushToTheSideVelocity,0,2]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
+[_killedVehicle, [_pushToTheSideVelocity,0,PUSH_Z_VELOCITY]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
 
 
-// Waiting because using calculatePath too soon returns strange paths
+// Waiting to give time for destroyed vehicle to settle from physics
 [
     {
         params [
@@ -134,14 +139,14 @@ for "_i" from 1 to 25 do {
         // in case it runs into the dead one
         [
             _killedVehicle, 
-            ((getMass _vehicleThatWasBehind) / 2) 
+            ((getMass _vehicleThatWasBehind) / MASS_DIVISION) 
         ] remoteExecCall ["setMass",_killedVehicle];
 
 
         private _driver = driver _vehicleThatWasBehind;
         [_driver,"path"] remoteExecCall ["enableAI",_driver];
 
-        [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDoDriveOnPath;
+        [_vehicleThatWasBehind, true] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
     },
     [
         _vehicleThatWasBehind,
@@ -149,7 +154,7 @@ for "_i" from 1 to 25 do {
         _killedVehicle_drivePath,
         _killedVehicle
     ],
-    2
+    WAIT_TIME_FOR_VEHICLE
 ] call CBA_fnc_waitAndExecute;
 
 

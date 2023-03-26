@@ -150,8 +150,6 @@ _vehicle setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
 
 _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];
-[_vehicle, []] call KISKA_fnc_convoyAdvanced_setVehicleQueuedPoints;
-
 if (_convoySeperation < 0) then {
     _convoySeperation = [
         _convoyHashMap
