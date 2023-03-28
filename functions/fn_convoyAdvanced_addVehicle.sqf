@@ -143,8 +143,10 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
 };
 
 
+[_vehicle,true] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
 [_vehicle,false] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowedPath;
 [_vehicle,false] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
+
 
 _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];
@@ -158,6 +160,7 @@ if (_convoySeperation < 0) then {
     _vehicle,
     _convoySeperation
 ] call KISKA_fnc_convoyAdvanced_setVehicleSeperation;
+
 
 [_vehicle] call KISKA_fnc_convoyAdvanced_addVehicleKilledEvent;
 

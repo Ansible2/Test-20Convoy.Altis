@@ -278,7 +278,7 @@ if (_debug) then {
 };
 
 private _indexInserted = _currentVehicle_drivePath pushBack _pointToAdd;
-private _doDriveOnPath = _vehicle getVariable ["KISKA_convoyAdvanced_doDriveOnPath",false];
+private _doDriveOnPath = _currentVehicle getVariable ["KISKA_convoyAdvanced_doDriveOnPath",true];
 if (_indexInserted >= 1 AND _doDriveOnPath) then {
     _currentVehicle setDriveOnPath _currentVehicle_drivePath;
 };
