@@ -120,11 +120,13 @@ if (_insertIndex < 0) then {
 
 }; 
 
+_vehicle setVariable ["KISKA_convoyAdvanced_drivePath",[]];
 if (_indexToCopyFrom isNotEqualTo -1) then {
     private _vehicleToCopyPathFrom = [
         _convoyHashMap,
         _indexToCopyFrom
     ] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
+
 
     [
         _vehicle,
