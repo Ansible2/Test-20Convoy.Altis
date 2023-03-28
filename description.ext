@@ -79,7 +79,7 @@ class CfgFunctions
             {};
             class convoyAdvanced_setVehicleDebugMarkerType_followPath
             {};
-            class convoyAdvanced_setVehicleDoDriveOnPath
+            class convoyAdvanced_setVehicleDriveOnPath
             {};
             class convoyAdvanced_setVehicleKilledEvent
             {};
