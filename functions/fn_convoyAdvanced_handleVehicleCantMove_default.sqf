@@ -328,40 +328,61 @@ private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConv
     // the driving AI will try to avoid driving over friendlies and will
     /// run into the back of the disabled vehicle in some cases
 ---------------------------------------------------------------------------- */
-private _unitsToAdjustDismountPosition = crew _disabledVehicle;
-
-private _timeVehicleWasDiscoveredDisabled = time;
-private _unitGetOutTimeHashMap = _disabledVehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimesHashMap";
-if !(isNil "_unitGetOutTimeHashMap") then {
-    _unitGetOutTimeHashMap apply {  
-        private _timeSinceUnitGotOut = _timeVehicleWasDiscoveredDisabled - _y;
-        private _unitGotOutMoreThanASecondAgo = _timeSinceUnitGotOut >= 1;
-        if (_unitGotOutMoreThanASecondAgo) then { continue };
-
-        private _unit = [
-            _x
-        ] call KISKA_fnc_hashmap_getObjectOrGroupFromRealKey;
-        _unitsToAdjustDismountPosition pushBackUnique _unit;
-    };
-};
-
-// TODO: dismount position is not quite right, too far back
 private _disabledVehicle_boundingBoxMins = _disabledVehicle_boundingBox select 0;
 private _disabledVehicle_boundingBoxMaxes = _disabledVehicle_boundingBox select 1;
+
+private _rightSide = _disabledVehicle_boundingBoxMaxes select 0;
+private _leftSide = _disabledVehicle_boundingBoxMins select 0;
+
+// Want to put units on the NOT clear side because that is where the vehicle behind will not drive
 private _xOffset = [
-    _disabledVehicle_boundingBoxMaxes select 0,
-    _disabledVehicle_boundingBoxMins select 0
+    _rightSide,
+    _leftSide
 ] select _clearSide;
+
 private _relativeDismountPosition = [
-    _xOffset + 2,
+    _xOffset,
     _disabledVehicle_boundingBoxMins select 1,
     _disabledVehicle_boundingBoxMins select 2
 ];
 
-private _dismountPosition = _disabledVehicle modelToWorldVisualWorld _relativeDismountPosition;
-_unitsToAdjustDismountPosition apply {
-    _x setPosWorld _dismountPosition
-};
+[
+    {
+        params ["_disabledVehicle"];
+        (speed _disabledVehicle) isEqualTo 0;
+    },
+    {
+        params ["_disabledVehicle","_relativeDismountPosition"];
+
+        if (isNull _disabledVehicle) exitWith {};
+
+        private _unitsToAdjustDismountPosition = crew _disabledVehicle;
+        private _timeVehicleWasDiscoveredDisabled = time;
+        private _unitGetOutTimeHashMap = _disabledVehicle getVariable "KISKA_convoyAdvanced_unitGetOutTimesHashMap";
+        if !(isNil "_unitGetOutTimeHashMap") then {
+            _unitGetOutTimeHashMap apply {  
+                private _timeSinceUnitGotOut = _timeVehicleWasDiscoveredDisabled - _y;
+                private _unitGotOutMoreThanASecondAgo = _timeSinceUnitGotOut >= 1;
+                if (_unitGotOutMoreThanASecondAgo) then { continue };
+
+                private _unit = [
+                    _x
+                ] call KISKA_fnc_hashmap_getObjectOrGroupFromRealKey;
+                
+                if !(alive _unit) then { continue };
+
+                _unitsToAdjustDismountPosition pushBackUnique _unit;
+            };
+        };
+
+        private _dismountPosition = _disabledVehicle modelToWorldVisualWorld _relativeDismountPosition;
+        _unitsToAdjustDismountPosition apply {
+            _x setPosWorld _dismountPosition
+        };
+    },
+    [_disabledVehicle,_relativeDismountPosition],
+    10
+] call CBA_fnc_waitUntilAndExecute;
 
 
 nil
