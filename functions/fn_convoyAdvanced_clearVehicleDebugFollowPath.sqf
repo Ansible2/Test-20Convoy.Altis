@@ -43,7 +43,7 @@ if (isNull _vehicle) exitWith {
 
 
 if (_deleteExisting) then {
-    (_vehicle getVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]]) apply {
+    ([_vehicle] call KISKA_fnc_convoyAdvanced_getVehicleDebugFollowPath) apply {
         deleteVehicle _x;
     };
 };

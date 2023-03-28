@@ -37,6 +37,10 @@ class CfgFunctions
             {};
             class convoyAdvanced_getVehicleDebugFollowPath
             {};
+            class convoyAdvanced_getVehicleDebugMarkerType_followedPath
+            {};
+            class convoyAdvanced_getVehicleDebugMarkerType_followPath
+            {};
             class convoyAdvanced_getVehicleDrivePath
             {};
             class convoyAdvanced_getVehicleIndex
@@ -70,6 +74,10 @@ class CfgFunctions
             class convoyAdvanced_setPointBuffer
             {};
             class convoyAdvanced_setVehicleDebug
+            {};
+            class convoyAdvanced_setVehicleDebugMarkerType_followedPath
+            {};
+            class convoyAdvanced_setVehicleDebugMarkerType_followPath
             {};
             class convoyAdvanced_setVehicleDoDriveOnPath
             {};

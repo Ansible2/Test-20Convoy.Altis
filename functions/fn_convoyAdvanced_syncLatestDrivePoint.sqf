@@ -39,13 +39,10 @@ _convoyVehicles apply {
 	_x setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_latestPointToAdd];
 
 	if ([_x] call KISKA_fnc_convoyAdvanced_isVehicleInDebug) then {
-		private _debugObjectType = _x getVariable [
-			"KISKA_convoyAdvanced_debugMarkerType_drivePath",
-			"Sign_Arrow_Large_Cyan_F"
-		];
+		private _debugObjectType = [_x] call  KISKA_fnc_convoyAdvanced_getVehicleDebugMarkerType_followPath;
 		private _debugObject = createVehicle [_debugObjectType, _latestPointToAdd, [], 0, "CAN_COLLIDE"];
 
-		private _currentVehicle_debugDrivePathObjects = _x getVariable "KISKA_convoyAdvanced_debug_followPathObjects";
+		private _currentVehicle_debugDrivePathObjects = [_x] call KISKA_fnc_convoyAdvanced_getVehicleDebugFollowPath;
 		_currentVehicle_debugDrivePathObjects pushBack _debugObject;
 	};
 

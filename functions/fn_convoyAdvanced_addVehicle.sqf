@@ -142,9 +142,8 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
 };
 
 
-// TODO: make functions
-_vehicle setVariable ["KISKA_convoyAdvanced_debug_followedPathObjects",[]];
-_vehicle setVariable ["KISKA_convoyAdvanced_debug_followPathObjects",[]];
+[_vehicle,false] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowedPath;
+[_vehicle,false] call KISKA_fnc_convoyAdvanced_clearVehicleDebugFollowPath;
 
 _vehicle setVariable ["KISKA_convoyAdvanced_hashMap",_convoyHashMap];
 _vehicle setVariable ["KISKA_convoyAdvanced_index",_convoyIndex];

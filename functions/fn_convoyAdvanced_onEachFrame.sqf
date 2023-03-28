@@ -244,7 +244,7 @@ if (_pointsCanBeDeleted) then {
     if (_debug) then {
         private _lastIndexToDelete = _deleteStartIndex + (_numberToDelete - 1);
         private _debugObjectType = _currentVehicle getVariable [
-            "KISKA_convoyAdvanced_debugMarkerType_deletedPoint",
+            "KISKA_convoyAdvanced_debugMarkerType_followedPath",
             "Sign_Arrow_Large_blue_F"
         ];
         private _deletedPointMarker = createVehicle [_debugObjectType, _currentVehicle_position, [], 0, "CAN_COLLIDE"];
@@ -270,8 +270,7 @@ _currentVehicle setVariable ["KISKA_convoyAdvanced_lastAddedPoint",_pointToAdd];
 
 if (_debug) then {
     private _debugObjectType = _currentVehicle getVariable [
-        // TODO: add getter/setter
-        "KISKA_convoyAdvanced_debugMarkerType_drivePath",
+        "KISKA_convoyAdvanced_debugMarkerType_followPath",
         "Sign_Arrow_Large_Cyan_F"
     ];
     private _debugObject = createVehicle [_debugObjectType, _pointToAdd, [], 0, "CAN_COLLIDE"];
