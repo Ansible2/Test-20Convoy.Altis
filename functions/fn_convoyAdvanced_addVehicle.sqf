@@ -128,6 +128,7 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
 
     [
         _vehicle,
+        -1,
         [_vehicleToCopyPathFrom] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath
     ] call KISKA_fnc_convoyAdvanced_modifyVehicleDrivePath;
 
