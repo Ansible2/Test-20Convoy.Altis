@@ -58,7 +58,9 @@ if !(canMove _currentVehicle) exitWith {
     ] call _cantMoveEventHandler;
 };
 
-// TODO: it may make sense to attach this to a killed eventhandler instead
+// did not use an eventhandler due to the complexity of handling
+// potentially remote units and/or changing drivers
+// and the limited cost of this check
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
     private _function = _currentVehicle getVariable [
