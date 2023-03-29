@@ -74,7 +74,7 @@ if (isNil "_convoyStatemachine") exitWith {
 private _convoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
 if ((speed _convoyLead) > 0) exitWith {
     [["_convoyLead ",_convoyLead," is moving, must be stopped to add vehicles to the convoy"]] call KISKA_fnc_log;
-    nil
+    -1
 };
 
 private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyVehicles;
