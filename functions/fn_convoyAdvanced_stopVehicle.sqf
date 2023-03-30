@@ -45,4 +45,6 @@ _vehicle limitSpeed 1;
 // They will either not stop fast enough when follow distances are small
 // Or they start to move around and find random places to go
 private _driver = driver _vehicle;
+// TODO: figure out if an AI changes locality, that this disableAI will persist
+// it is not clear which disableAI's are truly Global Effects
 [_driver,"path"] remoteExecCall ["disableAI",_driver];
