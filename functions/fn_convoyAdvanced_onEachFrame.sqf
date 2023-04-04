@@ -63,17 +63,21 @@ if !(canMove _currentVehicle) exitWith {
 // and the limited cost of this check
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
-    private _function = _currentVehicle getVariable [
+    private _driverKilledHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleDeadDriver",
         KISKA_fnc_convoyAdvanced_handleDeadDriver_default
     ];
-
+    
     [
-        _currentVehicle,
-        _convoyHashMap,
-        _convoyLead,
-        _currentVehicle_driver
-    ] call _function;
+        _driverKilledHandler,
+        [
+            _currentVehicle,
+            _convoyHashMap,
+            _convoyLead,
+            _currentVehicle_driver,
+        ],
+        4
+    ] call CBA_fnc_waitAndExecute;
 };	
 
 if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
