@@ -11,7 +11,7 @@ Parameters:
     0: _vehicle <OBJECT> - The vehicle that has a dead driver
     1: _convoyHashMap <HASHMAP> - The hashmap used for the convoy
     2: _convoyLead <OBJECT> - The lead vehicle of the convoy
-    3: _vehicleDriver <OBJECT> - The dead driver
+    3: _deadDriver <OBJECT> - The dead driver
 
 Returns:
     NOTHING
@@ -35,7 +35,7 @@ params [
     ["_vehicle",objNull,[objNull]],
     ["_convoyHashMap",nil],
     ["_convoyLead",objNull,[objNull]],
-    ["_vehicleDriver",objNull,[objNull]]
+    ["_deadDriver",objNull,[objNull]]
 ]; 
 
 
@@ -45,7 +45,7 @@ if (isNull _vehicle) exitWith {
             "null _vehicle was passed, _convoyHashMap is: ",
             _convoyHashMap
         ],
-        true
+        false
     ] call KISKA_fnc_log;
 
     nil
@@ -57,7 +57,7 @@ if (isNil "_convoyHashMap") exitWith {
             "nil _convoyHashMap was passed, _vehicle is: ",
             _vehicle
         ],
-        true
+        false
     ] call KISKA_fnc_log;
 
     nil
@@ -69,19 +69,19 @@ if (isNil "_convoyHashMap") exitWith {
             "nil _convoyHashMap was passed, _vehicle is: ",
             _vehicle
         ],
-        true
+        false
     ] call KISKA_fnc_log;
 
     nil
 };
 
-if (isNull _vehicleDriver) exitWith {
+if (isNull _deadDriver) exitWith {
     [
         [
-            "null _vehicleDriver was passed, _vehicle is: ",
+            "null _deadDriver was passed, _vehicle is: ",
             _vehicle
         ],
-        true
+        false
     ] call KISKA_fnc_log;
 
     nil
@@ -89,10 +89,47 @@ if (isNull _vehicleDriver) exitWith {
 
 
 // TODO: complete
-
-if (isPlayer _vehicleDriver) exitWith {};
+private _currentDriver = driver _vehicle;
+if (_currentDriver isNotEqualTo _deadDriver) exitWith {};
 
 private "_prefferedNewDriver";
-(fullCrew _vehicle) apply {
+private _prefferedNewDriver_isPlayer = false;
+private _prefferedNewDriver_role = "";
 
+// prioritize the same kind of unit that was in the driver seat
+/// if the driver was a player, their replacement should ideally be a player
+/// and vice-versa
+
+// commander should be the priority 1 seat
+/// then cargo
+/// then turret
+/// then gunner
+
+(fullCrew _vehicle) apply {
+    _x params ["_unit","_role","_index"];
+    private _isPlayer = isPlayer _unit;
+
+
+    if (_role == "commander") then {
+
+    };
+
+
+    if (_role == "gunner") then {
+
+    };
+    if (_role == "turret") then {
+
+    };
+    if (_role == "cargo") then {
+
+    };
 };
+
+if (isNil "_prefferedNewDriver") exitWith {};
+
+[_prefferedNewDriver,_vehicle] remoteExecCall ["moveOut",_prefferedNewDriver];
+[_prefferedNewDriver,_vehicle] remoteExecCall ["moveInDriver",_prefferedNewDriver];
+
+
+nil
