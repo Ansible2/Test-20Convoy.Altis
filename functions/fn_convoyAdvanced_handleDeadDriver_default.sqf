@@ -99,7 +99,7 @@ private _rolePriorityHashMap = createHashMapFromArray [
     ["commander",3],
     ["cargo",2],
     ["turret",1],
-    ["gunner",0],
+    ["gunner",0]
 ];
 
 (fullCrew _vehicle) apply {

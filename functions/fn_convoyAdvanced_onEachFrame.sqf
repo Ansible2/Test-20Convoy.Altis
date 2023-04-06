@@ -74,7 +74,7 @@ if !(alive _currentVehicle_driver) exitWith {
             _currentVehicle,
             _convoyHashMap,
             _convoyLead,
-            _currentVehicle_driver,
+            _currentVehicle_driver
         ],
         4
     ] call CBA_fnc_waitAndExecute;
