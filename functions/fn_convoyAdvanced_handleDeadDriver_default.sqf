@@ -92,42 +92,42 @@ if (isNull _deadDriver) exitWith {
 private _currentDriver = driver _vehicle;
 if (_currentDriver isNotEqualTo _deadDriver) exitWith {};
 
-private "_prefferedNewDriver";
-private _prefferedNewDriver_isPlayer = false;
-private _prefferedNewDriver_role = "";
-
-// prioritize the same kind of unit that was in the driver seat
-/// if the driver was a player, their replacement should ideally be a player
-/// and vice-versa
-
-// commander should be the priority 1 seat
-/// then cargo
-/// then turret
-/// then gunner
+private _driverWasPlayer = isPlayer [_deadDriver];
+private "_preferredNewDriver";
+private _preferredNewDriver_priority = -1;
+private _rolePriorityHashMap = createHashMapFromArray [
+    ["commander",3],
+    ["cargo",2],
+    ["turret",1],
+    ["gunner",0],
+];
 
 (fullCrew _vehicle) apply {
     _x params ["_unit","_role","_index"];
-    private _isPlayer = isPlayer _unit;
+    _role = toLowerANSI _role;
+    private _unitIsPlayer = isPlayer _unit;
 
-
-    if (_role == "commander") then {
-
+    // always want a player driver to not be replaced with an AI 
+    // if there is another player in the vehicle
+    if (_driverWasPlayer AND _unitIsPlayer) then {
+        _preferredNewDriver = nil;
+        break 
     };
 
+    private _unitPriority = _rolePriorityHashMap getOrDefault [_role,-1];
+    if (_preferredNewDriver_priority < _unitPriority) then {
+        _preferredNewDriver_priority = _unitPriority;
+        _preferredNewDriver = _unit;
 
-    if (_role == "gunner") then {
-
-    };
-    if (_role == "turret") then {
-
-    };
-    if (_role == "cargo") then {
-
+        private _unitIsCommander = _unitPriority isEqualTo 3;
+        private _isPriorityUnit = _unitIsCommander AND (!_driverWasPlayer) AND (!_unitIsPlayer);
+        if (_isPriorityUnit) then { break };
     };
 };
 
 if (isNil "_prefferedNewDriver") exitWith {};
 
+// TODO: move out dead body?
 [_prefferedNewDriver,_vehicle] remoteExecCall ["moveOut",_prefferedNewDriver];
 [_prefferedNewDriver,_vehicle] remoteExecCall ["moveInDriver",_prefferedNewDriver];
 
