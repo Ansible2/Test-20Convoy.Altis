@@ -63,14 +63,14 @@ if !(canMove _currentVehicle) exitWith {
 // and the limited cost of this check
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
-    private _driverWasChecked = _currentVehicle getVariable ["KISKA_convoyAdvanced_deadDriverChecked",false];
+    private _driverWasChecked = _currentVehicle getVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",false];
     if (_driverWasChecked) exitWith {};
     
     private _driverKilledHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleDeadDriver",
         KISKA_fnc_convoyAdvanced_handleDeadDriver_default
     ];
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_deadDriverChecked",true];
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",true];
 
     [
         _driverKilledHandler,
@@ -80,8 +80,7 @@ if !(alive _currentVehicle_driver) exitWith {
             _convoyLead,
             _currentVehicle_driver
         ],
-        // TODO: up to 4 seconds
-        1
+        4
     ] call CBA_fnc_waitAndExecute;
 };	
 

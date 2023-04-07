@@ -123,21 +123,15 @@ private _rolePriorityHashMap = createHashMapFromArray [
         if (_isPriorityUnit) then { break };
     };
 };
+hint str [_preferredNewDriver_priority,_preferredNewDriver,commander _vehicle,(commander _vehicle) isEqualTo _preferredNewDriver];
 if (isNil "_preferredNewDriver") exitWith {};
 
 // TODO: remoteExec having errors
-// [_currentDriver,_vehicle] remoteExecCall ["moveOut",_currentDriver];
-// [_prefferedNewDriver,_vehicle] remoteExecCall ["moveOut",_prefferedNewDriver];
-// [_prefferedNewDriver,_vehicle] remoteExecCall ["moveInDriver",_prefferedNewDriver];
+[_currentDriver,_vehicle] remoteExecCall ["moveOut",_currentDriver];
+[_preferredNewDriver,_vehicle] remoteExecCall ["moveOut",_preferredNewDriver];
+[_preferredNewDriver,_vehicle] remoteExecCall ["moveInDriver",_preferredNewDriver];
 
-// TODO: _preferredNewDriver is not being moved out of vehice????
-_currentDriver moveOut _vehicle;
-_prefferedNewDriver moveOut _vehicle;
-_prefferedNewDriver moveInDriver _vehicle;
-_vehicle setVariable ["KISKA_convoyAdvanced_deadDriverChecked",false];
-
-// hint str [_preferredNewDriver,_vehicle];
-// hint str (driver _vehicle);
+_vehicle setVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",false];
 
 
 nil
