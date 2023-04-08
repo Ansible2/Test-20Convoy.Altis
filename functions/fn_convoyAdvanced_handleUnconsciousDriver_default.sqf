@@ -1,10 +1,9 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoyAdvanced_handleDeadDriver_default
+Function: KISKA_fnc_convoyAdvanced_handleUnconsciousDriver_default
 
 Description:
-    The default function that runs when a driver is detected as dead in a vehicle convoy.
-    This is not fired based off an event handler but rather a check in the onEachFrame for
-     the convoy vehicles.
+    The default function that runs when a driver is detected as incapacitated in a vehicle convoy.
+
     The function will wait 4 seconds before affecting its behavior on the vehicle.
     
     If the previous driver was a player, and a player is in the vehicle, nothing will happen.
@@ -25,10 +24,10 @@ Description:
      all other vehicle roles.
 
 Parameters:
-    0: _vehicle <OBJECT> - The vehicle that has a dead driver
+    0: _vehicle <OBJECT> - The vehicle that has an unconscious driver
     1: _convoyHashMap <HASHMAP> - The hashmap used for the convoy
     2: _convoyLead <OBJECT> - The lead vehicle of the convoy
-    3: _deadDriver <OBJECT> - The dead driver
+    3: _unconsciousDriver <OBJECT> - The unconscious driver
 
 Returns:
     NOTHING
@@ -41,7 +40,7 @@ Examples:
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoyAdvanced_handleDeadDriver_default";
+scriptName "KISKA_fnc_convoyAdvanced_handleUnconsciousDriver_default";
 
 #define WAIT_TIME 4
 
@@ -59,7 +58,7 @@ params [
     ["_vehicle",objNull,[objNull]],
     ["_convoyHashMap",nil],
     ["_convoyLead",objNull,[objNull]],
-    ["_deadDriver",objNull,[objNull]]
+    ["_unconsciousDriver",objNull,[objNull]]
 ]; 
 
 
@@ -87,10 +86,10 @@ if (isNil "_convoyHashMap") exitWith {
     nil
 };
 
-if (isNull _deadDriver) exitWith {
+if (isNull _unconsciousDriver) exitWith {
     [
         [
-            "null _deadDriver was passed, _vehicle is: ",
+            "null _unconsciousDriver was passed, _vehicle is: ",
             _vehicle
         ],
         false
@@ -101,9 +100,9 @@ if (isNull _deadDriver) exitWith {
 
 
 private _currentDriver = driver _vehicle;
-if (_currentDriver isNotEqualTo _deadDriver) exitWith {};
+if (_currentDriver isNotEqualTo _unconsciousDriver) exitWith {};
 
-private _driverWasPlayer = isPlayer [_deadDriver];
+private _driverWasPlayer = isPlayer [_unconsciousDriver];
 private "_preferredNewDriver";
 private _preferredNewDriver_priority = -1;
 private _preferredNewDriver_isPlayer = false;
@@ -143,8 +142,9 @@ if (isNil "_preferredNewDriver" OR {_preferredNewDriver_isPlayer}) exitWith {};
 [_currentDriver, _vehicle] remoteExecCall ["moveOut", _currentDriver];
 [_preferredNewDriver, _vehicle] remoteExecCall ["moveOut", _preferredNewDriver];
 [_preferredNewDriver, _vehicle] remoteExecCall ["moveInDriver", _preferredNewDriver];
+[_currentDriver, _vehicle] remoteExecCall ["moveInAny", _currentDriver];
 
-_vehicle setVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",false];
+_vehicle setVariable ["KISKA_convoyAdvanced_currentUnconsciousDriver",nil];
 
 
 nil

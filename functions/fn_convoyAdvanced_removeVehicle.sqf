@@ -94,10 +94,15 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoyAdvanced_debugMarkerType_followedPath",
     "KISKA_convoyAdvanced_debugMarkerType_followPath",
     "KISKA_convoyAdvanced_vehicleKilledEventID",
+    "KISKA_convoyAdvanced_handleUnconsciousDriver",
+    "KISKA_convoyAdvanced_handleDeadDriver",
+    "KISKA_convoyAdvanced_handleVehicleCantMove",
+    "KISKA_convoyAdvanced_handleVehicleKilled",
     "KISKA_convoyAdvanced_seperation",
     "KISKA_convoyAdvanced_lastAddedPoint",
     "KISKA_convoyAdvanced_deadDriverBeingHandled",
     "KISKA_convoyAdvanced_doDriveOnPath",
+    "KISKA_convoyAdvanced_currentUnconsciousDriver",
     "KISKA_convoyAdvanced_getOutEventHandlerId",
     "KISKA_convoyAdvanced_getOutTimesHashMap"
 ] apply {

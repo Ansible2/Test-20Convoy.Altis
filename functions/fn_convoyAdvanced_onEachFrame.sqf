@@ -63,31 +63,14 @@ if !(canMove _currentVehicle) exitWith {
 // and the limited cost of this check
 private _currentVehicle_driver = driver _currentVehicle;
 if !(alive _currentVehicle_driver) exitWith {
-    private _driverWasChecked = _currentVehicle getVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",false];
-    if (_driverWasChecked) exitWith {};
+    private _deadDriverBeingHandled = _currentVehicle getVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",false];
+    if (_deadDriverBeingHandled) exitWith {};
+
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",true];
     
     private _driverKilledHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleDeadDriver",
         KISKA_fnc_convoyAdvanced_handleDeadDriver_default
-    ];
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_deadDriverBeingHandled",true];
-
-    [
-        _driverKilledHandler,
-        [
-            _currentVehicle,
-            _convoyHashMap,
-            _convoyLead,
-            _currentVehicle_driver
-        ],
-        4
-    ] call CBA_fnc_waitAndExecute;
-};	
-
-if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
-    private _driverIncapictatedEventHandler = _currentVehicle getVariable [
-        "KISKA_convoyAdvanced_handleUnconciousDriver",
-        KISKA_fnc_convoyAdvanced_handleUnconciousDriver_default
     ];
 
     [
@@ -95,7 +78,25 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
         _convoyHashMap,
         _convoyLead,
         _currentVehicle_driver
-    ] call _driverIncapictatedEventHandler;
+    ] call _driverKilledHandler;
+};	
+
+if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
+    private _currentUnconsciousDriver = _currentVehicle getVariable "KISKA_convoyAdvanced_currentUnconsciousDriver";
+    if (!isNil "_currentUnconsciousDriver" AND {_currentUnconsciousDriver isEqualTo _currentVehicle_driver}) exitWith {};
+    
+    _currentVehicle setVariable ["KISKA_convoyAdvanced_currentUnconsciousDriver",_currentVehicle_driver];
+    private _driverIncapcitatedEventHandler = _currentVehicle getVariable [
+        "KISKA_convoyAdvanced_handleUnconsciousDriver",
+        KISKA_fnc_convoyAdvanced_handleUnconsciousDriver_default
+    ];
+
+    [
+        _currentVehicle,
+        _convoyHashMap,
+        _convoyLead,
+        _currentVehicle_driver
+    ] call _driverIncapcitatedEventHandler;
 };	
 
 

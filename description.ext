@@ -53,7 +53,7 @@ class CfgFunctions
             {};
             class convoyAdvanced_handleDeadDriver_default
             {};
-            class convoyAdvanced_handleUnconciousDriver_default
+            class convoyAdvanced_handleUnconsciousDriver_default
             {};
             class convoyAdvanced_handleVehicleCantMove_default
             {};
