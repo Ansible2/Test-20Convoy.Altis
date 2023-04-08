@@ -35,11 +35,33 @@ scriptName "KISKA_fnc_convoyAdvanced_onEachFrame";
 #define MIN_CONVOY_SEPERATION 10
 
 private _currentVehicle = _this;
-// TODO: handle when driver is player
+// TODO: vehicles handle very strangely under fire
 
 private _convoyHashMap = _currentVehicle getVariable "KISKA_convoyAdvanced_hashMap";
 private _convoyLead = _convoyHashMap get 0;
 // private _stateMachine = _convoyHashMap get "_stateMachine";
+
+
+/* ----------------------------------------------------------------------------
+    Handle Convoy Lead Vehicle
+---------------------------------------------------------------------------- */
+if !(alive _convoyLead) exitWith {
+    // todo: add handler
+};
+
+private _convoyPath = _convoyHashMap get "_convoyPath";
+if (_currentVehicle isEqualTo _convoyLead) exitWith {
+    private _convoyLead_currentPosition_ATL = getPosATLVisual _convoyLead;
+    // getOrDefaultCall is slightly faster than getOrDefault for this
+    private _latestPointOnPath = _convoyHashMap getOrDefaultCall ["_latestPointOnPath",{[0,0,0]}];
+   
+    private _distanceBetweenPoints = _convoyLead_currentPosition_ATL vectorDistance _latestPointOnPath;
+    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
+    if (_distanceBetweenPoints <= _minBufferBetweenPoints) exitWith {};
+
+    _convoyPath pushBack _convoyLead_currentPosition_ATL;
+    _convoyHashMap set ["_latestPointOnPath",_convoyLead_currentPosition_ATL];
+};
 
 
 /* ----------------------------------------------------------------------------
@@ -97,129 +119,111 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
         _convoyLead,
         _currentVehicle_driver
     ] call _driverIncapcitatedEventHandler;
-};	
-
-
-
-/* ----------------------------------------------------------------------------
-    Handle Convoy Lead Vehicle
----------------------------------------------------------------------------- */
-if !(alive _convoyLead) exitWith {};
-
-private _convoyPath = _convoyHashMap get "_convoyPath";
-if (_currentVehicle isEqualTo _convoyLead) exitWith {
-    private _convoyLead_currentPosition_ATL = getPosATLVisual _convoyLead;
-    // getOrDefaultCall is slightly faster than getOrDefault for this
-    private _latestPointOnPath = _convoyHashMap getOrDefaultCall ["_latestPointOnPath",{[0,0,0]}];
-   
-    private _distanceBetweenPoints = _convoyLead_currentPosition_ATL vectorDistance _latestPointOnPath;
-    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
-    if (_distanceBetweenPoints <= _minBufferBetweenPoints) exitWith {};
-
-    _convoyPath pushBack _convoyLead_currentPosition_ATL;
-    _convoyHashMap set ["_latestPointOnPath",_convoyLead_currentPosition_ATL];
-    
 };
 
 
+private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
+private _continue = false;
 
 /* ----------------------------------------------------------------------------
     Handle speed
 ---------------------------------------------------------------------------- */
-private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
-private _continue = false;
+if !(isPlayer _currentVehicle_driver) then {
 
+    private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoyAdvanced_index";
+    private _vehicleAhead = _convoyHashMap get (_currentVehicle_index - 1);
 
-private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoyAdvanced_index";
-private _vehicleAhead = _convoyHashMap get (_currentVehicle_index - 1);
+    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_convoyAdvanced_getBumperPosition;
+    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_convoyAdvanced_getBumperPosition;
+    private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
 
-private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_convoyAdvanced_getBumperPosition;
-private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_convoyAdvanced_getBumperPosition;
-private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
+    private _vehicleAhead_speed = speed _vehicleAhead;
+    private _currentVehicle_seperation = (_currentVehicle getVariable ["KISKA_convoyAdvanced_seperation",20]) max MIN_CONVOY_SEPERATION;
+    private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < _currentVehicle_seperation;
 
-private _vehicleAhead_speed = speed _vehicleAhead;
-private _currentVehicle_seperation = (_currentVehicle getVariable ["KISKA_convoyAdvanced_seperation",20]) max MIN_CONVOY_SEPERATION;
-private _vehiclesAreWithinBoundary = _distanceBetweenVehicles < _currentVehicle_seperation;
+    private _currentVehicle_isStopped = _currentVehicle getVariable ["KISKA_convoyAdvanced_isStopped",false];
+    private _vehicleAhead_isStopped = _vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW;
+    private _currentVehicle_shouldBeStopped = _vehicleAhead_isStopped AND _vehiclesAreWithinBoundary;
 
-private _currentVehicle_isStopped = _currentVehicle getVariable ["KISKA_convoyAdvanced_isStopped",false];
-private _vehicleAhead_isStopped = _vehicleAhead_speed <= LEAD_VEHICLE_MAX_SPEED_TO_HALT_FOLLOW;
-private _currentVehicle_shouldBeStopped = _vehicleAhead_isStopped AND _vehiclesAreWithinBoundary;
-
-if (_currentVehicle_isStopped) then {
-    if (_currentVehicle_shouldBeStopped) exitWith { _continue = true; };
-    
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",false];
-    if !(_currentVehicle_driver checkAIFeature "path") then {
-        _currentVehicle_driver enableAI "path";
-    };
-    
-} else {
-    if !(_currentVehicle_shouldBeStopped) exitWith {};
+    if (_currentVehicle_isStopped) then {
+        if (_currentVehicle_shouldBeStopped) exitWith { _continue = true; };
         
-    if (_debug) then {
-        private _currentVehicle_speed = speed _currentVehicle;
-        hint str ["In Halt",_currentVehicle_speed,_distanceBetweenVehicles];
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",false];
+        if !(_currentVehicle_driver checkAIFeature "path") then {
+            _currentVehicle_driver enableAI "path";
+        };
+        
+    } else {
+        if !(_currentVehicle_shouldBeStopped) exitWith {};
+            
+        if (_debug) then {
+            private _currentVehicle_speed = speed _currentVehicle;
+            hint str ["In Halt",_currentVehicle_speed,_distanceBetweenVehicles];
+        };
+
+        _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",true];
+        [_currentVehicle] call KISKA_fnc_convoyAdvanced_stopVehicle;
+
+        _continue = true;
     };
 
-    _currentVehicle setVariable ["KISKA_convoyAdvanced_isStopped",true];
-    [_currentVehicle] call KISKA_fnc_convoyAdvanced_stopVehicle;
+    if (_continue) exitWith {};
 
-    _continue = true;
+
+    /* ---------------------------------
+        Force speed based on distance
+    --------------------------------- */
+    private _currentVehicle_speed = speed _currentVehicle;
+    if (_vehiclesAreWithinBoundary) then {
+        private _modifier = ((_currentVehicle_seperation - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
+        private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
+        _currentVehicle limitSpeed _speedLimit;
+        
+        if (_debug) then {
+            hint ([
+                "limit speed",endl,
+                "Current Vehicle Speed: ", _currentVehicle_speed, endl,
+                "Current Speed Limit: ", _speedLimit, endl,
+                "Distance between: ", _distanceBetweenVehicles
+            ] joinString "");
+        };
+
+    } else {
+        private _distanceToLimitToVehicleAheadSpeed = _currentVehicle_seperation * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
+        if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
+            if (_debug) then {
+                hint "un limit small";
+            };
+
+            private _speedToLimitTo = [_vehicleAhead_speed,5] select _vehicleAhead_isStopped;
+            _currentVehicle limitSpeed _speedToLimitTo;
+        };
+
+        if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
+            if (_debug) then {
+                hint "un limit";
+            };
+            _currentVehicle limitSpeed -1 
+        };
+        
+        private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
+        if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
+            if (_debug) then {
+                hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
+            };
+
+            _currentVehicle limitSpeed _distanceBetweenVehicles;
+        };
+        
+        if (_debug) then {
+            hint str ["un limit generic",_distanceBetweenVehicles];
+        };
+        _currentVehicle limitSpeed -1;
+    };
 };
 
 if (_continue) exitWith {};
 
-
-/* ---------------------------------
-    Force speed based on distance
---------------------------------- */
-private _currentVehicle_speed = speed _currentVehicle;
-if (_vehiclesAreWithinBoundary) then {
-    private _modifier = ((_currentVehicle_seperation - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
-    private _speedLimit = (_vehicleAhead_speed - _modifier) max MIN_VEHICLE_SPEED_LIMIT;
-    _currentVehicle limitSpeed _speedLimit;
-    
-    if (_debug) then {
-        hint ([
-            "limit speed",endl,
-            "Current Vehicle Speed: ", _currentVehicle_speed, endl,
-            "Current Speed Limit: ", _speedLimit, endl,
-            "Distance between: ", _distanceBetweenVehicles
-        ] joinString "");
-    };
-
-} else {
-    private _distanceToLimitToVehicleAheadSpeed = _currentVehicle_seperation * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
-    if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
-        if (_debug) then {
-            hint "un limit small";
-        };
-
-        private _speedToLimitTo = [_vehicleAhead_speed,5] select _vehicleAhead_isStopped;
-        _currentVehicle limitSpeed _speedToLimitTo;
-    };
-
-    if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
-        if (_debug) then {
-            hint "un limit";
-        };
-        _currentVehicle limitSpeed -1 
-    };
-    
-    private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
-    if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
-        if (_debug) then {
-            hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
-        };
-
-        _currentVehicle limitSpeed _distanceBetweenVehicles;
-    };
-    
-    if (_debug) then {
-        hint str ["un limit generic",_distanceBetweenVehicles];
-    };
-    _currentVehicle limitSpeed -1;
-};
 
 
 /* ----------------------------------------------------------------------------
