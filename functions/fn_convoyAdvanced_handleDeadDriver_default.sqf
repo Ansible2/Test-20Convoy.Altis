@@ -50,6 +50,26 @@ if (!isServer) exitWith {
     nil
 };
 
+params [
+    ["_vehicle",objNull,[objNull]],
+    ["_convoyHashMap",nil],
+    ["_convoyLead",objNull,[objNull]]
+]; 
+
+
+if (_vehicle isEqualTo _convoyLead) exitWith {
+    [_vehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
+    
+    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
+    if (isNull _newConvoyLead) then {
+        [_convoyHashMap] call KISKA_fnc_convoyAdvanced_delete;
+
+    } else {
+        // There's no consistent way to know what the former lead's intended path is, so stop
+	    [_newConvoyLead] call KISKA_fnc_convoyAdvanced_stopVehicle; 
+
+    };
+};
 
 
 [{

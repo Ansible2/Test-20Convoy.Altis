@@ -84,22 +84,28 @@ if (isNull _convoyLead) exitWith {
 /* ----------------------------------------------------------------------------
 	Logic
 ---------------------------------------------------------------------------- */
-private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
 [_killedVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
 
-private _vehicleIndex = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
-private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
+// KISKA_fnc_convoyAdvanced_removeVehicle will adjust the indexes
 if (_killedVehicle isEqualTo _convoyLead) exitWith {
-    if (isNull _newConvoyLead) exitWith {};
 
-    // There's no consistent way to know what the former lead's intended path is, so stop
-	[_newConvoyLead] call KISKA_fnc_convoyAdvanced_stopVehicle;
+    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
+    if (isNull _newConvoyLead) then {
+        [_convoyHashMap] call KISKA_fnc_convoyAdvanced_delete;
+
+    } else {
+        // There's no consistent way to know what the former lead's intended path is, so stop
+	    [_newConvoyLead] call KISKA_fnc_convoyAdvanced_stopVehicle; 
+
+    };
+
 };
 
 
 /* ---------------------------------
 	Getting the rear vehicle to move to the lead vehicle
 --------------------------------- */
+private _vehicleIndex = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleIndex;
 private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoyAdvanced_getVehicleAtIndex;
 [_vehicleThatWasBehind] call KISKA_fnc_convoyAdvanced_stopVehicle;
 [_vehicleThatWasBehind, false] call KISKA_fnc_convoyAdvanced_setVehicleDriveOnPath;
@@ -124,7 +130,7 @@ for "_i" from 1 to 25 do {
 // shove vehicle to the side because AI drivers can't drive past consistently
 [_killedVehicle, [_pushToTheSideVelocity,0,PUSH_Z_VELOCITY]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
 
-
+private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoyAdvanced_getVehicleDrivePath;
 // Waiting to give time for destroyed vehicle to settle from physics
 [
     {

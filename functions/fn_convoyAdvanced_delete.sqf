@@ -27,7 +27,7 @@ if (!isServer) exitWith {
 };
 
 params [
-    ["_convoyHashMap",nil,[createHashMap]]
+    ["_convoyHashMap",nil]
 ];
 
 
@@ -49,5 +49,7 @@ private _convoyStatemachine = [
 ] call KISKA_fnc_convoyAdvanced_getConvoyStatemachine;
 [_convoyStatemachine] call CBA_statemachine_fnc_delete;
 
+
+(keys _convoyHashMap) apply { _convoyHashMap deleteAt _x };
 
 nil

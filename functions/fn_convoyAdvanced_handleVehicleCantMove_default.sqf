@@ -83,6 +83,22 @@ if (isNull _convoyLead) exitWith {
 };
 
 
+if (_disabledVehicle isEqualTo _convoyLead) exitWith {
+    [_disabledVehicle] call KISKA_fnc_convoyAdvanced_removeVehicle;
+    
+    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoyAdvanced_getConvoyLeader;
+    if (isNull _newConvoyLead) then {
+        [_convoyHashMap] call KISKA_fnc_convoyAdvanced_delete;
+
+    } else {
+        // There's no consistent way to know what the former lead's intended path is, so stop
+	    [_newConvoyLead] call KISKA_fnc_convoyAdvanced_stopVehicle; 
+
+    };
+};
+
+
+
 /* ----------------------------------------------------------------------------
 	Function Defintions
 ---------------------------------------------------------------------------- */

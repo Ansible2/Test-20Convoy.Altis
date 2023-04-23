@@ -38,35 +38,18 @@ private _currentVehicle = _this;
 // TODO: vehicles handle very strangely under fire
 
 private _convoyHashMap = _currentVehicle getVariable "KISKA_convoyAdvanced_hashMap";
-private _convoyLead = _convoyHashMap get 0;
+private _convoyLead = _convoyHashMap getOrDefault [0,objNull];
 // private _stateMachine = _convoyHashMap get "_stateMachine";
-
-
-/* ----------------------------------------------------------------------------
-    Handle Convoy Lead Vehicle
----------------------------------------------------------------------------- */
-if !(alive _convoyLead) exitWith {
-    // todo: add handler
-};
-
-private _convoyPath = _convoyHashMap get "_convoyPath";
-if (_currentVehicle isEqualTo _convoyLead) exitWith {
-    private _convoyLead_currentPosition_ATL = getPosATLVisual _convoyLead;
-    // getOrDefaultCall is slightly faster than getOrDefault for this
-    private _latestPointOnPath = _convoyHashMap getOrDefaultCall ["_latestPointOnPath",{[0,0,0]}];
-   
-    private _distanceBetweenPoints = _convoyLead_currentPosition_ATL vectorDistance _latestPointOnPath;
-    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
-    if (_distanceBetweenPoints <= _minBufferBetweenPoints) exitWith {};
-
-    _convoyPath pushBack _convoyLead_currentPosition_ATL;
-    _convoyHashMap set ["_latestPointOnPath",_convoyLead_currentPosition_ATL];
-};
 
 
 /* ----------------------------------------------------------------------------
     Exit states
 ---------------------------------------------------------------------------- */
+if (isNull _convoyLead) exitWith {
+    [_convoyHashMap] call KISKA_fnc_convoyAdvanced_delete;
+};
+
+
 if !(canMove _currentVehicle) exitWith {
     private _cantMoveEventHandler = _currentVehicle getVariable [
         "KISKA_convoyAdvanced_handleVehicleCantMove",
@@ -122,12 +105,32 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
 };
 
 
-private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
-private _continue = false;
+/* ----------------------------------------------------------------------------
+    Handle Convoy Lead Vehicle
+---------------------------------------------------------------------------- */
+if (_currentVehicle isEqualTo _convoyLead) exitWith {
+    private _convoyLead_currentPosition_ATL = getPosATLVisual _convoyLead;
+    // getOrDefaultCall is slightly faster than getOrDefault for this
+    private _latestPointOnPath = _convoyHashMap getOrDefaultCall ["_latestPointOnPath",{[0,0,0]}];
+   
+    private _distanceBetweenPoints = _convoyLead_currentPosition_ATL vectorDistance _latestPointOnPath;
+    private _minBufferBetweenPoints = _convoyHashMap get "_minBufferBetweenPoints";
+    if (_distanceBetweenPoints <= _minBufferBetweenPoints) exitWith {};
+
+    (_convoyHashMap get "_convoyPath") pushBack _convoyLead_currentPosition_ATL;
+    _convoyHashMap set ["_latestPointOnPath",_convoyLead_currentPosition_ATL];
+};
+
+
+
 
 /* ----------------------------------------------------------------------------
     Handle speed
 ---------------------------------------------------------------------------- */
+private _debug = _currentVehicle getVariable ["KISKA_convoyAdvanced_debug",false];
+private _continue = false;
+
+
 if !(isPlayer _currentVehicle_driver) then {
 
     private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoyAdvanced_index";

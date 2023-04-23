@@ -108,3 +108,6 @@ if ((speed _vehicle) > 0) then {
 ] apply {
     _vehicle setVariable [_x,nil];
 };
+
+
+nil
