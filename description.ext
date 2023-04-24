@@ -5,91 +5,91 @@ class CfgFunctions
         class functions
         {
             file = "functions";
-            class convoyAdvanced_addVehicle
+            class convoy_addVehicle
             {};
-            class convoyAdvanced_addVehicleKilledEvent
+            class convoy_addVehicleKilledEvent
             {};
-            class convoyAdvanced_clearVehicleDebugFollowedPath
+            class convoy_clearVehicleDebugFollowedPath
             {};
-            class convoyAdvanced_clearVehicleDebugFollowPath
+            class convoy_clearVehicleDebugFollowPath
             {};
-            class convoyAdvanced_create
+            class convoy_create
             {};
-            class convoyAdvanced_delete
+            class convoy_delete
             {};
-            class convoyAdvanced_getBumperPosition
+            class convoy_getBumperPosition
             {};
-            class convoyAdvanced_getConvoyHashMapFromVehicle
+            class convoy_getConvoyHashMapFromVehicle
             {};
-            class convoyAdvanced_getConvoyLeader
+            class convoy_getConvoyLeader
             {};
-            class convoyAdvanced_getConvoyStatemachine
+            class convoy_getConvoyStatemachine
             {};
-            class convoyAdvanced_getConvoyVehicles
+            class convoy_getConvoyVehicles
             {};
-            class convoyAdvanced_getDefaultSeperation
+            class convoy_getDefaultSeperation
             {};
-            class convoyAdvanced_getPointBuffer
+            class convoy_getPointBuffer
             {};
-            class convoyAdvanced_getVehicleAtIndex
+            class convoy_getVehicleAtIndex
             {};
-            class convoyAdvanced_getVehicleDebugFollowedPath
+            class convoy_getVehicleDebugFollowedPath
             {};
-            class convoyAdvanced_getVehicleDebugFollowPath
+            class convoy_getVehicleDebugFollowPath
             {};
-            class convoyAdvanced_getVehicleDebugMarkerType_followedPath
+            class convoy_getVehicleDebugMarkerType_followedPath
             {};
-            class convoyAdvanced_getVehicleDebugMarkerType_followPath
+            class convoy_getVehicleDebugMarkerType_followPath
             {};
-            class convoyAdvanced_getVehicleDrivePath
+            class convoy_getVehicleDrivePath
             {};
-            class convoyAdvanced_getVehicleIndex
+            class convoy_getVehicleIndex
             {};
-            class convoyAdvanced_getVehicleKilledEvent
+            class convoy_getVehicleKilledEvent
             {};
-            class convoyAdvanced_getVehicleLastAddedPoint
+            class convoy_getVehicleLastAddedPoint
             {};
-            class convoyAdvanced_getVehicleSeperation
+            class convoy_getVehicleSeperation
             {};
-            class convoyAdvanced_handleDeadDriver_default
+            class convoy_handleDeadDriver_default
             {};
-            class convoyAdvanced_handleUnconsciousDriver_default
+            class convoy_handleUnconsciousDriver_default
             {};
-            class convoyAdvanced_handleVehicleCantMove_default
+            class convoy_handleVehicleCantMove_default
             {};
-            class convoyAdvanced_handleVehicleKilled_default
+            class convoy_handleVehicleKilled_default
             {};
-            class convoyAdvanced_isVehicleInDebug
+            class convoy_isVehicleInDebug
             {};
-            class convoyAdvanced_modifyVehicleDrivePath
+            class convoy_modifyVehicleDrivePath
             {};
-            class convoyAdvanced_onEachFrame
+            class convoy_onEachFrame
             {};
-            class convoyAdvanced_removeVehicle
+            class convoy_removeVehicle
             {};
-            class convoyAdvanced_removeVehicleKilledEvent
+            class convoy_removeVehicleKilledEvent
             {};
-            class convoyAdvanced_setDefaultSeperation
+            class convoy_setDefaultSeperation
             {};
-            class convoyAdvanced_setPointBuffer
+            class convoy_setPointBuffer
             {};
-            class convoyAdvanced_setVehicleDebug
+            class convoy_setVehicleDebug
             {};
-            class convoyAdvanced_setVehicleDebugMarkerType_followedPath
+            class convoy_setVehicleDebugMarkerType_followedPath
             {};
-            class convoyAdvanced_setVehicleDebugMarkerType_followPath
+            class convoy_setVehicleDebugMarkerType_followPath
             {};
-            class convoyAdvanced_setVehicleDriveOnPath
+            class convoy_setVehicleDriveOnPath
             {};
-            class convoyAdvanced_setVehicleKilledEvent
+            class convoy_setVehicleKilledEvent
             {};
-            class convoyAdvanced_setVehicleSeperation
+            class convoy_setVehicleSeperation
             {};
-            class convoyAdvanced_shouldVehicleDriveOnPath
+            class convoy_shouldVehicleDriveOnPath
             {};
-            class convoyAdvanced_stopVehicle
+            class convoy_stopVehicle
             {};
-            class convoyAdvanced_syncLatestDrivePoint
+            class convoy_syncLatestDrivePoint
             {};
             
             class getBumperPositionRelative

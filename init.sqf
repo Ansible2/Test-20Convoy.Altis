@@ -10,8 +10,8 @@ private _convoyHashMap = [
 		vic4,
 		vic5
 	],
-	10
-] call KISKA_fnc_convoyAdvanced_create;
+	20
+] call KISKA_fnc_convoy_create;
 
 
 [
@@ -33,10 +33,10 @@ private _convoyHashMap = [
 // 	_convoyHashMap,
 // 	vic1,
 // 	0
-// ] call KISKA_fnc_convoyAdvanced_addVehicle;
+// ] call KISKA_fnc_convoy_addVehicle;
 
-// [vic3,true] call KISKA_fnc_convoyAdvanced_setVehicleDebug;
-[vic2,true] call KISKA_fnc_convoyAdvanced_setVehicleDebug;
+// [vic3,true] call KISKA_fnc_convoy_setVehicleDebug;
+[vic2,true] call KISKA_fnc_convoy_setVehicleDebug;
 
 sleep 5;
 
@@ -48,7 +48,7 @@ sleep 5;
 
 // [
 // 	_convoyHashMap
-// ] call KISKA_fnc_convoyAdvanced_delete;
+// ] call KISKA_fnc_convoy_delete;
 
 
 };
