@@ -183,28 +183,54 @@ if !(isPlayer _currentVehicle_driver) then {
         _currentVehicle limitSpeed _speedLimit;
         
         if (_debug) then {
-            hint ([
-                "limit speed",endl,
-                "Current Vehicle Speed: ", _currentVehicle_speed, endl,
-                "Current Speed Limit: ", _speedLimit, endl,
-                "Distance between: ", _distanceBetweenVehicles
-            ] joinString "");
+            hint parseText format [
+                "Limited Vehicle Speed
+                <br/>
+                Within seperation boundary
+                <br/>
+                <t align='left'>Distance To Vehicle In Front: %1</t>,
+                <br/>
+                <t align='left'>Current Vehicle Speed: %2</t>,
+                <br/>
+                <t align='left'>Speed Limited To: %3</t>",
+                _distanceBetweenVehicles,
+                _currentVehicle_speed,
+                _speedToLimitTo
+            ];
         };
 
     } else {
         private _distanceToLimitToVehicleAheadSpeed = _currentVehicle_seperation * SMALL_SPEED_LIMIT_DISTANCE_MODIFIER;
         if (_distanceBetweenVehicles < _distanceToLimitToVehicleAheadSpeed) exitWith {
-            if (_debug) then {
-                hint "un limit small";
-            };
-
             private _speedToLimitTo = [_vehicleAhead_speed,5] select _vehicleAhead_isStopped;
             _currentVehicle limitSpeed _speedToLimitTo;
+
+            if (_debug) then {
+                hint parseText format [
+                    "Limited Vehicle Speed To Vehicle Ahead
+                    <br/>
+                    Vehicle outside of convoy seperation
+                    <br/>
+                    <t align='left'>Distance To Vehicle In Front: %1</t>,
+                    <br/>
+                    <t align='left'>Speed Limited To: %2</t>",
+                    _distanceBetweenVehicles,
+                    _speedToLimitTo
+                ];
+            };
         };
 
         if (_distanceBetweenVehicles > VEHICLE_SHOULD_CATCH_UP_DISTANCE) exitWith { 
             if (_debug) then {
-                hint "un limit";
+                hint parseText format [
+                    "Unlimited Vehicle Speed
+                    <br/>
+                    Outside of handle distance (%2)
+                    <br/>
+                    <t align='left'>Distance To Vehicle In Front: %1</t>",
+                    _distanceBetweenVehicles,
+                    VEHICLE_SHOULD_CATCH_UP_DISTANCE
+                ];
             };
             _currentVehicle limitSpeed -1 
         };
@@ -212,14 +238,29 @@ if !(isPlayer _currentVehicle_driver) then {
         private _speedDifferential = abs (_currentVehicle_speed - _vehicleAhead_speed);
         if (_speedDifferential > SPEED_DIFFERENTIAL_LIMIT) exitWith {
             if (_debug) then {
-                hint str ["Limit by differential",_currentVehicle_speed,_distanceBetweenVehicles];
+                hint parseText format [
+                    "Limited Speed Based On Differential
+                    <br/>
+                    <t align='left'>Vehicle Speed: %1</t>
+                    <br/>
+                    <t align='left'>Distance To Vehicle In Front: %2</t>",
+                    _currentVehicle_speed,
+                    _distanceBetweenVehicles
+                ];
             };
 
             _currentVehicle limitSpeed _distanceBetweenVehicles;
         };
         
         if (_debug) then {
-            hint str ["un limit generic",_distanceBetweenVehicles];
+            hint parseText format [
+                "Unlimited Vehicle Speed
+                <br/>
+                Met no handle conditions
+                <br/>
+                <t align='left'>Distance To Vehicle In Front: %1</t>",
+                _distanceBetweenVehicles
+            ];
         };
         _currentVehicle limitSpeed -1;
     };
