@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getConvoyVehicles
+Function: KISKA_TEST_fnc_convoy_getConvoyVehicles
 
 Description:
     Returns the list of vehicles in a convoy. This is not a copy of the array used
@@ -18,13 +18,13 @@ Examples:
     (begin example)
         private _convoyVehicles = [
             SomeConvoyHashMap
-        ] call KISKA_fnc_convoy_getConvoyVehicles;
+        ] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
     (end)
 
     (begin example)
         private _convoyVehiclesCopy = +([
             SomeConvoyHashMap
-        ] call KISKA_fnc_convoy_getConvoyVehicles);
+        ] call KISKA_TEST_fnc_convoy_getConvoyVehicles);
     (end)
     
     (begin example)
@@ -32,13 +32,13 @@ Examples:
         private _allVehiclesButLeader = [
             SomeConvoyHashMap,
             _startingIndex
-        ] call KISKA_fnc_convoy_getConvoyVehicles;
+        ] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getConvoyVehicles";
+scriptName "KISKA_TEST_fnc_convoy_getConvoyVehicles";
 
 #define MAX_ARRAY_LENGTH 1E7
 

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_addVehicle
+Function: KISKA_TEST_fnc_convoy_addVehicle
 
 Description:
     Adds a given vehicle to a convoy. The index returned will be a key to the
@@ -20,17 +20,17 @@ Returns:
 
 Examples:
     (begin example)
-        private _convoyMap = [] call KISKA_fnc_convoy_create;
+        private _convoyMap = [] call KISKA_TEST_fnc_convoy_create;
         private _spotInConvoy = [
             _convoyMap,
             vic
-        ] call KISKA_fnc_convoy_addVehicle;
+        ] call KISKA_TEST_fnc_convoy_addVehicle;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_addVehicle";
+scriptName "KISKA_TEST_fnc_convoy_addVehicle";
 
 #define MAX_ARRAY_LENGTH 1E7
 
@@ -71,16 +71,16 @@ if (isNil "_convoyStatemachine") exitWith {
     -1
 };
 
-private _convoyLead = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyLeader;
+private _convoyLead = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyLeader;
 if ((speed _convoyLead) > 0) exitWith {
     [["_convoyLead ",_convoyLead," is moving, must be stopped to add vehicles to the convoy"]] call KISKA_fnc_log;
     -1
 };
 
-private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyVehicles;
+private _convoyVehicles = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
 if (_vehicle in _convoyVehicles) exitWith {
     [["_vehicle ",_vehicle," is already in _convoyHashMap ",_convoyHashMap],true] call KISKA_fnc_log;
-    [_vehicle] call KISKA_fnc_convoy_getVehicleIndex
+    [_vehicle] call KISKA_TEST_fnc_convoy_getVehicleIndex
 };
 
 
@@ -105,7 +105,7 @@ if (_insertIndex < 0) then {
     _convoyHashMap set [_convoyIndex,_vehicle];
 
     _vehiclesToChangeIndex apply {
-        private _currentIndex = [_x] call KISKA_fnc_convoy_getVehicleIndex;
+        private _currentIndex = [_x] call KISKA_TEST_fnc_convoy_getVehicleIndex;
         if (_currentIndex isEqualTo -1) then {
             [["Could not find 'KISKA_convoy_index' in namespace of ", _x," to change"],true] call KISKA_fnc_log;
             continue
@@ -125,16 +125,16 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
     private _vehicleToCopyPathFrom = [
         _convoyHashMap,
         _indexToCopyFrom
-    ] call KISKA_fnc_convoy_getVehicleAtIndex;
+    ] call KISKA_TEST_fnc_convoy_getVehicleAtIndex;
 
 
     [
         _vehicle,
         -1,
-        [_vehicleToCopyPathFrom] call KISKA_fnc_convoy_getVehicleDrivePath
-    ] call KISKA_fnc_convoy_modifyVehicleDrivePath;
+        [_vehicleToCopyPathFrom] call KISKA_TEST_fnc_convoy_getVehicleDrivePath
+    ] call KISKA_TEST_fnc_convoy_modifyVehicleDrivePath;
 
-    private _lastAddedPointInDrivePath = [_vehicleToCopyPathFrom] call KISKA_fnc_convoy_getVehicleLastAddedPoint;
+    private _lastAddedPointInDrivePath = [_vehicleToCopyPathFrom] call KISKA_TEST_fnc_convoy_getVehicleLastAddedPoint;
     // if vehicles are added at a convoy inception, this point is often not defined yet for some vehicles
     if !(isNil "_lastAddedPointInDrivePath") then {
         _vehicle setVariable ["KISKA_convoy_lastAddedPoint",_lastAddedPointInDrivePath];
@@ -145,9 +145,9 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
 };
 
 
-[_vehicle,true] call KISKA_fnc_convoy_setVehicleDriveOnPath;
-[_vehicle,false] call KISKA_fnc_convoy_clearVehicleDebugFollowedPath;
-[_vehicle,false] call KISKA_fnc_convoy_clearVehicleDebugFollowPath;
+[_vehicle,true] call KISKA_TEST_fnc_convoy_setVehicleDriveOnPath;
+[_vehicle,false] call KISKA_TEST_fnc_convoy_clearVehicleDebugFollowedPath;
+[_vehicle,false] call KISKA_TEST_fnc_convoy_clearVehicleDebugFollowPath;
 
 
 _vehicle setVariable ["KISKA_convoy_hashMap",_convoyHashMap];
@@ -155,16 +155,16 @@ _vehicle setVariable ["KISKA_convoy_index",_convoyIndex];
 if (_convoySeperation < 0) then {
     _convoySeperation = [
         _convoyHashMap
-    ] call KISKA_fnc_convoy_getDefaultSeperation;
+    ] call KISKA_TEST_fnc_convoy_getDefaultSeperation;
 };
 
 [
     _vehicle,
     _convoySeperation
-] call KISKA_fnc_convoy_setVehicleSeperation;
+] call KISKA_TEST_fnc_convoy_setVehicleSeperation;
 
 
-[_vehicle] call KISKA_fnc_convoy_addVehicleKilledEvent;
+[_vehicle] call KISKA_TEST_fnc_convoy_addVehicleKilledEvent;
 
 _vehicle setVariable ["KISKA_convoy_unitGetOutTimesHashMap",createHashMap];
 private _getOutEventHandlerId = _vehicle addEventHandler ["GetOut",{

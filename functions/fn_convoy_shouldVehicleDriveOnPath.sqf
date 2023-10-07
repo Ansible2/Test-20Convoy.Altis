@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_shouldVehicleDriveOnPath
+Function: KISKA_TEST_fnc_convoy_shouldVehicleDriveOnPath
 
 Description:
     Gets whether or not the vehicle will initiate new `setDriveOnPath`'s whenever
@@ -15,13 +15,13 @@ Returns:
 
 Examples:
     (begin example)
-        private _doDriveOnPath = [_vehicle] call KISKA_fnc_convoy_shouldVehicleDriveOnPath;
+        private _doDriveOnPath = [_vehicle] call KISKA_TEST_fnc_convoy_shouldVehicleDriveOnPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_shouldVehicleDriveOnPath";
+scriptName "KISKA_TEST_fnc_convoy_shouldVehicleDriveOnPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

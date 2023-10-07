@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setVehicleSeperation
+Function: KISKA_TEST_fnc_convoy_setVehicleSeperation
 
 Description:
     Sets the distance that a given vehicle will keep from the vehicle in front
@@ -18,13 +18,13 @@ Examples:
         [
             _vehicle,
             10
-        ] call KISKA_fnc_convoy_setVehicleSeperation;
+        ] call KISKA_TEST_fnc_convoy_setVehicleSeperation;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_setVehicleSeperation";
+scriptName "KISKA_TEST_fnc_convoy_setVehicleSeperation";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

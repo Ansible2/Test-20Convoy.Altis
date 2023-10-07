@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_delete
+Function: KISKA_TEST_fnc_convoy_delete
 
 Description:
     Deletes an instance of a KISKA convoy. All vehicles (that aren't the lead)
@@ -13,13 +13,18 @@ Returns:
 
 Examples:
     (begin example)
-        
+        private _convoyHashMap = [
+            [leadVehicle],
+            10
+        ] call KISKA_TEST_fnc_convoy_create;
+        // some time later...
+        [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_delete";
+scriptName "KISKA_TEST_fnc_convoy_delete";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -39,14 +44,14 @@ if (isNil "_convoyHashMap") exitWith {
 
 private _convoyVehicles = [
 	_convoyHashMap
-] call KISKA_fnc_convoy_getConvoyVehicles;
+] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
 _convoyVehicles apply {
-	[_x] call KISKA_fnc_convoy_removeVehicle;
+	[_x] call KISKA_TEST_fnc_convoy_removeVehicle;
 };
 
 private _convoyStatemachine = [
     _convoyHashMap
-] call KISKA_fnc_convoy_getConvoyStatemachine;
+] call KISKA_TEST_fnc_convoy_getConvoyStatemachine;
 [_convoyStatemachine] call CBA_statemachine_fnc_delete;
 
 

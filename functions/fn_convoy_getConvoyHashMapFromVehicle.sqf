@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getConvoyHashMapFromVehicle
+Function: KISKA_TEST_fnc_convoy_getConvoyHashMapFromVehicle
 
 Description:
     Gets the corresponding hashmap of a convoy for a particular vehicle.
@@ -15,13 +15,13 @@ Examples:
     (begin example)
         private _convoyHashMap = [
             _vehicle
-        ] call KISKA_fnc_convoy_getConvoyHashMapFromVehicle;
+        ] call KISKA_TEST_fnc_convoy_getConvoyHashMapFromVehicle;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getConvoyHashMapFromVehicle";
+scriptName "KISKA_TEST_fnc_convoy_getConvoyHashMapFromVehicle";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

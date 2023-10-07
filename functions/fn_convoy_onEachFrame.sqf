@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_onEachFrame
+Function: KISKA_TEST_fnc_convoy_onEachFrame
 
 Description:
     Mananges an individual vehicle's position relative to the vehicle in front of
      it in a convoy. This function is what the statemachine runs each frame/vehicle.
 
     This function intentionally forgoes the use of several getter/setter functions 
-     to reduce overhead because it runs every frame
+     to reduce overhead because it runs every frame.
 
 Parameters:
     _this <OBJECT> - A convoy vehicle to be processed during the current frame
@@ -16,13 +16,13 @@ Returns:
 
 Examples:
     (begin example)
-        SHOULD NOT BE CALLED DIRECTLY
+        // SHOULD NOT BE CALLED DIRECTLY
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_onEachFrame";
+scriptName "KISKA_TEST_fnc_convoy_onEachFrame";
 
 #define POINT_COMPLETE_RADIUS 10
 #define MIN_VEHICLE_SPEED_LIMIT_MODIFIER 5
@@ -35,25 +35,23 @@ scriptName "KISKA_fnc_convoy_onEachFrame";
 #define MIN_CONVOY_SEPERATION 10
 
 private _currentVehicle = _this;
-// TODO: vehicles handle very strangely under fire
 
 private _convoyHashMap = _currentVehicle getVariable "KISKA_convoy_hashMap";
 private _convoyLead = _convoyHashMap getOrDefault [0,objNull];
-// private _stateMachine = _convoyHashMap get "_stateMachine";
 
 
 /* ----------------------------------------------------------------------------
     Exit states
 ---------------------------------------------------------------------------- */
 if (isNull _convoyLead) exitWith {
-    [_convoyHashMap] call KISKA_fnc_convoy_delete;
+    [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 };
 
 
 if !(canMove _currentVehicle) exitWith {
     private _cantMoveEventHandler = _currentVehicle getVariable [
         "KISKA_convoy_handleVehicleCantMove",
-        KISKA_fnc_convoy_handleVehicleCantMove_default
+        KISKA_TEST_fnc_convoy_handleVehicleCantMove_default
     ];
 
     [
@@ -75,7 +73,7 @@ if !(alive _currentVehicle_driver) exitWith {
     
     private _driverKilledHandler = _currentVehicle getVariable [
         "KISKA_convoy_handleDeadDriver",
-        KISKA_fnc_convoy_handleDeadDriver_default
+        KISKA_TEST_fnc_convoy_handleDeadDriver_default
     ];
 
     [
@@ -93,7 +91,7 @@ if ((lifeState _currentVehicle_driver) == "INCAPACITATED") exitWith {
     _currentVehicle setVariable ["KISKA_convoy_currentUnconsciousDriver",_currentVehicle_driver];
     private _driverIncapcitatedEventHandler = _currentVehicle getVariable [
         "KISKA_convoy_handleUnconsciousDriver",
-        KISKA_fnc_convoy_handleUnconsciousDriver_default
+        KISKA_TEST_fnc_convoy_handleUnconsciousDriver_default
     ];
 
     [
@@ -136,8 +134,8 @@ if !(isPlayer _currentVehicle_driver) then {
     private _currentVehicle_index = _currentVehicle getVariable "KISKA_convoy_index";
     private _vehicleAhead = _convoyHashMap get (_currentVehicle_index - 1);
 
-    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_fnc_convoy_getBumperPosition;
-    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_fnc_convoy_getBumperPosition;
+    private _currentVehicle_frontBumperPosition = [_currentVehicle,false] call KISKA_TEST_fnc_convoy_getBumperPosition;
+    private _vehicleAhead_rearBumperPosition = [_vehicleAhead,true] call KISKA_TEST_fnc_convoy_getBumperPosition;
     private _distanceBetweenVehicles = _currentVehicle_frontBumperPosition vectorDistance _vehicleAhead_rearBumperPosition;
 
     private _vehicleAhead_speed = speed _vehicleAhead;
@@ -165,7 +163,7 @@ if !(isPlayer _currentVehicle_driver) then {
         };
 
         _currentVehicle setVariable ["KISKA_convoy_isStopped",true];
-        [_currentVehicle] call KISKA_fnc_convoy_stopVehicle;
+        [_currentVehicle] call KISKA_TEST_fnc_convoy_stopVehicle;
 
         _continue = true;
     };

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleIndex
+Function: KISKA_TEST_fnc_convoy_getVehicleIndex
 
 Description:
     Gets the index in of the provided vehicle in its convoy.
@@ -17,13 +17,13 @@ Examples:
     (begin example)
         private _indexOfVehicleInConvoy = [
             _vehicle
-        ] call KISKA_fnc_convoy_getVehicleIndex;
+        ] call KISKA_TEST_fnc_convoy_getVehicleIndex;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleIndex";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleIndex";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

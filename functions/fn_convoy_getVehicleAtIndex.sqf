@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleAtIndex
+Function: KISKA_TEST_fnc_convoy_getVehicleAtIndex
 
 Description:
     Gets the a vehicle at the specified index of a convoy. 
@@ -17,15 +17,15 @@ Returns:
 Examples:
     (begin example)
         private _convoyLeader = [
-			_convoyHashMap,
+            _convoyHashMap,
             0
-		] call KISKA_fnc_convoy_getVehicleAtIndex;
+		] call KISKA_TEST_fnc_convoy_getVehicleAtIndex;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleAtIndex";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleAtIndex";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

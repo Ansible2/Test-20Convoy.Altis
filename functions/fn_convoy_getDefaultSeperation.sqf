@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setDefaultSeperation
+Function: KISKA_TEST_fnc_convoy_setDefaultSeperation
 
 Description:
     Gets the default seperation between NEWLY added vehicles to a convoy.
@@ -16,22 +16,20 @@ Returns:
 Examples:
     (begin example)
         private _defaultSeperation = [
-			_convoyHashMap
-		] call KISKA_fnc_convoy_getDefaultSeperation;
+            _convoyHashMap
+		] call KISKA_TEST_fnc_convoy_getDefaultSeperation;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getDefaultSeperation";
+scriptName "KISKA_TEST_fnc_convoy_getDefaultSeperation";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
     -1
 };
 
-params [
-    "_convoyHashMap"
-];
+params ["_convoyHashMap"];
 
 _convoyHashMap getOrDefault ["_convoySeperation",20]

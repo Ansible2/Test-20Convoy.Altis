@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_handleVehicleKilled_default
+Function: KISKA_TEST_fnc_convoy_handleVehicleKilled_default
 
 Description:
 	The default behaviour that happens when a vehicle in the convoy dies.
@@ -14,13 +14,13 @@ Returns:
 
 Examples:
     (begin example)
-        SHOULD NOT BE CALLED DIRECTLY
+        // SHOULD NOT BE CALLED DIRECTLY
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_handleVehicleKilled_default";
+scriptName "KISKA_TEST_fnc_convoy_handleVehicleKilled_default";
 
 #define WAIT_TIME_FOR_VEHICLE 2
 #define PUSH_LEFT_SPEED -10
@@ -84,18 +84,18 @@ if (isNull _convoyLead) exitWith {
 /* ----------------------------------------------------------------------------
 	Logic
 ---------------------------------------------------------------------------- */
-[_killedVehicle] call KISKA_fnc_convoy_removeVehicle;
+[_killedVehicle] call KISKA_TEST_fnc_convoy_removeVehicle;
 
-// KISKA_fnc_convoy_removeVehicle will adjust the indexes
+// KISKA_TEST_fnc_convoy_removeVehicle will adjust the indexes
 if (_killedVehicle isEqualTo _convoyLead) exitWith {
 
-    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyLeader;
+    private _newConvoyLead = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyLeader;
     if (isNull _newConvoyLead) then {
-        [_convoyHashMap] call KISKA_fnc_convoy_delete;
+        [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 
     } else {
         // There's no consistent way to know what the former lead's intended path is, so stop
-	    [_newConvoyLead] call KISKA_fnc_convoy_stopVehicle; 
+	    [_newConvoyLead] call KISKA_TEST_fnc_convoy_stopVehicle; 
 
     };
 
@@ -105,10 +105,10 @@ if (_killedVehicle isEqualTo _convoyLead) exitWith {
 /* ---------------------------------
 	Getting the rear vehicle to move to the lead vehicle
 --------------------------------- */
-private _vehicleIndex = [_killedVehicle] call KISKA_fnc_convoy_getVehicleIndex;
-private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_fnc_convoy_getVehicleAtIndex;
-[_vehicleThatWasBehind] call KISKA_fnc_convoy_stopVehicle;
-[_vehicleThatWasBehind, false] call KISKA_fnc_convoy_setVehicleDriveOnPath;
+private _vehicleIndex = [_killedVehicle] call KISKA_TEST_fnc_convoy_getVehicleIndex;
+private _vehicleThatWasBehind = [_convoyHashMap, _vehicleIndex] call KISKA_TEST_fnc_convoy_getVehicleAtIndex;
+[_vehicleThatWasBehind] call KISKA_TEST_fnc_convoy_stopVehicle;
+[_vehicleThatWasBehind, false] call KISKA_TEST_fnc_convoy_setVehicleDriveOnPath;
 
 // push to the right by default
 private _pushToTheSideVelocity = PUSH_RIGHT_SPEED;
@@ -130,7 +130,7 @@ for "_i" from 1 to 25 do {
 // shove vehicle to the side because AI drivers can't drive past consistently
 [_killedVehicle, [_pushToTheSideVelocity,0,PUSH_Z_VELOCITY]] remoteExecCall ["setVelocityModelSpace", _killedVehicle];
 
-private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoy_getVehicleDrivePath;
+private _killedVehicle_drivePath = [_killedVehicle] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
 // Waiting to give time for destroyed vehicle to settle from physics
 [
     {
@@ -152,7 +152,7 @@ private _killedVehicle_drivePath = [_killedVehicle] call KISKA_fnc_convoy_getVeh
         private _driver = driver _vehicleThatWasBehind;
         [_driver,"path"] remoteExecCall ["enableAI",_driver];
 
-        [_vehicleThatWasBehind, true] call KISKA_fnc_convoy_setVehicleDriveOnPath;
+        [_vehicleThatWasBehind, true] call KISKA_TEST_fnc_convoy_setVehicleDriveOnPath;
     },
     [
         _vehicleThatWasBehind,

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_modifyVehicleDrivePath
+Function: KISKA_TEST_fnc_convoy_modifyVehicleDrivePath
 
 Description:
 	Changes the drive path of a given convoy vehicle.
@@ -27,13 +27,13 @@ Examples:
                 [12,34,56],
                 [12,34,58]
             ]
-        ] call KISKA_fnc_convoy_modifyVehicleDrivePath;
+        ] call KISKA_TEST_fnc_convoy_modifyVehicleDrivePath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_modifyVehicleDrivePath";
+scriptName "KISKA_TEST_fnc_convoy_modifyVehicleDrivePath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -53,7 +53,7 @@ if (isNull _vehicle) exitWith {
 
 
 private _modificationRange = count _pointsToAdd;
-private _vehicleDrivePath = [_vehicle] call KISKA_fnc_convoy_getVehicleDrivePath;
+private _vehicleDrivePath = [_vehicle] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
 if (_vehicleDrivePath isEqualTo []) then {
     _vehicleDrivePath insert [0,_pointsToAdd];
 
@@ -74,6 +74,6 @@ if (_vehicleDrivePath isEqualTo []) then {
 };
 
 
-if ([_vehicle] call KISKA_fnc_convoy_shouldVehicleDriveOnPath) then {
+if ([_vehicle] call KISKA_TEST_fnc_convoy_shouldVehicleDriveOnPath) then {
     _vehicle setDriveOnPath _vehicleDrivePath;
 };

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_removeVehicleKilledEvent
+Function: KISKA_TEST_fnc_convoy_removeVehicleKilledEvent
 
 Description:
     Removes the "MPKILLED" event handler of a given vehicle in a convoy.
@@ -12,13 +12,13 @@ Returns:
 
 Examples:
     (begin example)
-        [vic] call KISKA_fnc_convoy_removeVehicleKilledEvent;
+        [vic] call KISKA_TEST_fnc_convoy_removeVehicleKilledEvent;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_removeVehicleKilledEvent";
+scriptName "KISKA_TEST_fnc_convoy_removeVehicleKilledEvent";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

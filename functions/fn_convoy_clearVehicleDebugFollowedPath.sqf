@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_clearVehicleDebugFollowedPath
+Function: KISKA_TEST_fnc_convoy_clearVehicleDebugFollowedPath
 
 Description:
 	Clears a vehicle's current debug followed path objects array. 
@@ -19,13 +19,13 @@ Returns:
 
 Examples:
     (begin example)
-		[_vehicle] call KISKA_fnc_convoy_clearVehicleDebugFollowedPath;
+		[_vehicle] call KISKA_TEST_fnc_convoy_clearVehicleDebugFollowedPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_clearVehicleDebugFollowedPath";
+scriptName "KISKA_TEST_fnc_convoy_clearVehicleDebugFollowedPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -44,7 +44,7 @@ if (isNull _vehicle) exitWith {
 
 
 if (_deleteExisting) then {
-    ([_vehicle] call KISKA_fnc_convoy_getVehicleDebugFollowedPath) apply {
+    ([_vehicle] call KISKA_TEST_fnc_convoy_getVehicleDebugFollowedPath) apply {
         deleteVehicle _x;
     };
 };

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_addVehicleKilledEvent
+Function: KISKA_TEST_fnc_convoy_addVehicleKilledEvent
 
 Description:
     Adds a killed event handler to a given vehicle in a convoy.
@@ -12,13 +12,13 @@ Returns:
 
 Examples:
     (begin example)
-        [vic] call KISKA_fnc_convoy_addVehicleKilledEvent;
+        [vic] call KISKA_TEST_fnc_convoy_addVehicleKilledEvent;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_addVehicleKilledEvent";
+scriptName "KISKA_TEST_fnc_convoy_addVehicleKilledEvent";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -42,7 +42,7 @@ private _vehicleKilledEventId = _vehicle addMPEventHandler ["MPKILLED", {
 
         private _convoyHashMap = [
             _vehicle
-        ] call KISKA_fnc_convoy_getConvoyHashMapFromVehicle;
+        ] call KISKA_TEST_fnc_convoy_getConvoyHashMapFromVehicle;
 
         if (isNil "_convoyHashMap") then {
             [["_convoyHashMap was nil, event was for _vehicle: ",_vehicle],true] call KISKA_fnc_log;
@@ -50,8 +50,8 @@ private _vehicleKilledEventId = _vehicle addMPEventHandler ["MPKILLED", {
         } else {
             private _function = [
                 _vehicle
-            ] call KISKA_fnc_convoy_getVehicleKilledEvent;
-            private _convoyLead = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyLeader;
+            ] call KISKA_TEST_fnc_convoy_getVehicleKilledEvent;
+            private _convoyLead = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyLeader;
 
             [
                 _vehicle,

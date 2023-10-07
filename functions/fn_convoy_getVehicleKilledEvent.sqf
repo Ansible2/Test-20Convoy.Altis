@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setVehicleKilledEvent
+Function: KISKA_TEST_fnc_convoy_setVehicleKilledEvent
 
 Description:
     Gets the code that should execute when a vehicle dies in a convoy.
@@ -17,13 +17,13 @@ Examples:
     (begin example)
         private _eventCode = [
             vic
-        ] call KISKA_fnc_convoy_getVehicleKilledEvent;
+        ] call KISKA_TEST_fnc_convoy_getVehicleKilledEvent;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleKilledEvent";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleKilledEvent";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -37,5 +37,5 @@ params [
 
 _vehicle getVariable [
     "KISKA_convoy_handleVehicleKilled",
-    KISKA_fnc_convoy_handleVehicleKilled_default
+    KISKA_TEST_fnc_convoy_handleVehicleKilled_default
 ]

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleDebugFollowedPath
+Function: KISKA_TEST_fnc_convoy_getVehicleDebugFollowedPath
 
 Description:
     Gets a vehicle's current debug followed path objects array. 
@@ -19,13 +19,13 @@ Examples:
     (begin example)
         private _debugFollowedPathObjects = [
             _vehicle
-        ] call KISKA_fnc_convoy_getVehicleDebugFollowedPath;
+        ] call KISKA_TEST_fnc_convoy_getVehicleDebugFollowedPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleDebugFollowedPath";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleDebugFollowedPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

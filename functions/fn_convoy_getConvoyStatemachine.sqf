@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getConvoyStatemachine
+Function: KISKA_TEST_fnc_convoy_getConvoyStatemachine
 
 Description:
     Returns the CBA statemachine used to control convoy movement and speed. 
@@ -14,13 +14,13 @@ Examples:
     (begin example)
         private _convoyStatemachine = [
             SomeConvoyHashMap
-        ] call KISKA_fnc_convoy_getConvoyStatemachine;
+        ] call KISKA_TEST_fnc_convoy_getConvoyStatemachine;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getConvoyStatemachine";
+scriptName "KISKA_TEST_fnc_convoy_getConvoyStatemachine";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setPointBuffer
+Function: KISKA_TEST_fnc_convoy_setPointBuffer
 
 Description:
     Sets the minimum distance that must be between each position added to a vehicles
@@ -15,15 +15,13 @@ Returns:
 
 Examples:
     (begin example)
-        [
-			_convoyHashMap
-		] call KISKA_fnc_convoy_setPointBuffer;
+        [_convoyHashMap,1] call KISKA_TEST_fnc_convoy_setPointBuffer;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_setPointBuffer";
+scriptName "KISKA_TEST_fnc_convoy_setPointBuffer";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

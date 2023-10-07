@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setVehicleDebug
+Function: KISKA_TEST_fnc_convoy_setVehicleDebug
 
 Description:
     Sets whether or not a given vehicle is in debug mode for convoys.
@@ -17,13 +17,13 @@ Examples:
         [
             _vehicle,
             true
-        ] call KISKA_fnc_convoy_setVehicleDebug;
+        ] call KISKA_TEST_fnc_convoy_setVehicleDebug;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_setVehicleDebug";
+scriptName "KISKA_TEST_fnc_convoy_setVehicleDebug";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

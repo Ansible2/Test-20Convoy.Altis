@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setDefaultSeperation
+Function: KISKA_TEST_fnc_convoy_setDefaultSeperation
 
 Description:
     Sets the default seperation between NEWLY added vehicles to a convoy.
@@ -15,13 +15,13 @@ Returns:
 
 Examples:
     (begin example)
-        [_convoyHashMap,20] call KISKA_fnc_convoy_setDefaultSeperation;
+        [_convoyHashMap,20] call KISKA_TEST_fnc_convoy_setDefaultSeperation;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_setDefaultSeperation";
+scriptName "KISKA_TEST_fnc_convoy_setDefaultSeperation";
 
 #define MIN_CONVOY_SEPERATION 10
 

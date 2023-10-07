@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_removeVehicle
+Function: KISKA_TEST_fnc_convoy_removeVehicle
 
 Description:
     Removes a given vehicle from its convoy.
@@ -16,13 +16,13 @@ Returns:
 
 Examples:
     (begin example)
-        [vic] call KISKA_fnc_convoy_removeVehicle;
+        [vic] call KISKA_TEST_fnc_convoy_removeVehicle;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_removeVehicle";
+scriptName "KISKA_TEST_fnc_convoy_removeVehicle";
 
 #define MAX_ARRAY_LENGTH 1E7
 
@@ -41,29 +41,29 @@ if (isNull _vehicle) exitWith {
     nil
 };
 
-private _convoyHashMap = [_vehicle] call KISKA_fnc_convoy_getConvoyHashMapFromVehicle;
+private _convoyHashMap = [_vehicle] call KISKA_TEST_fnc_convoy_getConvoyHashMapFromVehicle;
 if (isNil "_convoyHashMap") exitWith {
     [[_vehicle," does not have a KISKA_convoy_hashMap in its namespace"],true] call KISKA_fnc_log;
     nil
 };
 
 
-[_vehicle] call KISKA_fnc_convoy_removeVehicleKilledEvent;
-[_vehicle,true] call KISKA_fnc_convoy_clearVehicleDebugFollowPath;
-[_vehicle,true] call KISKA_fnc_convoy_clearVehicleDebugFollowedPath;
+[_vehicle] call KISKA_TEST_fnc_convoy_removeVehicleKilledEvent;
+[_vehicle,true] call KISKA_TEST_fnc_convoy_clearVehicleDebugFollowPath;
+[_vehicle,true] call KISKA_TEST_fnc_convoy_clearVehicleDebugFollowedPath;
 
 
 private _getOutEventHandlerId = _vehicle getVariable ["KISKA_convoy_getOutEventHandlerId",-1];
 _vehicle removeEventHandler ["GetOut",_getOutEventHandlerId];
 
 
-private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyVehicles;
-private _vehicleIndex = [_vehicle] call KISKA_fnc_convoy_getVehicleIndex;
+private _convoyVehicles = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
+private _vehicleIndex = [_vehicle] call KISKA_TEST_fnc_convoy_getVehicleIndex;
 _convoyVehicles deleteAt _vehicleIndex;
 
 private _vehiclesToChangeIndex = _convoyVehicles select [_vehicleIndex, MAX_ARRAY_LENGTH];
 _vehiclesToChangeIndex apply {
-    private _currentIndex = [_x] call KISKA_fnc_convoy_getVehicleIndex;
+    private _currentIndex = [_x] call KISKA_TEST_fnc_convoy_getVehicleIndex;
     if (_currentIndex isEqualTo -1) then {
         [["Could not find 'KISKA_convoy_index' in namespace of ", _x," to change"],true] call KISKA_fnc_log;
         continue

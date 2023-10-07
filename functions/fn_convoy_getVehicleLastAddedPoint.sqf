@@ -1,10 +1,10 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleLastAddedPoint
+Function: KISKA_TEST_fnc_convoy_getVehicleLastAddedPoint
 
 Description:
     Gets the last position added to the vehicle's drive path from the LEAD VEHICLE.
 
-    This does not include modified positions from KISKA_fnc_convoy_modifyVehicleDrivePath.
+    This does not include modified positions from KISKA_TEST_fnc_convoy_modifyVehicleDrivePath.
 
 Parameters:
     0: _vehicle <OBJECT> - The vehicle to get the drive path of
@@ -17,17 +17,17 @@ Examples:
     (begin example)
         private _lastAddedPositionFromLead = [
             _vehicle
-        ] call KISKA_fnc_convoy_getVehicleLastAddedPoint;
+        ] call KISKA_TEST_fnc_convoy_getVehicleLastAddedPoint;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleLastAddedPoint";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleLastAddedPoint";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
-    []
+    nil
 };
 
 params [

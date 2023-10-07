@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_stopVehicle
+Function: KISKA_TEST_fnc_convoy_stopVehicle
 
 Description:
     Used in the process of KISKA's advanced convoy to stop a given vehicle.
@@ -12,13 +12,13 @@ Returns:
 
 Examples:
     (begin example)
-        [vic] call KISKA_fnc_convoy_stopVehicle;
+        [vic] call KISKA_TEST_fnc_convoy_stopVehicle;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_stopVehicle";
+scriptName "KISKA_TEST_fnc_convoy_stopVehicle";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

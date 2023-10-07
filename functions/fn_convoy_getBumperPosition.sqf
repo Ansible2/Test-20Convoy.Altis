@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getBumperPosition
+Function: KISKA_TEST_fnc_convoy_getBumperPosition
 
 Description:
     Gets the positionWorld of a vehicles front or rear bumper.
@@ -15,13 +15,13 @@ Returns:
 
 Examples:
     (begin example)
-        private _rearBumperPositionWorld = [vic,true] call KISKA_fnc_convoy_getBumperPosition;
+        private _rearBumperPositionWorld = [vic,true] call KISKA_TEST_fnc_convoy_getBumperPosition;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getBumperPosition";
+scriptName "KISKA_TEST_fnc_convoy_getBumperPosition";
 
 params [
     ["_vehicle",objNull,[objNull]],

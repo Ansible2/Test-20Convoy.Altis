@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getConvoyLeader
+Function: KISKA_TEST_fnc_convoy_getConvoyLeader
 
 Description:
     Gets the lead vehicle in a convoy. The convoy lead does not have his movement
@@ -15,14 +15,14 @@ Returns:
 Examples:
     (begin example)
         private _convoyLeader = [
-			_convoyHashMap
-		] call KISKA_fnc_convoy_getConvoyLeader;
+            _convoyHashMap
+		] call KISKA_TEST_fnc_convoy_getConvoyLeader;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getConvoyLeader";
+scriptName "KISKA_TEST_fnc_convoy_getConvoyLeader";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

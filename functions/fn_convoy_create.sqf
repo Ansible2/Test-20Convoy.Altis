@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_create
+Function: KISKA_TEST_fnc_convoy_create
 
 Description:
     Creates an advanced KISKA convoy. Vehicles should be already physically placed in the order
@@ -15,6 +15,8 @@ Description:
      All other vehicles will essentially follow the path of the lead vehicle. You should 
      limit the speed and control the path of the lead vehicle for your specific use case.
 
+    A convoy requires at least one vehicle (the lead vehicle) to be valid at any given moment.
+     It will be automatically deleted otherwise.
 
 Parameters:
     0: _vics <OBJECT[]> - An array of convoy vehicles (that are in their travel order)
@@ -26,15 +28,15 @@ Returns:
 Examples:
     (begin example)
         private _convoyHashMap = [
-            [],
+            [leadVehicle],
             10
-        ] call KISKA_fnc_convoy_create;
+        ] call KISKA_TEST_fnc_convoy_create;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_create";
+scriptName "KISKA_TEST_fnc_convoy_create";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -64,20 +66,20 @@ private _convoyVehicles = _stateMachine getVariable "CBA_statemachine_list";
 _convoyHashMap set ["_convoyVehicles",_convoyVehicles];
 
 _convoyHashMap set ["_stateMachine",_stateMachine];
-[_convoyHashMap,1] call KISKA_fnc_convoy_setPointBuffer;
-[_convoyHashMap,_convoySeperation] call KISKA_fnc_convoy_setDefaultSeperation;
+[_convoyHashMap,1] call KISKA_TEST_fnc_convoy_setPointBuffer;
+[_convoyHashMap,_convoySeperation] call KISKA_TEST_fnc_convoy_setDefaultSeperation;
 
 _vics apply {
     [
         _convoyHashMap,
         _x
-    ] call KISKA_fnc_convoy_addVehicle;
+    ] call KISKA_TEST_fnc_convoy_addVehicle;
 };
 
 
 private _mainState = [
     _stateMachine,
-    KISKA_fnc_convoy_onEachFrame
+    KISKA_TEST_fnc_convoy_onEachFrame
 ] call CBA_stateMachine_fnc_addState;
 
 

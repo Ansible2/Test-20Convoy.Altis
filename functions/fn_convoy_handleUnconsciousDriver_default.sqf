@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_handleUnconsciousDriver_default
+Function: KISKA_TEST_fnc_convoy_handleUnconsciousDriver_default
 
 Description:
     The default function that runs when a driver is detected as incapacitated in a vehicle convoy.
@@ -34,13 +34,13 @@ Returns:
 
 Examples:
     (begin example)
-        SHOULD NOT BE CALLED DIRECTLY
+        // SHOULD NOT BE CALLED DIRECTLY
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_handleUnconsciousDriver_default";
+scriptName "KISKA_TEST_fnc_convoy_handleUnconsciousDriver_default";
 
 #define WAIT_TIME 4
 
@@ -99,15 +99,15 @@ if (isNull _unconsciousDriver) exitWith {
 };
 
 if (_vehicle isEqualTo _convoyLead) exitWith {
-    [_vehicle] call KISKA_fnc_convoy_removeVehicle;
+    [_vehicle] call KISKA_TEST_fnc_convoy_removeVehicle;
     
-    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyLeader;
+    private _newConvoyLead = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyLeader;
     if (isNull _newConvoyLead) then {
-        [_convoyHashMap] call KISKA_fnc_convoy_delete;
+        [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 
     } else {
         // There's no consistent way to know what the former lead's intended path is, so stop
-	    [_newConvoyLead] call KISKA_fnc_convoy_stopVehicle; 
+	    [_newConvoyLead] call KISKA_TEST_fnc_convoy_stopVehicle; 
 
     };
 };

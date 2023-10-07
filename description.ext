@@ -1,10 +1,11 @@
 class CfgFunctions 
 {
-    class KISKA
+    class KISKA_TEST
     {
-        class functions
+        class Convoy
         {
             file = "functions";
+            
             class convoy_addVehicle
             {};
             class convoy_addVehicleKilledEvent
@@ -90,11 +91,6 @@ class CfgFunctions
             class convoy_stopVehicle
             {};
             class convoy_syncLatestDrivePoint
-            {};
-            
-            class getBumperPositionRelative
-            {};
-            class selectLastIndex
             {};
         };
     };

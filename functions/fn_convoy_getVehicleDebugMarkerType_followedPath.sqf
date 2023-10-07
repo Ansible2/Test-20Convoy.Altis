@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleDebugMarkerType_followedPath
+Function: KISKA_TEST_fnc_convoy_getVehicleDebugMarkerType_followedPath
 
 Description:
     Sets the 3d debug marker class name that will be used to mark waypoints for 
@@ -9,19 +9,20 @@ Parameters:
     0: _vehicle <OBJECT> - The vehicle to get the marker type of
 
 Returns:
-    NOTHING
+    <STRING> - The classsName used for the 3d debug marker of the followed path
+     of the given convoy vehicle.
 
 Examples:
     (begin example)
         private _followedPathMarkerType = [
             _vehicle
-        ] call KISKA_fnc_convoy_getVehicleDebugMarkerType_followedPath;
+        ] call KISKA_TEST_fnc_convoy_getVehicleDebugMarkerType_followedPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleDebugMarkerType_followedPath";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleDebugMarkerType_followedPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

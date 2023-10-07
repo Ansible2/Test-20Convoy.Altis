@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleDrivePath
+Function: KISKA_TEST_fnc_convoy_getVehicleDrivePath
 
 Description:
     Gets a given convoy vehicle's current drive path. This will return the reference
      to the actual array used with `setDriveOnPath` for the vehicle's following.
     
     You should not set a vehicle's drive path directly. If you want to overwrite a vehicle's
-     current path, use KISKA_fnc_convoy_modifyVehicleDrivePath.
+     current path, use KISKA_TEST_fnc_convoy_modifyVehicleDrivePath.
 
 Parameters:
     0: _vehicle <OBJECT> - The vehicle to get the drive path of
@@ -16,13 +16,13 @@ Returns:
 
 Examples:
     (begin example)
-        private _currentDrivePath = [_vehicle] call KISKA_fnc_convoy_getVehicleDrivePath;
+        private _currentDrivePath = [_vehicle] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleDrivePath";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleDrivePath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

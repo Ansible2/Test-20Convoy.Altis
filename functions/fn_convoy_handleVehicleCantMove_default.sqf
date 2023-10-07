@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_handleVehicleCantMove_default
+Function: KISKA_TEST_fnc_convoy_handleVehicleCantMove_default
 
 Description:
 	The default behaviour that happens when a vehicle in the convoy is disabled.
@@ -14,13 +14,13 @@ Returns:
 
 Examples:
     (begin example)
-        SHOULD NOT BE CALLED DIRECTLY
+        // SHOULD NOT BE CALLED DIRECTLY
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_handleVehicleCantMove_default";
+scriptName "KISKA_TEST_fnc_convoy_handleVehicleCantMove_default";
 
 #define X_AREA_BUFFER 5
 #define Y_AREA_BUFFER 10
@@ -84,15 +84,15 @@ if (isNull _convoyLead) exitWith {
 
 
 if (_disabledVehicle isEqualTo _convoyLead) exitWith {
-    [_disabledVehicle] call KISKA_fnc_convoy_removeVehicle;
+    [_disabledVehicle] call KISKA_TEST_fnc_convoy_removeVehicle;
     
-    private _newConvoyLead = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyLeader;
+    private _newConvoyLead = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyLeader;
     if (isNull _newConvoyLead) then {
-        [_convoyHashMap] call KISKA_fnc_convoy_delete;
+        [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 
     } else {
         // There's no consistent way to know what the former lead's intended path is, so stop
-	    [_newConvoyLead] call KISKA_fnc_convoy_stopVehicle; 
+	    [_newConvoyLead] call KISKA_TEST_fnc_convoy_stopVehicle; 
 
     };
 };
@@ -232,22 +232,22 @@ private _findClearSide = {
 /* ----------------------------------------------------------------------------
 	Drive around disabled vehicles
 ---------------------------------------------------------------------------- */
-private _disabledVehicle_index = [_disabledVehicle] call KISKA_fnc_convoy_getVehicleIndex;
+private _disabledVehicle_index = [_disabledVehicle] call KISKA_TEST_fnc_convoy_getVehicleIndex;
 private _vehicleBehind_index = _disabledVehicle_index + 1;
-private _vehicleBehind = [_convoyHashMap, _vehicleBehind_index] call KISKA_fnc_convoy_getVehicleAtIndex;
+private _vehicleBehind = [_convoyHashMap, _vehicleBehind_index] call KISKA_TEST_fnc_convoy_getVehicleAtIndex;
 
 
-[_disabledVehicle] call KISKA_fnc_convoy_removeVehicle;
+[_disabledVehicle] call KISKA_TEST_fnc_convoy_removeVehicle;
 if (isNull _vehicleBehind) exitWith {
     [["No _vehicleBehind found at index: ",_vehicleBehind_index]] call KISKA_fnc_log;
     nil
 };
 
 
-[_convoyHashMap] call KISKA_fnc_convoy_syncLatestDrivePoint;
+[_convoyHashMap] call KISKA_TEST_fnc_convoy_syncLatestDrivePoint;
 
 private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
-private _vehicleBehind_currentDrivePath = [_vehicleBehind] call KISKA_fnc_convoy_getVehicleDrivePath;
+private _vehicleBehind_currentDrivePath = [_vehicleBehind] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
 private _blockedPositionsResult = [
     _vehicleBehind_currentDrivePath,
     _disabledVehicle,
@@ -286,8 +286,8 @@ private _clearSide = [
 
 private _noSideIsClear = _clearSide isEqualTo -1;
 if (_noSideIsClear) exitWith {
-    [_vehicleBehind] call KISKA_fnc_convoy_stopVehicle;
-    [_vehicleBehind, false] call KISKA_fnc_convoy_setVehicleDriveOnPath;
+    [_vehicleBehind] call KISKA_TEST_fnc_convoy_stopVehicle;
+    [_vehicleBehind, false] call KISKA_TEST_fnc_convoy_setVehicleDriveOnPath;
 
     [[
         "Could not find clear side for: _vehicleBehind: ",
@@ -319,12 +319,12 @@ private _deletionRange = count _adjustedPositions;
 private _vehicleBehind_lastIndexToBeAdjustedInPath = _blockedPositionsResult select 1;
 private _lastIndexOffset = (count _vehicleBehind_currentDrivePath) - (_vehicleBehind_lastIndexToBeAdjustedInPath + 1);
 
-private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyVehicles;
+private _convoyVehicles = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
 {
     // don't need to adjust convoy lead
     if (_forEachIndex isEqualTo 0) then { continue };
 
-    private _vehiclesDrivePath = [_x] call KISKA_fnc_convoy_getVehicleDrivePath;
+    private _vehiclesDrivePath = [_x] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
     private _vehiclesDrivePathCount = count _vehiclesDrivePath;
     private _lastIndexToModify = _vehiclesDrivePathCount - _lastIndexOffset;
     
@@ -332,7 +332,7 @@ private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyVehicl
         _x,
         _lastIndexToModify,
         _adjustedPositions
-    ] call KISKA_fnc_convoy_modifyVehicleDrivePath;
+    ] call KISKA_TEST_fnc_convoy_modifyVehicleDrivePath;
 } forEach _convoyVehicles;
 
 

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_syncLatestDrivePoint
+Function: KISKA_TEST_fnc_convoy_syncLatestDrivePoint
 
 Description:
     Ensures all vehicles in the convoy have the latest drive path point from the
@@ -13,13 +13,13 @@ Returns:
 
 Examples:
     (begin example)
-        [ConvoyHashMap] call KISKA_fnc_convoy_syncLatestDrivePoint;
+        [ConvoyHashMap] call KISKA_TEST_fnc_convoy_syncLatestDrivePoint;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_syncLatestDrivePoint";
+scriptName "KISKA_TEST_fnc_convoy_syncLatestDrivePoint";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -31,18 +31,18 @@ params ["_convoyHashMap"];
 
 private _latestPointToAdd = _convoyHashMap get "_latestPointOnPath";
 
-private _convoyVehicles = [_convoyHashMap] call KISKA_fnc_convoy_getConvoyVehicles;
+private _convoyVehicles = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyVehicles;
 _convoyVehicles apply {
 	private _lastAddedPoint = _x getVariable "KISKA_convoy_lastAddedPoint";
 	if (_lastAddedPoint isEqualTo _latestPointToAdd) then { continue };
 
 	_x setVariable ["KISKA_convoy_lastAddedPoint",_latestPointToAdd];
 
-	if ([_x] call KISKA_fnc_convoy_isVehicleInDebug) then {
-		private _debugObjectType = [_x] call  KISKA_fnc_convoy_getVehicleDebugMarkerType_followPath;
+	if ([_x] call KISKA_TEST_fnc_convoy_isVehicleInDebug) then {
+		private _debugObjectType = [_x] call  KISKA_TEST_fnc_convoy_getVehicleDebugMarkerType_followPath;
 		private _debugObject = createVehicle [_debugObjectType, _latestPointToAdd, [], 0, "CAN_COLLIDE"];
 
-		private _currentVehicle_debugDrivePathObjects = [_x] call KISKA_fnc_convoy_getVehicleDebugFollowPath;
+		private _currentVehicle_debugDrivePathObjects = [_x] call KISKA_TEST_fnc_convoy_getVehicleDebugFollowPath;
 		_currentVehicle_debugDrivePathObjects pushBack _debugObject;
 	};
 

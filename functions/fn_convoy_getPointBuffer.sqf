@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getPointBuffer
+Function: KISKA_TEST_fnc_convoy_getPointBuffer
 
 Description:
     Gets the minimum distance that must be between each position added to a vehicles
@@ -14,14 +14,14 @@ Returns:
 Examples:
     (begin example)
         private _minBufferBetweenPoints = [
-			_convoyHashMap
-		] call KISKA_fnc_convoy_getPointBuffer;
+            _convoyHashMap
+		] call KISKA_TEST_fnc_convoy_getPointBuffer;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getPointBuffer";
+scriptName "KISKA_TEST_fnc_convoy_getPointBuffer";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

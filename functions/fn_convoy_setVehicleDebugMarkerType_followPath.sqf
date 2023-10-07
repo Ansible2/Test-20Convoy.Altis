@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_setVehicleDebugMarkerType_followPath
+Function: KISKA_TEST_fnc_convoy_setVehicleDebugMarkerType_followPath
 
 Description:
     Sets the 3d debug marker class name that will be used to mark waypoints for 
@@ -17,13 +17,13 @@ Examples:
         [
             _vehicle,
             "Sign_Arrow_Large_Cyan_F"
-        ] call KISKA_fnc_convoy_setVehicleDebugMarkerType_followPath;
+        ] call KISKA_TEST_fnc_convoy_setVehicleDebugMarkerType_followPath;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_setVehicleDebugMarkerType_followPath";
+scriptName "KISKA_TEST_fnc_convoy_setVehicleDebugMarkerType_followPath";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
-Function: KISKA_fnc_convoy_getVehicleSeperation
+Function: KISKA_TEST_fnc_convoy_getVehicleSeperation
 
 Description:
     Gets the distance that a given vehicle will keep from the vehicle in front
@@ -16,13 +16,13 @@ Examples:
     (begin example)
         private _vehicleConvoySeperation = [
             _vehicle
-        ] call KISKA_fnc_convoy_getVehicleSeperation;
+        ] call KISKA_TEST_fnc_convoy_getVehicleSeperation;
     (end)
 
 Author(s):
     Ansible2
 ---------------------------------------------------------------------------- */
-scriptName "KISKA_fnc_convoy_getVehicleSeperation";
+scriptName "KISKA_TEST_fnc_convoy_getVehicleSeperation";
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
