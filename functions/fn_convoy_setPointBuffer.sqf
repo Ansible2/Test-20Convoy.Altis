@@ -30,7 +30,7 @@ if (!isServer) exitWith {
 
 params [
     "_convoyHashMap",
-    ["_minBufferBetweenPoints",1,[123]]
+    ["_minBufferBetweenPoints",3,[123]]
 ];
 
 _convoyHashMap set ["_minBufferBetweenPoints",_minBufferBetweenPoints];

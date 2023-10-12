@@ -31,4 +31,4 @@ if (!isServer) exitWith {
 params ["_convoyHashMap"];
 
 
-_convoyHashMap getOrDefault ["_minBufferBetweenPoints",1]
+_convoyHashMap getOrDefault ["_minBufferBetweenPoints",3]

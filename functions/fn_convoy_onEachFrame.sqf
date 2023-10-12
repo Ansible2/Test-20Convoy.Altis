@@ -24,7 +24,6 @@ Author(s):
 ---------------------------------------------------------------------------- */
 scriptName "KISKA_TEST_fnc_convoy_onEachFrame";
 
-#define POINT_COMPLETE_RADIUS 10
 #define MIN_VEHICLE_SPEED_LIMIT_MODIFIER 5
 #define MIN_VEHICLE_SPEED_LIMIT 5
 #define VEHICLE_SPEED_LIMIT_MULTIPLIER 2.5
@@ -46,7 +45,6 @@ private _convoyLead = _convoyHashMap getOrDefault [0,objNull];
 if (isNull _convoyLead) exitWith {
     [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 };
-
 
 if !(canMove _currentVehicle) exitWith {
     private _cantMoveEventHandler = _currentVehicle getVariable [
@@ -184,11 +182,11 @@ if !(isPlayer _currentVehicle_driver) then {
             hint parseText format [
                 "Limited Vehicle Speed
                 <br/>
-                Within seperation boundary
+                <t align='left'>Within seperation boundary</t>
                 <br/>
-                <t align='left'>Distance To Vehicle In Front: %1</t>,
+                <t align='left'>Distance To Vehicle In Front: %1</t>
                 <br/>
-                <t align='left'>Current Vehicle Speed: %2</t>,
+                <t align='left'>Current Vehicle Speed: %2</t>
                 <br/>
                 <t align='left'>Speed Limited To: %3</t>",
                 _distanceBetweenVehicles,
@@ -207,9 +205,9 @@ if !(isPlayer _currentVehicle_driver) then {
                 hint parseText format [
                     "Limited Vehicle Speed To Vehicle Ahead
                     <br/>
-                    Vehicle outside of convoy seperation
+                    <t align='left'>Vehicle outside of convoy seperation</t>
                     <br/>
-                    <t align='left'>Distance To Vehicle In Front: %1</t>,
+                    <t align='left'>Distance To Vehicle In Front: %1</t>
                     <br/>
                     <t align='left'>Speed Limited To: %2</t>",
                     _distanceBetweenVehicles,
@@ -223,7 +221,7 @@ if !(isPlayer _currentVehicle_driver) then {
                 hint parseText format [
                     "Unlimited Vehicle Speed
                     <br/>
-                    Outside of handle distance (%2)
+                    <t align='left'>Outside of handle distance (%2)</t>
                     <br/>
                     <t align='left'>Distance To Vehicle In Front: %1</t>",
                     _distanceBetweenVehicles,
@@ -254,7 +252,7 @@ if !(isPlayer _currentVehicle_driver) then {
             hint parseText format [
                 "Unlimited Vehicle Speed
                 <br/>
-                Met no handle conditions
+                <t align='left'>Met no handle conditions</t>
                 <br/>
                 <t align='left'>Distance To Vehicle In Front: %1</t>",
                 _distanceBetweenVehicles
@@ -279,11 +277,30 @@ if (_debug) then {
 };
 
 
-private _currentVehicle_position = getPosATLVisual _currentVehicle;
 private _deleteStartIndex = -1;
 private _numberToDelete = 0;
+private _area = _currentVehicle getVariable "KISKA_convoy_vehicleArea";
+private _currentVehicle_position = getPosVisual _currentVehicle;
+private _currentVehicle_direction = getDirVisual _currentVehicle;
+if !(isNil "_area") then {
+	_area set [0,_currentVehicle_position];
+	_area set [3,_currentVehicle_direction];
+
+} else {
+	private _currentVehicle_dimensions = [vic2] call KISKA_fnc_getBoundingBoxDimensions;
+	_currentVehicle_dimensions params ["_length","_width","_height"];
+    // purposely want the width and height doubled for making sure vehicles
+    // don't accidentaly miss a point
+    // length is not doubled because if a point is deleted too soon, it will affect
+    // the vehicle will try to immediately turn into the next point and may not 
+    // actually follow a path closely engough and crash into objects
+	_area = [_currentVehicle_position,_width,_length / 2,_dir,true,_height];
+	_currentVehicle setVariable ["KISKA_convoy_vehicleArea",_area];
+    
+};
+
 {
-    private _pointReached = (_currentVehicle_position vectorDistance _x) <= POINT_COMPLETE_RADIUS;
+    private _pointReached = _x inArea _area;
 
     if !(_pointReached) then { break };
     _numberToDelete = _numberToDelete + 1;
