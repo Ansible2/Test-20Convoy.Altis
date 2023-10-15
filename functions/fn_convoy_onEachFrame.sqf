@@ -302,25 +302,14 @@ if (_debug) then {
 
 private _deleteStartIndex = -1;
 private _numberToDelete = 0;
-private _area = _currentVehicle getVariable "KISKA_convoy_vehicleArea";
-private _currentVehicle_position = getPosVisual _currentVehicle;
+// getting by ASL (instead of getPosVisual) and then converting to AGL is more accurate, don't know why
+private _currentVehicle_position_ASL = getPosASLVisual _currentVehicle;
+private _currentVehicle_position = ASLToAGL _currentVehicle_position_ASL;
 private _currentVehicle_direction = getDirVisual _currentVehicle;
-if !(isNil "_area") then {
-	_area set [0,_currentVehicle_position];
-	_area set [3,_currentVehicle_direction];
+private _area = _currentVehicle getVariable "KISKA_convoy_vehicleCompletionArea";
+_area set [0,_currentVehicle_position];
+_area set [3,_currentVehicle_direction];
 
-} else {
-	private _currentVehicle_dimensions = [_currentVehicle] call KISKA_fnc_getBoundingBoxDimensions;
-	_currentVehicle_dimensions params ["_length","_width","_height"];
-    // purposely want the width and height doubled for making sure vehicles
-    // don't accidentaly miss a point
-    // length is not doubled because if a point is deleted too soon, it will affect
-    // the vehicle will try to immediately turn into the next point and may not 
-    // actually follow a path closely engough and crash into objects
-	_area = [_currentVehicle_position,_width max 5,_length / 2,_dir,true,_height];
-	_currentVehicle setVariable ["KISKA_convoy_vehicleArea",_area];
-    
-};
 
 {
     private _pointReached = _x inArea _area;

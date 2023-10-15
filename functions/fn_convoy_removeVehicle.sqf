@@ -105,7 +105,7 @@ if ((speed _vehicle) > 0) then {
     "KISKA_convoy_currentUnconsciousDriver",
     "KISKA_convoy_getOutEventHandlerId",
     "KISKA_convoy_getOutTimesHashMap",
-    "KISKA_convoy_vehicleArea"
+    "KISKA_convoy_vehicleCompletionArea"
 ] apply {
     _vehicle setVariable [_x,nil];
 };
