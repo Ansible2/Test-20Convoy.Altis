@@ -103,24 +103,15 @@ if (_disabledVehicle isEqualTo _convoyLead) exitWith {
 	Function Defintions
 ---------------------------------------------------------------------------- */
 private _getBlockedPositions = {
-    params ["_vehicleBehind_drivePath","_disabledVehicle","_disabledVehicle_boundingBox"];
+    params ["_vehicleBehind_drivePath","_disabledVehicle"];
 
-    private _disabledVehicle_boundingBoxMins = _disabledVehicle_boundingBox select 0;
-    private _disabledVehicle_boundingBoxMaxes = _disabledVehicle_boundingBox select 1;
-
+    private _disabledVehicle_dimensions = [_disabledVehicle] call KISKA_fnc_getBoundingBoxDimensions;
+    _disabledVehicle_dimensions params ["_disabledVehicle_length","_disabledVehicle_width","_disabledVehicle_height"];
     // Adding buffers to X and Y because points that are too close to the _disabledVehicle
     // will result in _vehicleBehind crashing into it.
-    private _xMin = _disabledVehicle_boundingBoxMins select 0;
-    private _xMax = _disabledVehicle_boundingBoxMaxes select 0;
-    private _areaX = ((abs (_xMax - _xMin)) / 2) + X_AREA_BUFFER;
-    
-    private _yMin = _disabledVehicle_boundingBoxMins select 1;
-    private _yMax = _disabledVehicle_boundingBoxMaxes select 1;
-    private _areaY = ((abs (_yMax - _yMin)) / 2) + Y_AREA_BUFFER;
-
-    private _zMin = _disabledVehicle_boundingBoxMins select 2;
-    private _zMax = _disabledVehicle_boundingBoxMaxes select 2;
-    private _areaZ = (abs (_zMax - _zMin)) / 2;
+    private _areaX = (_disabledVehicle_width / 2) + X_AREA_BUFFER;
+    private _areaY = (_disabledVehicle_length / 2) + Y_AREA_BUFFER;
+    private _areaZ = _disabledVehicle_height / 2;
 
     private _areaCenter = ASLToAGL (getPosASLVisual _disabledVehicle);
     private _lastIndex = (count _vehicleBehind_drivePath) - 1;
@@ -246,12 +237,10 @@ if (isNull _vehicleBehind) exitWith {
 
 [_convoyHashMap] call KISKA_TEST_fnc_convoy_syncLatestDrivePoint;
 
-private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
 private _vehicleBehind_currentDrivePath = [_vehicleBehind] call KISKA_TEST_fnc_convoy_getVehicleDrivePath;
 private _blockedPositionsResult = [
     _vehicleBehind_currentDrivePath,
-    _disabledVehicle,
-    _disabledVehicle_boundingBox
+    _disabledVehicle
 ] call _getBlockedPositions;
 
 
@@ -267,14 +256,12 @@ if (_positionsBlockedByDisabledVehicle_ATL isEqualTo []) exitWith {
 };
 
 
-private _vehicleBehind_boundingBox = 0 boundingBoxReal _vehicleBehind;
-private _vehicleBehind_xMin = (_vehicleBehind_boundingBox select 0) select 0;
-private _vehicleBehind_xMax = (_vehicleBehind_boundingBox select 1) select 0;
-private _vehicleBehind_width = abs (_vehicleBehind_xMax - _vehicleBehind_xMin);
+private _vehicleBehind_dimensions = [_vehicleBehind] call KISKA_fnc_getBoundingBoxDimensions;
+private _vehicleBehind_width = _vehicleBehind_dimensions select 1;
 
-private _disbaledVehicle_xMin = (_disabledVehicle_boundingBox select 0) select 0;
-private _disbaledVehicle_xMax = (_disabledVehicle_boundingBox select 1) select 0;
-private _disabledVehicle_halfWidth = (abs (_disbaledVehicle_xMax - _disbaledVehicle_xMin)) / 2;
+private _disabledVehicle_dimensions = [_disabledVehicle] call KISKA_fnc_getBoundingBoxDimensions;
+private _disabledVehicle_width = _disabledVehicle_dimensions select 1;
+private _disabledVehicle_halfWidth = _disabledVehicle_width / 2;
 
 private _requiredSpace = _vehicleBehind_width + _disabledVehicle_halfWidth;
 private _clearSide = [
@@ -344,6 +331,7 @@ private _convoyVehicles = [_convoyHashMap] call KISKA_TEST_fnc_convoy_getConvoyV
     // the driving AI will try to avoid driving over friendlies and will
     /// run into the back of the disabled vehicle in some cases
 ---------------------------------------------------------------------------- */
+private _disabledVehicle_boundingBox = 0 boundingBoxReal _disabledVehicle;
 private _disabledVehicle_boundingBoxMins = _disabledVehicle_boundingBox select 0;
 private _disabledVehicle_boundingBoxMaxes = _disabledVehicle_boundingBox select 1;
 

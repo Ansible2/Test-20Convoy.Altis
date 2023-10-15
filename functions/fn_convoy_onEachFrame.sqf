@@ -46,6 +46,7 @@ if (isNull _convoyLead) exitWith {
     [_convoyHashMap] call KISKA_TEST_fnc_convoy_delete;
 };
 
+
 if !(canMove _currentVehicle) exitWith {
     private _cantMoveEventHandler = _currentVehicle getVariable [
         "KISKA_convoy_handleVehicleCantMove",
@@ -172,6 +173,28 @@ if !(isPlayer _currentVehicle_driver) then {
     /* ---------------------------------
         Force speed based on distance
     --------------------------------- */
+
+    // TODO:
+    // vehicles in halt are not recording points
+    // vehicles enter a halt state just because the vehicle in front briefly stops
+    // The lead vehicle is what points are recorded off of
+
+    // TODO: 
+    // sometimes if a vehicle needs to make a tight turn, but is far enough behind that their max speed is high
+    // they will round a corner with too much speed, go wide, and miss their waypoint
+    // causing the points to desync
+
+    // Ideas:
+    // 1. if the vehicle has a very slow rate of speed (< 10km\h ?) it is logged and 
+    /// added to the drive path to ensure that the follow vehicle does not go too fast
+
+    // Limitation: if the lead vehicle slows for any reason, like to hit an actual waypoint
+    /// even if the vehicles are all in a straight line, the follow vehicles will also slow for something
+    /// like that despite not needing to at all.
+    // Being able to detect with more nuance when to actually enforce this speed seems necessary.
+
+    // 2. Check the angle and distance to the next point. If the angle is sharp enough and the distance is close enough, stop
+
     private _currentVehicle_speed = speed _currentVehicle;
     if (_vehiclesAreWithinBoundary) then {
         private _modifier = ((_currentVehicle_seperation - _distanceBetweenVehicles) * VEHICLE_SPEED_LIMIT_MULTIPLIER) max MIN_VEHICLE_SPEED_LIMIT_MODIFIER;
@@ -287,14 +310,14 @@ if !(isNil "_area") then {
 	_area set [3,_currentVehicle_direction];
 
 } else {
-	private _currentVehicle_dimensions = [vic2] call KISKA_fnc_getBoundingBoxDimensions;
+	private _currentVehicle_dimensions = [_currentVehicle] call KISKA_fnc_getBoundingBoxDimensions;
 	_currentVehicle_dimensions params ["_length","_width","_height"];
     // purposely want the width and height doubled for making sure vehicles
     // don't accidentaly miss a point
     // length is not doubled because if a point is deleted too soon, it will affect
     // the vehicle will try to immediately turn into the next point and may not 
     // actually follow a path closely engough and crash into objects
-	_area = [_currentVehicle_position,_width,_length / 2,_dir,true,_height];
+	_area = [_currentVehicle_position,_width max 5,_length / 2,_dir,true,_height];
 	_currentVehicle setVariable ["KISKA_convoy_vehicleArea",_area];
     
 };

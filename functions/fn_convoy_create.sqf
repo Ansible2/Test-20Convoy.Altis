@@ -66,7 +66,7 @@ private _convoyVehicles = _stateMachine getVariable "CBA_statemachine_list";
 _convoyHashMap set ["_convoyVehicles",_convoyVehicles];
 
 _convoyHashMap set ["_stateMachine",_stateMachine];
-// set to default
+// set to default value
 [_convoyHashMap] call KISKA_TEST_fnc_convoy_setPointBuffer;
 [_convoyHashMap,_convoySeperation] call KISKA_TEST_fnc_convoy_setDefaultSeperation;
 
