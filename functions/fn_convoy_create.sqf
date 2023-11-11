@@ -64,6 +64,7 @@ private _convoyHashMap = createHashMap;
 // a new array will be created and saved in the statemachine's namespace
 private _convoyVehicles = _stateMachine getVariable "CBA_statemachine_list";
 _convoyHashMap set ["_convoyVehicles",_convoyVehicles];
+_convoyHashMap set ["_speedLimitPoints",createHashMap];
 
 _convoyHashMap set ["_stateMachine",_stateMachine];
 // set to default value
