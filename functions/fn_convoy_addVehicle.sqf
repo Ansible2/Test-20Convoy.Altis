@@ -34,7 +34,7 @@ scriptName "KISKA_TEST_fnc_convoy_addVehicle";
 
 #define MAX_ARRAY_LENGTH 1E7
 #define MIN_COMPLETION_BOX_WIDTH 5
-#define MIN_COMPLETION_BOX_LENGTH 3
+#define MIN_COMPLETION_BOX_LENGTH 5
 
 if (!isServer) exitWith {
     ["Must be executed on the server!",true] call KISKA_fnc_log;
@@ -146,25 +146,28 @@ if (_indexToCopyFrom isNotEqualTo -1) then {
     _vehicle setVariable ["KISKA_convoy_drivePath",[]];
 };
 
-
 private _vehicleDimensions = [_vehicle] call KISKA_fnc_getBoundingBoxDimensions;
 _vehicleDimensions params ["_length","_width","_height"];
-// purposely want the width and height doubled for making sure vehicles
-// don't accidentaly miss a point
-// length is not doubled because if a point is deleted too soon, it will affect
+// Not using half dimensions here because of the desire to have
+// the width and height doubled for making sure vehicles
+// don't accidentaly miss a point.
+// Length is not doubled, however, because if a point is deleted too soon, it will affect
 // the vehicle will try to immediately turn into the next point and may not 
 // actually follow a path closely engough and crash into objects
+// _length = _length max MIN_COMPLETION_BOX_LENGTH;
 _vehicle setVariable [
     "KISKA_convoy_vehicleCompletionArea",
     [
         [],
         _width max MIN_COMPLETION_BOX_WIDTH,
-        (_length / 2) max MIN_COMPLETION_BOX_LENGTH,
+        _length,
         0,
         true,
         _height
     ]
 ];
+
+_vehicle setVariable ["KISKA_convoy_vehicleAreaOffset",[0,_length / 2,0]];
 
 
 [_vehicle,true] call KISKA_TEST_fnc_convoy_setVehicleDriveOnPath;

@@ -305,12 +305,12 @@ private _deleteStartIndex = -1;
 private _numberToDelete = 0;
 // getting by ASL (instead of getPosVisual) and then converting to AGL is more accurate, don't know why
 private _currentVehicle_position_ASL = getPosASLVisual _currentVehicle;
-private _currentVehicle_position = ASLToAGL _currentVehicle_position_ASL;
+private _offset = _currentVehicle getVariable "KISKA_convoy_vehicleAreaOffset";
+private _currentVehicle_position_AGL = ASLToAGL _currentVehicle_position_ASL;
 private _currentVehicle_direction = getDirVisual _currentVehicle;
 private _area = _currentVehicle getVariable "KISKA_convoy_vehicleCompletionArea";
-_area set [0,_currentVehicle_position];
+_area set [0,_currentVehicle_position_AGL vectorDiff (_currentVehicle vectorModelToWorldVisual _offset)];
 _area set [3,_currentVehicle_direction];
-
 {
     // some points can include speed limit
     // NOTE/TODO: it might be worth increasing the width/area in general as speed increases.
@@ -338,7 +338,7 @@ if (_pointsCanBeDeleted) then {
             "KISKA_convoy_debugMarkerType_followedPath",
             "Sign_Arrow_Large_blue_F"
         ];
-        private _deletedPointMarker = createVehicle [_debugObjectType, _currentVehicle_position, [], 0, "CAN_COLLIDE"];
+        private _deletedPointMarker = createVehicle [_debugObjectType, _currentVehicle_position_AGL, [], 0, "CAN_COLLIDE"];
         _currentVehicle_debugDeletedDrivePathObjects pushBack _deletedPointMarker;
 
         for "_i" from _deleteStartIndex to _lastIndexToDelete do { 
